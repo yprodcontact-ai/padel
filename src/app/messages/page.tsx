@@ -48,7 +48,7 @@ export default async function InboxPage() {
 
   if (!user) redirect('/login')
 
-  const { data: participantsRaw } = await supabase
+  const { data: participantsRaw, error: queryError } = await supabase
     .from('conversation_participants')
     .select(`
         conversation_id,
@@ -66,6 +66,10 @@ export default async function InboxPage() {
         )
     `)
     .eq('user_id', user.id)
+
+  if (queryError) {
+      console.error("Inbox Supabase Error:", queryError)
+  }
 
   const participants = participantsRaw as unknown as ConvParticipantRow[]
 
@@ -115,6 +119,12 @@ export default async function InboxPage() {
   return (
     <div className="flex flex-col min-h-screen bg-muted/10 p-4 pb-24">
       <h1 className="text-3xl font-black mb-6 pt-4">Messages</h1>
+
+      {queryError && (
+          <div className="bg-red-500/10 text-red-500 p-4 rounded-xl mb-4 text-xs font-mono">
+              Erreur DB: {JSON.stringify(queryError)}
+          </div>
+      )}
 
       {chatList.length === 0 ? (
           <div className="flex flex-col items-center justify-center flex-1 text-center opacity-50 mt-20">
