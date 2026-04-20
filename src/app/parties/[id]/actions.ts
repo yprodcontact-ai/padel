@@ -30,67 +30,14 @@ export async function joinParty(partyId: string) {
     .eq('party_id', partyId)
 
   if (!countError && count === 4) {
-    // 3. Update status to 'complete'
-    const { error: updateError } = await supabase.from('parties').update({ statut: 'complete' }).eq('id', partyId)
-    if (updateError) console.error("Error updating party to complete:", updateError)
+    // SECURITY DEFINER RPC Call pour contourner tous les RLS d'un coup de manière atomique.
+    const { error: rpcError } = await supabase.rpc('system_complete_party', {
+        p_party_id: partyId,
+        p_user_id: userId
+    })
 
-    // 3.5 Create Conversation for the match
-    const { data: convData, error: convError } = await supabase
-      .from('conversations')
-      .insert({ party_id: partyId, type: 'groupe' })
-      .select('id')
-      .single()
-
-    if (convError) console.error("Error creating conversation:", convError)
-
-    if (convData && !convError) {
-        const { data: currentPlayers } = await supabase.from('party_players').select('user_id').eq('party_id', partyId)
-        if (currentPlayers) {
-            const participants = currentPlayers.map(p => ({
-                conversation_id: convData.id,
-                user_id: p.user_id
-            }))
-            await supabase.from('conversation_participants').insert(participants)
-            
-            await supabase.from('messages').insert({
-                conversation_id: convData.id,
-                sender_id: userId, 
-                contenu: 'La partie est complète ! Vous pouvez discuter ici.',
-            })
-        }
-    }
-
-    // 4. Notifications
-    const { data: partyData } = await supabase.from('parties').select('createur_id').eq('id', partyId).single()
-    
-    if (partyData) {
-        const { data: players } = await supabase.from('party_players').select('user_id').eq('party_id', partyId)
-        
-        const notifications: { user_id: string; type: string; payload: Record<string, string> }[] = []
-        
-        // Notify creator
-        notifications.push({
-            user_id: partyData.createur_id,
-            type: 'party_complete',
-            payload: { message: 'Votre partie est complète ! Pensez à réserver le terrain et confirmer.' }
-        })
-
-        // Notify other players
-        if (players) {
-            for (const player of players) {
-                if (player.user_id !== partyData.createur_id) {
-                    notifications.push({
-                        user_id: player.user_id,
-                        type: 'party_complete',
-                        payload: { message: 'La partie que vous avez rejointe est maintenant complète ! En attente de réservation par le créateur.' }
-                    })
-                }
-            }
-        }
-
-        if (notifications.length > 0) {
-            await supabase.from('notifications').insert(notifications)
-        }
+    if (rpcError) {
+        console.error("Error executing system_complete_party RPC:", rpcError)
     }
   }
 
