@@ -107,21 +107,23 @@ export default async function PartyDetailsPage({ params }: { params: { id: strin
            
            <div className="flex flex-col space-y-4">
              {players.map((player: Player) => (
-                <div key={player.user_id} className="flex items-center space-x-3 bg-muted/30 p-3 rounded-lg border">
-                  <Avatar className="h-10 w-10 border-2 border-primary/20">
-                     <AvatarImage src={player.users?.photo_url || ''} />
-                     <AvatarFallback>{player.users?.prenom?.charAt(0) || 'P'}</AvatarFallback>
-                  </Avatar>
-                  <div className="flex-1">
-                    <p className="font-semibold">{player.users?.prenom} {player.users?.nom?.charAt(0)}.</p>
-                    <p className="text-xs text-muted-foreground">Niveau: {player.users?.niveau || 'N/A'}</p>
-                  </div>
-                  {player.user_id === party.createur_id && (
-                    <div className="ml-auto inline-flex items-center justify-center bg-primary/10 text-primary px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider">
-                       Orga
-                    </div>
-                  )}
-                </div>
+                <Link key={player.user_id} href={`/players/${player.user_id}`}>
+                   <div className="flex items-center space-x-3 bg-muted/30 hover:bg-muted/50 transition-colors p-3 rounded-lg border cursor-pointer">
+                     <Avatar className="h-10 w-10 border-2 border-primary/20">
+                        <AvatarImage src={player.users?.photo_url || ''} />
+                        <AvatarFallback>{player.users?.prenom?.charAt(0) || 'P'}</AvatarFallback>
+                     </Avatar>
+                     <div className="flex-1">
+                       <p className="font-semibold">{player.users?.prenom} {player.users?.nom?.charAt(0)}.</p>
+                       <p className="text-xs text-muted-foreground">Niveau: {player.users?.niveau || 'N/A'}</p>
+                     </div>
+                     {player.user_id === party.createur_id && (
+                       <div className="ml-auto inline-flex items-center justify-center bg-primary/10 text-primary px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider">
+                          Orga
+                       </div>
+                     )}
+                   </div>
+                </Link>
              ))}
              
              {/* Emplacements vides */}

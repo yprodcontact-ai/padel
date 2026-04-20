@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { sendMessage } from '../actions'
+import { sendMessage, markConversationAsRead } from '../actions'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { SendIcon } from 'lucide-react'
@@ -39,6 +39,11 @@ export function ChatInterface({
         scrollToBottom()
     }, [messages])
 
+    // Marquer lu au montage
+    useEffect(() => {
+        markConversationAsRead(conversationId)
+    }, [conversationId])
+
     // Subscription Realtime
     useEffect(() => {
         const channel = supabase.channel(`room:${conversationId}`)
@@ -58,6 +63,11 @@ export function ChatInterface({
                     if (prev.find(m => m.id === newMsg.id)) return prev
                     return [...prev, { ...newMsg, senderData: userObj }]
                 })
+
+                // Marquer lu si c'est un message reçu
+                if (newMsg.sender_id !== currentUserId) {
+                    markConversationAsRead(conversationId)
+                }
             })
             .subscribe()
 

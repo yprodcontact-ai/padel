@@ -30,3 +30,17 @@ export async function sendMessage(conversationId: string, content: string) {
   if (error) return { error: "Erreur lors de l'envoi du message" }
   return { success: true }
 }
+
+export async function markConversationAsRead(conversationId: string) {
+    const supabase = createClient()
+    const { data: authData } = await supabase.auth.getUser()
+
+    if (!authData.user) return
+
+    // Update silently out of band
+    await supabase.from('messages')
+        .update({ lu: true })
+        .eq('conversation_id', conversationId)
+        .neq('sender_id', authData.user.id)
+        .eq('lu', false)
+}
