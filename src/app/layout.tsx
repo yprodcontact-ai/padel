@@ -58,7 +58,7 @@ export default function RootLayout({
       >
         <div className="flex h-screen overflow-hidden">
           <Sidebar />
-          <main className="flex-1 overflow-y-auto overflow-x-hidden">
+          <main className="flex-1 overflow-y-auto overflow-x-hidden pt-safe">
             {children}
           </main>
           <BottomNav />
