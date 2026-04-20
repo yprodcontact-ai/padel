@@ -31,7 +31,8 @@ export async function joinParty(partyId: string) {
 
   if (!countError && count === 4) {
     // 3. Update status to 'complete'
-    await supabase.from('parties').update({ statut: 'complete' }).eq('id', partyId)
+    const { error: updateError } = await supabase.from('parties').update({ statut: 'complete' }).eq('id', partyId)
+    if (updateError) console.error("Error updating party to complete:", updateError)
 
     // 3.5 Create Conversation for the match
     const { data: convData, error: convError } = await supabase
@@ -39,6 +40,8 @@ export async function joinParty(partyId: string) {
       .insert({ party_id: partyId, type: 'groupe' })
       .select('id')
       .single()
+
+    if (convError) console.error("Error creating conversation:", convError)
 
     if (convData && !convError) {
         const { data: currentPlayers } = await supabase.from('party_players').select('user_id').eq('party_id', partyId)
