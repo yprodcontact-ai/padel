@@ -66,7 +66,7 @@ export default async function RootLayout({
           <Sidebar />
           <div className="flex-1 flex flex-col overflow-hidden">
              <TopHeader userId={user?.id} />
-             <main className="flex-1 overflow-y-auto overflow-x-hidden pt-safe">
+             <main className="flex-1 overflow-y-auto overflow-x-hidden">
                {children}
              </main>
           </div>

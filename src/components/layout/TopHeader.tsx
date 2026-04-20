@@ -56,7 +56,7 @@ export function TopHeader({ userId }: { userId?: string }) {
     }, [userId, supabase])
 
     return (
-        <header className="sticky top-0 z-40 w-full border-b border-border bg-background/80 backdrop-blur-xl">
+        <header className="sticky top-0 z-40 w-full border-b border-border bg-background/80 backdrop-blur-xl pt-safe">
              <div className="flex h-14 w-full items-center justify-between px-4">
                 <Link href="/" className="flex items-center space-x-2">
                     <div className="w-8 h-8 rounded-lg bg-primary shadow-sm flex items-center justify-center">
