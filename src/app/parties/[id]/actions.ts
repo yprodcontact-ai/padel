@@ -33,6 +33,30 @@ export async function joinParty(partyId: string) {
     // 3. Update status to 'complete'
     await supabase.from('parties').update({ statut: 'complete' }).eq('id', partyId)
 
+    // 3.5 Create Conversation for the match
+    const { data: convData, error: convError } = await supabase
+      .from('conversations')
+      .insert({ party_id: partyId, type: 'groupe' })
+      .select('id')
+      .single()
+
+    if (convData && !convError) {
+        const { data: currentPlayers } = await supabase.from('party_players').select('user_id').eq('party_id', partyId)
+        if (currentPlayers) {
+            const participants = currentPlayers.map(p => ({
+                conversation_id: convData.id,
+                user_id: p.user_id
+            }))
+            await supabase.from('conversation_participants').insert(participants)
+            
+            await supabase.from('messages').insert({
+                conversation_id: convData.id,
+                sender_id: userId, 
+                contenu: 'La partie est complète ! Vous pouvez discuter ici.',
+            })
+        }
+    }
+
     // 4. Notifications
     const { data: partyData } = await supabase.from('parties').select('createur_id').eq('id', partyId).single()
     

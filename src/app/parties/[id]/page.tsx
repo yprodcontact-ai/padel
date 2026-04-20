@@ -39,6 +39,13 @@ export default async function PartyDetailsPage({ params }: { params: { id: strin
     notFound()
   }
 
+  // Fetch group conversation
+  const { data: conversation } = await supabase
+    .from('conversations')
+    .select('id')
+    .eq('party_id', params.id)
+    .single()
+
   const isCreator = currentUserId === party.createur_id
   const isParticipant = party.party_players?.some((p: Player) => p.user_id === currentUserId)
   const playerCount = party.party_players?.length || 0
@@ -128,6 +135,15 @@ export default async function PartyDetailsPage({ params }: { params: { id: strin
              ))}
            </div>
         </div>
+        
+        {/* BOUTON CHAT */}
+        {isParticipant && conversation && (
+           <Link href={`/messages/${conversation.id}`} className="block mb-6">
+             <div className="bg-primary hover:bg-primary/90 text-primary-foreground p-4 rounded-xl shadow-md text-center font-bold flex items-center justify-center transition-colors">
+                💬 Accéder au Chat de groupe
+             </div>
+           </Link>
+        )}
         
         {/* BOUTONS D'ACTION (Client Component) */}
         {currentUserId && (
