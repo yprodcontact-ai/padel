@@ -40,6 +40,19 @@ export async function createParty(formData: FormData) {
     redirect('/parties/create?error=Erreur lors de la création')
   }
 
+  // Insert creator as first player
+  const { error: playerError } = await supabase.from('party_players').insert([
+    {
+      party_id: data.id,
+      user_id: authData.user.id,
+      statut: 'inscrit'
+    }
+  ])
+
+  if (playerError) {
+    console.error('Error adding creator to party_players', playerError)
+  }
+
   revalidatePath('/parties')
   revalidatePath('/')
   

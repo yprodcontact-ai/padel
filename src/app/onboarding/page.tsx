@@ -25,6 +25,15 @@ export default function OnboardingPage() {
   }
   const prevStep = () => setStep((s) => Math.max(s - 1, 1))
 
+  const submitForm = async () => {
+    if (formRef.current && formRef.current.reportValidity()) {
+      setIsLoading(true)
+      const formData = new FormData(formRef.current)
+      await completeOnboarding(formData)
+      setIsLoading(false)
+    }
+  }
+
   return (
     <div className="flex min-h-screen w-full flex-col items-center justify-center p-4">
       <Card className="mx-auto w-full max-w-md">
@@ -45,10 +54,6 @@ export default function OnboardingPage() {
         <CardContent>
           <form 
             ref={formRef} 
-            action={(formData) => {
-              setIsLoading(true)
-              completeOnboarding(formData).finally(() => setIsLoading(false))
-            }} 
             className="space-y-6"
           >
             {/* ETAPE 1 */}
@@ -194,8 +199,8 @@ export default function OnboardingPage() {
                   Suivant
                 </Button>
               ) : (
-                <Button type="submit" disabled={isLoading} className="h-12 w-1/2">
-                  {isLoading ? 'Enregistrement...' : 'Terminer'}
+                <Button type="button" onClick={submitForm} disabled={isLoading} className="h-12 w-1/2">
+                  {isLoading ? 'Enregistrement...' : 'Valider'}
                 </Button>
               )}
             </div>

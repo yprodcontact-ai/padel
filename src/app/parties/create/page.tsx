@@ -31,6 +31,17 @@ export default function CreatePartyPage() {
   }
   const prevStep = () => setStep((s) => Math.max(s - 1, 1))
 
+  const submitForm = async () => {
+    if (formRef.current && formRef.current.reportValidity()) {
+      setIsLoading(true)
+      const formData = new FormData(formRef.current)
+      formData.append('niveau_min', levelRange[0].toString())
+      formData.append('niveau_max', levelRange[1].toString())
+      await createParty(formData)
+      setIsLoading(false)
+    }
+  }
+
   return (
     <div className="flex min-h-screen w-full flex-col items-center justify-center p-4 bg-muted/20">
       <Card className="mx-auto w-full max-w-md shadow-lg border-2">
@@ -51,13 +62,6 @@ export default function CreatePartyPage() {
         <CardContent>
           <form 
             ref={formRef} 
-            action={(formData) => {
-              setIsLoading(true)
-              // manually inject slider values since Shadcn Slider uses custom inputs
-              formData.append('niveau_min', levelRange[0].toString())
-              formData.append('niveau_max', levelRange[1].toString())
-              createParty(formData).finally(() => setIsLoading(false))
-            }} 
             className="space-y-6 min-h-[300px] flex flex-col pt-4"
           >
             <div className="flex-1">
@@ -216,8 +220,8 @@ export default function CreatePartyPage() {
                   Continuer
                 </Button>
               ) : (
-                <Button type="submit" disabled={isLoading} className="h-14 px-8 text-base font-bold ml-auto bg-green-600 hover:bg-green-700">
-                  {isLoading ? 'Publication...' : 'Publier le Match ✨'}
+                <Button type="button" onClick={submitForm} disabled={isLoading} className="h-14 px-8 text-base font-bold ml-auto bg-green-600 hover:bg-green-700">
+                  {isLoading ? 'Publication...' : 'Valider et Publier ✨'}
                 </Button>
               )}
             </div>
