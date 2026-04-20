@@ -2,7 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { ChevronLeftIcon } from 'lucide-react'
-import { ChatInterface } from './chat-interface'
+import { ChatInterface } from '@/app/messages/[id]/chat-interface'
 
 export const metadata = {
    title: 'Discussion | Padel'
