@@ -7,6 +7,15 @@ export const metadata = {
    title: 'Mes Messages | Padel'
 }
 
+type ChatItem = {
+    id: string;
+    title: string;
+    partyId: string;
+    lastMessageText: string;
+    lastMessageTime: Date | null;
+    lastSenderIsMe: boolean;
+};
+
 type ConvParticipantRow = {
   conversation_id: string;
   conversations: {
@@ -69,10 +78,7 @@ export default async function InboxPage() {
          lastMessageTime: lastMessage ? new Date(lastMessage.created_at) : null,
          lastSenderIsMe: lastMessage?.sender_id === user.id
      }
-  }).filter(Boolean) as NonNullable<ReturnType<typeof mapChat>>[]
-
-  // TypeScript helper function type trick
-  function mapChat() { return { id: '', title: '', partyId: '', lastMessageText: '', lastMessageTime: new Date(), lastSenderIsMe: true } }
+  }).filter(Boolean) as ChatItem[]
 
   // Tri global des conversations (les plus récentes en haut)
   chatList.sort((a, b) => {
@@ -88,7 +94,7 @@ export default async function InboxPage() {
       {chatList.length === 0 ? (
           <div className="flex flex-col items-center justify-center flex-1 text-center opacity-50 mt-20">
              <MessageCircleIcon className="w-16 h-16 mb-4" />
-             <p>Vous n'avez aucune conversation active.</p>
+             <p>Vous n&apos;avez aucune conversation active.</p>
              <p className="text-sm mt-2">Rejoignez des parties pour discuter !</p>
           </div>
       ) : (
