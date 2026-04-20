@@ -46,6 +46,7 @@ export default async function ClubDetailPage({
          </Link>
          
          {club.photo_url ? (
+            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={club.photo_url} alt={club.nom} className="w-full h-full object-cover" />
          ) : (
             <div className="w-full h-full flex items-center justify-center text-primary/30">

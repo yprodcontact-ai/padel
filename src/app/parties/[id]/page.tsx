@@ -5,6 +5,16 @@ import { PartyActionButtons } from './party-buttons'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { UsersIcon } from 'lucide-react'
 
+type Player = {
+  user_id: string;
+  users: {
+    prenom: string;
+    nom: string;
+    photo_url: string;
+    niveau: number | string;
+  } | null;
+}
+
 export default async function PartyDetailsPage({ params }: { params: { id: string } }) {
   const supabase = createClient()
   
@@ -30,7 +40,7 @@ export default async function PartyDetailsPage({ params }: { params: { id: strin
   }
 
   const isCreator = currentUserId === party.createur_id
-  const isParticipant = party.party_players?.some((p: any) => p.user_id === currentUserId)
+  const isParticipant = party.party_players?.some((p: Player) => p.user_id === currentUserId)
   const playerCount = party.party_players?.length || 0
   const players = party.party_players || []
 
@@ -89,7 +99,7 @@ export default async function PartyDetailsPage({ params }: { params: { id: strin
            </h2>
            
            <div className="flex flex-col space-y-4">
-             {players.map((player: any) => (
+             {players.map((player: Player) => (
                 <div key={player.user_id} className="flex items-center space-x-3 bg-muted/30 p-3 rounded-lg border">
                   <Avatar className="h-10 w-10 border-2 border-primary/20">
                      <AvatarImage src={player.users?.photo_url || ''} />

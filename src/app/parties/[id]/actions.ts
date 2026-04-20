@@ -39,7 +39,7 @@ export async function joinParty(partyId: string) {
     if (partyData) {
         const { data: players } = await supabase.from('party_players').select('user_id').eq('party_id', partyId)
         
-        let notifications = []
+        const notifications: any[] = []
         
         // Notify creator
         notifications.push({
@@ -133,7 +133,7 @@ export async function updatePartyStatus(partyId: string, action: 'confirm' | 'ca
   // Notifications
   const { data: players } = await supabase.from('party_players').select('user_id').eq('party_id', partyId)
   if (players && players.length > 0) {
-      let notifications = []
+      const notifications: any[] = []
       
       for (const player of players) {
           if (player.user_id !== userId) {
