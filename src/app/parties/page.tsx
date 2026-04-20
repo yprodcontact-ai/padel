@@ -58,19 +58,19 @@ export default async function PartiesSearchPage({
   let formattedParties: PartyInfo[] = []
   
   if (parties && !error) {
-     formattedParties = parties.map((p: any) => {
+     formattedParties = parties.map((p: Record<string, unknown>) => {
         const playerCount = p.party_players?.length || 0
-        const hasJoined = p.party_players?.some((player: any) => player.user_id === currentUserId)
+        const hasJoined = (p.party_players as { user_id: string }[] | undefined)?.some((player) => player.user_id === currentUserId)
 
         return {
-           id: p.id,
-           club_nom: p.clubs?.nom || 'Club',
-           club_ville: p.clubs?.ville || '',
-           date_heure: p.date_heure,
-           niveau_min: p.niveau_min,
-           niveau_max: p.niveau_max,
-           type: p.type,
-           player_count: playerCount,
+           id: p.id as string,
+           club_nom: (p.clubs as Record<string, unknown>)?.nom || 'Club',
+           club_ville: (p.clubs as Record<string, unknown>)?.ville || '',
+           date_heure: p.date_heure as string,
+           niveau_min: p.niveau_min as number,
+           niveau_max: p.niveau_max as number,
+           type: p.type as string,
+           player_count: playerCount as number,
            has_joined: hasJoined || false
         } as PartyInfo
      })

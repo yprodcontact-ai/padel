@@ -1,11 +1,11 @@
 'use client'
 
-import { useRouter, useSearchParams, usePathname } from 'next/navigation'
+import { useRouter, usePathname } from 'next/navigation'
 import { useState, useTransition } from 'react'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { SearchIcon, SlidersHorizontalIcon, XIcon } from 'lucide-react'
+import { SearchIcon, SlidersHorizontalIcon } from 'lucide-react'
 
 // Utilisation d'un checkbox simple simulé pour éviter le fichier manquant ui/checkbox s'il n'existe pas
 function BasicCheckbox({ checked, onChange, label }: { checked: boolean, onChange: (c: boolean) => void, label: string }) {
