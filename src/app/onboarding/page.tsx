@@ -5,7 +5,6 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { completeOnboarding, getClubs } from './actions'
 
@@ -71,20 +70,20 @@ export default function OnboardingPage() {
                 </div>
                 <div className="space-y-2 pt-2">
                   <Label>Sexe</Label>
-                  <RadioGroup name="sexe" defaultValue="homme" className="flex space-x-4">
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="homme" id="r-homme" />
-                      <Label htmlFor="r-homme" className="font-normal">Homme</Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="femme" id="r-femme" />
-                      <Label htmlFor="r-femme" className="font-normal">Femme</Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="autre" id="r-autre" />
-                      <Label htmlFor="r-autre" className="font-normal">Autre</Label>
-                    </div>
-                  </RadioGroup>
+                  <div className="flex space-x-4">
+                    <label className="flex items-center space-x-2 cursor-pointer">
+                      <input type="radio" name="sexe" value="homme" defaultChecked className="w-4 h-4 accent-primary" />
+                      <span className="font-normal text-sm">Homme</span>
+                    </label>
+                    <label className="flex items-center space-x-2 cursor-pointer">
+                      <input type="radio" name="sexe" value="femme" className="w-4 h-4 accent-primary" />
+                      <span className="font-normal text-sm">Femme</span>
+                    </label>
+                    <label className="flex items-center space-x-2 cursor-pointer">
+                      <input type="radio" name="sexe" value="autre" className="w-4 h-4 accent-primary" />
+                      <span className="font-normal text-sm">Autre</span>
+                    </label>
+                  </div>
                 </div>
               </div>
             </div>
@@ -144,38 +143,38 @@ export default function OnboardingPage() {
                 
                 <div className="space-y-2">
                   <Label>Main dominante</Label>
-                  <RadioGroup name="main" defaultValue="droite" className="flex space-x-4">
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="droite" id="m-droite" />
-                      <Label htmlFor="m-droite" className="font-normal">Droite</Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="gauche" id="m-gauche" />
-                      <Label htmlFor="m-gauche" className="font-normal">Gauche</Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="ambidextre" id="m-ambidextre" />
-                      <Label htmlFor="m-ambidextre" className="font-normal">Ambidextre</Label>
-                    </div>
-                  </RadioGroup>
+                  <div className="flex space-x-4">
+                    <label className="flex items-center space-x-2 cursor-pointer">
+                      <input type="radio" name="main" value="droite" defaultChecked className="w-4 h-4 accent-primary" />
+                      <span className="font-normal text-sm">Droite</span>
+                    </label>
+                    <label className="flex items-center space-x-2 cursor-pointer">
+                      <input type="radio" name="main" value="gauche" className="w-4 h-4 accent-primary" />
+                      <span className="font-normal text-sm">Gauche</span>
+                    </label>
+                    <label className="flex items-center space-x-2 cursor-pointer">
+                      <input type="radio" name="main" value="ambidextre" className="w-4 h-4 accent-primary" />
+                      <span className="font-normal text-sm">Ambidextre</span>
+                    </label>
+                  </div>
                 </div>
 
                 <div className="space-y-2">
                   <Label>Poste préféré</Label>
-                  <RadioGroup name="poste" defaultValue="indifférent" className="flex flex-col space-y-2">
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="droite" id="p-droite" />
-                      <Label htmlFor="p-droite" className="font-normal">Joueur de Droite</Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="gauche" id="p-gauche" />
-                      <Label htmlFor="p-gauche" className="font-normal">Joueur de Gauche</Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="indifférent" id="p-indifferent" />
-                      <Label htmlFor="p-indifferent" className="font-normal">Indifférent (Je m&apos;adapte)</Label>
-                    </div>
-                  </RadioGroup>
+                  <div className="flex flex-col space-y-2">
+                    <label className="flex items-center space-x-2 cursor-pointer">
+                      <input type="radio" name="poste" value="droite" className="w-4 h-4 accent-primary" />
+                      <span className="font-normal text-sm">Joueur de Droite</span>
+                    </label>
+                    <label className="flex items-center space-x-2 cursor-pointer">
+                      <input type="radio" name="poste" value="gauche" className="w-4 h-4 accent-primary" />
+                      <span className="font-normal text-sm">Joueur de Gauche</span>
+                    </label>
+                    <label className="flex items-center space-x-2 cursor-pointer">
+                      <input type="radio" name="poste" value="indifférent" defaultChecked className="w-4 h-4 accent-primary" />
+                      <span className="font-normal text-sm">Indifférent (Je m&apos;adapte)</span>
+                    </label>
+                  </div>
                 </div>
               </div>
             </div>

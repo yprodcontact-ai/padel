@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { MapPinIcon, TrophyIcon, ActivityIcon, FileTextIcon } from 'lucide-react'
+import { MapPinIcon, TrophyIcon, ActivityIcon } from 'lucide-react'
 
 export const metadata = {
   title: 'Mon Profil',
@@ -118,17 +118,8 @@ export default async function ProfilePage() {
               </div>
             </div>
 
+            {/* Bio removed */}
             <div className="flex items-start space-x-3">
-              <FileTextIcon className="w-5 h-5 text-muted-foreground mt-0.5" />
-              <div>
-                <p className="text-sm font-medium leading-none">Bio</p>
-                <p className="text-sm text-muted-foreground mt-1">
-                  {userProfile.bio || 'Aucune biographie.'}
-                </p>
-              </div>
-            </div>
-            
-             <div className="flex items-start space-x-3">
               <span className="w-5 h-5 flex items-center justify-center text-muted-foreground mt-0.5 font-bold font-serif">#</span>
               <div>
                 <p className="text-sm font-medium leading-none">Numéro de Licence</p>

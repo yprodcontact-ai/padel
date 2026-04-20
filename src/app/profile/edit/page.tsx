@@ -5,8 +5,6 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { updateProfile } from './actions'
 import { getClubs } from '@/app/onboarding/actions'
 
@@ -70,30 +68,25 @@ export default async function ProfileEditPage() {
 
               <div className="space-y-2 pt-2">
                 <Label>Sexe</Label>
-                <RadioGroup name="sexe" defaultValue={userProfile.sexe || 'homme'} className="flex space-x-4">
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="homme" id="r-homme" />
-                    <Label htmlFor="r-homme" className="font-normal">Homme</Label>
+                  <div className="flex space-x-4">
+                    <label className="flex items-center space-x-2 cursor-pointer">
+                      <input type="radio" name="sexe" value="homme" defaultChecked={userProfile.sexe !== 'femme' && userProfile.sexe !== 'autre'} className="w-4 h-4 accent-primary" />
+                      <span className="font-normal text-sm">Homme</span>
+                    </label>
+                    <label className="flex items-center space-x-2 cursor-pointer">
+                      <input type="radio" name="sexe" value="femme" defaultChecked={userProfile.sexe === 'femme'} className="w-4 h-4 accent-primary" />
+                      <span className="font-normal text-sm">Femme</span>
+                    </label>
+                    <label className="flex items-center space-x-2 cursor-pointer">
+                      <input type="radio" name="sexe" value="autre" defaultChecked={userProfile.sexe === 'autre'} className="w-4 h-4 accent-primary" />
+                      <span className="font-normal text-sm">Autre</span>
+                    </label>
                   </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="femme" id="r-femme" />
-                    <Label htmlFor="r-femme" className="font-normal">Femme</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="autre" id="r-autre" />
-                    <Label htmlFor="r-autre" className="font-normal">Autre</Label>
-                  </div>
-                </RadioGroup>
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="ville">Ville principale</Label>
                 <Input id="ville" name="ville" required defaultValue={userProfile.ville || ''} className="h-12" />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="bio">Bio</Label>
-                <Textarea id="bio" name="bio" placeholder="Parlez un peu de vous..." defaultValue={userProfile.bio || ''} className="resize-none" />
               </div>
             </div>
 
@@ -135,34 +128,38 @@ export default async function ProfileEditPage() {
                 <div className="space-y-4">
                   <div className="space-y-2">
                     <Label>Main dominante</Label>
-                    <RadioGroup name="main" defaultValue={userProfile.main || 'droite'} className="flex space-x-4">
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="droite" id="m-droite" />
-                        <Label htmlFor="m-droite" className="font-normal">Droite</Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="gauche" id="m-gauche" />
-                        <Label htmlFor="m-gauche" className="font-normal">Gauche</Label>
-                      </div>
-                    </RadioGroup>
+                    <div className="flex space-x-4">
+                      <label className="flex items-center space-x-2 cursor-pointer">
+                        <input type="radio" name="main" value="droite" defaultChecked={userProfile.main !== 'gauche' && userProfile.main !== 'ambidextre'} className="w-4 h-4 accent-primary" />
+                        <span className="font-normal text-sm">Droite</span>
+                      </label>
+                      <label className="flex items-center space-x-2 cursor-pointer">
+                        <input type="radio" name="main" value="gauche" defaultChecked={userProfile.main === 'gauche'} className="w-4 h-4 accent-primary" />
+                        <span className="font-normal text-sm">Gauche</span>
+                      </label>
+                      <label className="flex items-center space-x-2 cursor-pointer">
+                        <input type="radio" name="main" value="ambidextre" defaultChecked={userProfile.main === 'ambidextre'} className="w-4 h-4 accent-primary" />
+                        <span className="font-normal text-sm">Ambidextre</span>
+                      </label>
+                    </div>
                   </div>
 
                   <div className="space-y-2">
                     <Label>Poste préféré</Label>
-                    <RadioGroup name="poste" defaultValue={userProfile.poste || 'indifférent'} className="flex flex-col space-y-2">
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="droite" id="p-droite" />
-                        <Label htmlFor="p-droite" className="font-normal">Droite</Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="gauche" id="p-gauche" />
-                        <Label htmlFor="p-gauche" className="font-normal">Gauche</Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="indifférent" id="p-indifferent" />
-                        <Label htmlFor="p-indifferent" className="font-normal">Indifférent</Label>
-                      </div>
-                    </RadioGroup>
+                    <div className="flex flex-col space-y-2">
+                      <label className="flex items-center space-x-2 cursor-pointer">
+                        <input type="radio" name="poste" value="droite" defaultChecked={userProfile.poste === 'droite'} className="w-4 h-4 accent-primary" />
+                        <span className="font-normal text-sm">Droite</span>
+                      </label>
+                      <label className="flex items-center space-x-2 cursor-pointer">
+                        <input type="radio" name="poste" value="gauche" defaultChecked={userProfile.poste === 'gauche'} className="w-4 h-4 accent-primary" />
+                        <span className="font-normal text-sm">Gauche</span>
+                      </label>
+                      <label className="flex items-center space-x-2 cursor-pointer">
+                        <input type="radio" name="poste" value="indifférent" defaultChecked={userProfile.poste !== 'droite' && userProfile.poste !== 'gauche'} className="w-4 h-4 accent-primary" />
+                        <span className="font-normal text-sm">Indifférent</span>
+                      </label>
+                    </div>
                   </div>
                 </div>
             </div>

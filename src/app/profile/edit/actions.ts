@@ -40,7 +40,6 @@ export async function updateProfile(formData: FormData) {
   const date_naissance = formData.get('date_naissance') as string
   const sexe = formData.get('sexe') as 'homme' | 'femme' | 'autre'
   const ville = formData.get('ville') as string
-  const bio = formData.get('bio') as string
   const licence_fft = formData.get('licence_fft') as string
   const niveau = parseFloat(formData.get('niveau') as string)
   const club_id = formData.get('club_id') as string
@@ -53,7 +52,6 @@ export async function updateProfile(formData: FormData) {
     date_naissance: date_naissance || null,
     sexe,
     ville,
-    bio,
     licence_fft,
     niveau,
     club_id: (club_id && club_id !== "none") ? club_id : null,
