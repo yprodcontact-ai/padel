@@ -32,41 +32,41 @@ export async function sendMessage(conversationId: string, content: string) {
 
   // Envoyer la notification web push aux autres membres de la conversation
   const { data: others } = await supabase.from('conversation_participants').select('user_id').eq('conversation_id', conversationId).neq('user_id', authData.user.id)
-  
-  if (others && others.length > 0) {
-      const { data: convData } = await supabase.from('conversations').select('type, parties(clubs(nom))').eq('id', conversationId).single()
-      let nomPartie = 'Discussion'
-      if (convData?.type === 'groupe') {
-          const partyAny = convData?.parties as unknown as Record<string, unknown>;
-          const c = Array.isArray(partyAny) ? partyAny[0]?.clubs : partyAny?.clubs;
-          const clubName = Array.isArray(c) ? c[0]?.nom : c?.nom;
-          if (clubName) {
-             nomPartie = `Partie à ${String(clubName)}`
-          }
-      }
 
-      for (const p of others) {
-          await sendPushNotification(p.user_id, {
-             title: `Nouveau message - ${nomPartie}`,
-             message: content.length > 50 ? content.substring(0, 50) + '...' : content,
-             url: `/messages/${conversationId}`
-          })
+  if (others && others.length > 0) {
+    const { data: convData } = await supabase.from('conversations').select('type, parties(clubs(nom))').eq('id', conversationId).single()
+    let nomPartie = 'Discussion'
+    if (convData?.type === 'groupe') {
+      const partyAny = convData?.parties as unknown as Record<string, unknown>;
+      const c = Array.isArray(partyAny) ? partyAny[0]?.clubs : partyAny?.clubs;
+      const clubName = Array.isArray(c) ? c[0]?.nom : c?.nom;
+      if (clubName) {
+        nomPartie = `Partie à ${String(clubName)}`
       }
+    }
+
+    for (const p of others) {
+      await sendPushNotification(p.user_id, {
+        title: `Nouveau message - ${nomPartie}`,
+        message: content.length > 50 ? content.substring(0, 50) + '...' : content,
+        url: `/messages/${conversationId}`
+      })
+    }
   }
 
   return { success: true }
 }
 
 export async function markConversationAsRead(conversationId: string) {
-    const supabase = createClient()
-    const { data: authData } = await supabase.auth.getUser()
+  const supabase = createClient()
+  const { data: authData } = await supabase.auth.getUser()
 
-    if (!authData.user) return
+  if (!authData.user) return
 
-    // Update silently out of band
-    await supabase.from('messages')
-        .update({ lu: true })
-        .eq('conversation_id', conversationId)
-        .neq('sender_id', authData.user.id)
-        .eq('lu', false)
+  // Update silently out of band
+  await supabase.from('messages')
+    .update({ lu: true })
+    .eq('conversation_id', conversationId)
+    .neq('sender_id', authData.user.id)
+    .eq('lu', false)
 }

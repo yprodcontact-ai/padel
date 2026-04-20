@@ -31,9 +31,7 @@ export async function sendPushNotification(userId: string, payload: { title: str
     }
 
     const { data: subs } = await supabaseAdmin
-        .from('push_subscriptions')
-        .select('*')
-        .eq('user_id', userId)
+        .rpc('get_user_push_subscriptions', { p_user_id: userId })
 
     if (!subs || subs.length === 0) return;
 
