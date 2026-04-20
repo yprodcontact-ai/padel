@@ -38,6 +38,18 @@ export async function joinParty(partyId: string) {
 
     if (rpcError) {
         console.error("Error executing system_complete_party RPC:", rpcError)
+    } else {
+        const { data: players } = await supabase.from('party_players').select('user_id').eq('party_id', partyId)
+        if (players) {
+            const { sendPushNotification } = await import('@/lib/push')
+            for (const pl of players) {
+                await sendPushNotification(pl.user_id, {
+                    title: 'Partie complète !',
+                    message: `Votre partie affiche complet (4/4). Réservez le terrain !`,
+                    url: `/parties/${partyId}`
+                })
+            }
+        }
     }
   }
 

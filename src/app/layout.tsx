@@ -5,6 +5,9 @@ import { Inter } from "next/font/google";
 import { cn } from "@/lib/utils";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { BottomNav } from "@/components/layout/BottomNav";
+import { TopHeader } from "@/components/layout/TopHeader";
+import { PushManager } from "@/components/notifications/PushManager";
+import { createClient } from "@/lib/supabase/server";
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-sans' });
 
@@ -46,11 +49,14 @@ export const viewport: Viewport = {
   viewportFit: "cover",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const supabase = createClient()
+  const { data: authData } = await supabase.auth.getUser()
+  const user = authData?.user ?? null;
   return (
     <html lang="fr" className={cn("font-sans antialiased dark", inter.variable)}>
       <body
@@ -58,11 +64,15 @@ export default function RootLayout({
       >
         <div className="flex h-screen overflow-hidden">
           <Sidebar />
-          <main className="flex-1 overflow-y-auto overflow-x-hidden pt-safe">
-            {children}
-          </main>
+          <div className="flex-1 flex flex-col overflow-hidden">
+             <TopHeader userId={user?.id} />
+             <main className="flex-1 overflow-y-auto overflow-x-hidden pt-safe">
+               {children}
+             </main>
+          </div>
           <BottomNav />
         </div>
+        <PushManager />
       </body>
     </html>
   );

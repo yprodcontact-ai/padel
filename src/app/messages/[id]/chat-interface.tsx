@@ -74,7 +74,7 @@ export function ChatInterface({
         return () => {
             supabase.removeChannel(channel)
         }
-    }, [conversationId, supabase])
+    }, [conversationId, supabase, currentUserId])
 
     const handleSend = async (e: React.FormEvent) => {
         e.preventDefault()

@@ -9,6 +9,7 @@ const withPWA = withPWAInit({
   workboxOptions: {
     disableDevLogs: true,
   },
+  customWorkerDir: "worker",
 });
 
 /** @type {import('next').NextConfig} */
