@@ -14,7 +14,7 @@ export async function signup(formData: FormData) {
     return redirect('/register?error=Les mots de passe ne correspondent pas')
   }
 
-  const { error } = await supabase.auth.signUp({
+  const { data, error } = await supabase.auth.signUp({
     email,
     password,
     // La redirection après le clic sur l'email se configure via redirectTo si nécessaire, 
@@ -25,6 +25,11 @@ export async function signup(formData: FormData) {
     return redirect('/register?error=' + encodeURIComponent(error.message))
   }
 
-  // Rediriger vers l'écran de login avec un message de succès
+  // Si Supabase a pu connecter l'utilisateur immédiatement (ex: pas de vérif d'email obligatoire)
+  if (data?.session) {
+    redirect('/onboarding')
+  }
+
+  // Sinon, (vérification par email activée par défaut), l'informer sur l'écran d'accueil
   redirect('/login?message=Veuillez vérifier votre email pour confirmer votre inscription.')
 }
