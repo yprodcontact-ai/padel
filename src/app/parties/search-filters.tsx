@@ -90,7 +90,7 @@ export function SearchFilters({ initialVille, initialType, initialNiveau, initia
              
              <div className="space-y-1.5">
                 <label className="text-sm font-semibold text-muted-foreground">Type de Partie</label>
-                <Select value={type} onValueChange={setType}>
+                <Select value={type} onValueChange={(val) => setType(val || 'tous')}>
                   <SelectTrigger className="w-full bg-muted/30">
                     <SelectValue placeholder="Tous types" />
                   </SelectTrigger>
@@ -105,7 +105,7 @@ export function SearchFilters({ initialVille, initialType, initialNiveau, initia
 
              <div className="space-y-1.5">
                 <label className="text-sm font-semibold text-muted-foreground">Mon Niveau</label>
-                <Select value={niveau} onValueChange={setNiveau}>
+                <Select value={niveau} onValueChange={(val) => setNiveau(val || 'tous')}>
                   <SelectTrigger className="w-full bg-muted/30">
                     <SelectValue placeholder="Peu importe" />
                   </SelectTrigger>

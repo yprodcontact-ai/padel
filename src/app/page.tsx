@@ -6,6 +6,16 @@ import { TrophyIcon, CalendarIcon, PlusCircleIcon } from 'lucide-react'
 import { getDistanceFromLatLonInKm } from '@/lib/utils'
 import { PartyCard, PartyInfo } from '@/components/party-card'
 
+type FetchedParty = {
+  id: string;
+  date_heure: string;
+  niveau_min: number;
+  niveau_max: number;
+  type: string;
+  clubs: { nom: string; ville: string; lat: number | null; lng: number | null } | null;
+  party_players: { user_id: string }[] | null;
+}
+
 export default async function Home() {
   const supabase = createClient()
   const { data: authData } = await supabase.auth.getUser()
@@ -52,7 +62,7 @@ export default async function Home() {
      const hasCoords = userProfile.lat && userProfile.lng
      const userVille = userProfile.ville?.toLowerCase()
 
-     const mappedParties = parties.map((p: Record<string, unknown>) => {
+     const mappedParties = (parties as unknown as FetchedParty[]).map((p) => {
         let distance: number | undefined = undefined
         let include = false
 
@@ -66,18 +76,18 @@ export default async function Home() {
             include = true
         }
 
-        const hasJoined = (p.party_players as { user_id: string }[] | undefined)?.some((player) => player.user_id === authData.user?.id)
+        const hasJoined = p.party_players?.some((player) => player.user_id === authData.user?.id)
 
         return {
            info: {
-             id: p.id as string,
-             club_nom: (p.clubs as Record<string, unknown>)?.nom || 'Club inconnu',
-             club_ville: (p.clubs as Record<string, unknown>)?.ville || '',
-             date_heure: p.date_heure as string,
-             niveau_min: p.niveau_min as number,
-             niveau_max: p.niveau_max as number,
-             type: p.type as string,
-             player_count: (p.party_players as any[])?.length || 0,
+             id: p.id,
+             club_nom: p.clubs?.nom || 'Club inconnu',
+             club_ville: p.clubs?.ville || '',
+             date_heure: p.date_heure,
+             niveau_min: p.niveau_min,
+             niveau_max: p.niveau_max,
+             type: p.type,
+             player_count: p.party_players?.length || 0,
              has_joined: hasJoined || false,
              distance_km: distance
            } as PartyInfo,

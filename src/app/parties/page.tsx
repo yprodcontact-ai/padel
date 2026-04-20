@@ -1,8 +1,18 @@
 import { createClient } from '@/lib/supabase/server'
 import { PartyCard, PartyInfo } from '@/components/party-card'
-import { SearchFilters } from './search-filters'
+import { SearchFilters } from '@/app/parties/search-filters'
 import Link from 'next/link'
 import { ChevronLeftIcon } from 'lucide-react'
+
+type FetchedParty = {
+  id: string;
+  date_heure: string;
+  niveau_min: number;
+  niveau_max: number;
+  type: string;
+  clubs: { nom: string; ville: string; lat: number | null; lng: number | null } | null;
+  party_players: { user_id: string }[] | null;
+}
 
 export const metadata = {
   title: 'Recherche de parties | Padel',
@@ -58,19 +68,19 @@ export default async function PartiesSearchPage({
   let formattedParties: PartyInfo[] = []
   
   if (parties && !error) {
-     formattedParties = parties.map((p: Record<string, unknown>) => {
+     formattedParties = (parties as unknown as FetchedParty[]).map((p) => {
         const playerCount = p.party_players?.length || 0
-        const hasJoined = (p.party_players as { user_id: string }[] | undefined)?.some((player) => player.user_id === currentUserId)
+        const hasJoined = p.party_players?.some((player) => player.user_id === currentUserId)
 
         return {
-           id: p.id as string,
-           club_nom: (p.clubs as Record<string, unknown>)?.nom || 'Club',
-           club_ville: (p.clubs as Record<string, unknown>)?.ville || '',
-           date_heure: p.date_heure as string,
-           niveau_min: p.niveau_min as number,
-           niveau_max: p.niveau_max as number,
-           type: p.type as string,
-           player_count: playerCount as number,
+           id: p.id,
+           club_nom: p.clubs?.nom || 'Club',
+           club_ville: p.clubs?.ville || '',
+           date_heure: p.date_heure,
+           niveau_min: p.niveau_min,
+           niveau_max: p.niveau_max,
+           type: p.type,
+           player_count: playerCount,
            has_joined: hasJoined || false
         } as PartyInfo
      })
