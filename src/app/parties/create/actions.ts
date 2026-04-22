@@ -4,6 +4,14 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
 
+export async function getUserClubId(): Promise<string | null> {
+  const supabase = createClient()
+  const { data: authData } = await supabase.auth.getUser()
+  if (!authData.user) return null
+  const { data } = await supabase.from('users').select('club_id').eq('id', authData.user.id).single()
+  return data?.club_id || null
+}
+
 export async function searchClubPlayers(clubId: string, query: string) {
   if (!query || query.length < 2) return []
   const supabase = createClient()

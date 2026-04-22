@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { Slider } from '@/components/ui/slider'
-import { createParty, searchClubPlayers } from './actions'
+import { createParty, searchClubPlayers, getUserClubId } from './actions'
 import { getClubs } from '@/app/onboarding/actions'
 import Link from 'next/link'
 
@@ -29,7 +29,14 @@ export default function CreatePartyPage() {
   const [invitedPlayers, setInvitedPlayers] = useState<SearchPlayer[]>([])
   const [isSearching, setIsSearching] = useState(false)
 
-  useEffect(() => { getClubs().then(setClubs) }, [])
+  useEffect(() => {
+    getClubs().then(setClubs)
+    getUserClubId().then((id) => {
+      if (id) {
+        setSelectedClubId(id)
+      }
+    })
+  }, [])
 
   const nextStep = () => {
     if (step === 1) {
@@ -110,7 +117,7 @@ export default function CreatePartyPage() {
               <div style={{ display: step === 1 ? 'block' : 'none' }}>
                 <h2 style={{ margin: '0 0 20px', fontSize: 18, fontWeight: 600, color: '#fff', textAlign: 'center' }}>Où voulez-vous jouer ?</h2>
                 <label style={labelStyle}>Sélectionnez le club</label>
-                <select name="club_id" required={step === 1} defaultValue="" onChange={(e) => setSelectedClubId(e.target.value)} style={{ ...inputStyle, appearance: 'none' as const, height: 54 }}>
+                <select name="club_id" required={step === 1} value={selectedClubId} onChange={(e) => setSelectedClubId(e.target.value)} style={{ ...inputStyle, appearance: 'none' as const, height: 54 }}>
                   <option value="" disabled>Choisir un club</option>
                   {clubs.map(c => <option key={c.id} value={c.id}>{c.nom} ({c.ville})</option>)}
                 </select>
