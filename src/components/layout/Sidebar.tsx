@@ -19,7 +19,7 @@ export function Sidebar() {
   return (
     <aside className="hidden md:flex flex-col w-64 h-screen border-r bg-zinc-950 px-4 py-8 sticky top-0 left-0">
       <div className="flex items-center gap-3 mb-10 px-2">
-        <div className="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center">
+        <div className="w-8 h-8 rounded-full bg-[#E8703A] flex items-center justify-center">
           <Trophy className="w-4 h-4 text-zinc-950" />
         </div>
         <h1 className="text-xl font-bold text-white tracking-tight">PadelConnect</h1>
@@ -39,7 +39,7 @@ export function Sidebar() {
                   : "text-zinc-400 hover:text-zinc-50 hover:bg-zinc-800/50"
               )}
             >
-              <item.icon className={cn("w-5 h-5", isActive ? "text-green-500" : "")} />
+              <item.icon className={cn("w-5 h-5", isActive ? "text-[#E8703A]" : "")} />
               {item.name}
             </Link>
           );

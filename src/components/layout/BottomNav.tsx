@@ -24,7 +24,7 @@ export function BottomNav() {
         if (item.isMain) {
           return (
             <Link key={item.name} href={item.href} className="relative -top-5">
-              <div className="flex items-center justify-center w-14 h-14 rounded-full bg-green-500 shadow-lg shadow-green-500/20 active:scale-95 transition-transform">
+              <div className="flex items-center justify-center w-14 h-14 rounded-full bg-[#E8703A] shadow-lg shadow-[#E8703A]/20 active:scale-95 transition-transform">
                 <item.icon className="w-6 h-6 text-zinc-950" />
               </div>
             </Link>
@@ -37,7 +37,7 @@ export function BottomNav() {
             href={item.href}
             className={cn(
               "flex flex-col items-center justify-center gap-1 w-12",
-              isActive ? "text-green-500" : "text-zinc-500 hover:text-zinc-300"
+              isActive ? "text-[#E8703A]" : "text-zinc-500 hover:text-zinc-300"
             )}
           >
             <item.icon className={cn("w-6 h-6 transition-transform", isActive && "scale-110")} strokeWidth={isActive ? 2.5 : 2} />
