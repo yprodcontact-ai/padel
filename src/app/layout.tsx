@@ -72,7 +72,7 @@ export default async function RootLayout({
                <RouteTransition>{children}</RouteTransition>
              </main>
           </div>
-          <BottomNav />
+          <BottomNav userId={user?.id} />
         </div>
         <PushManager />
       </body>

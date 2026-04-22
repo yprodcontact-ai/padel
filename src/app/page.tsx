@@ -300,7 +300,8 @@ export default async function Home() {
         </div>
 
         {myNextParty ? (
-          <div style={{ margin: '0 16px', background: '#fff', borderRadius: 28, padding: '22px 22px 20px', position: 'relative' }}>
+          <Link href={`/parties/${myNextParty.id}`} style={{ display: 'block', margin: '0 16px', textDecoration: 'none', color: 'inherit' }}>
+          <div style={{ background: '#fff', borderRadius: 28, padding: '22px 22px 20px', position: 'relative' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
               <div>
                 <div style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
@@ -351,6 +352,7 @@ export default async function Home() {
               </div>
             </div>
           </div>
+          </Link>
         ) : (
           <div style={{ margin: '0 16px', background: '#1C1C1E', borderRadius: 28, padding: '28px 22px', textAlign: 'center' }}>
             <p style={{ margin: 0, fontSize: 15, color: '#8E8E93', fontFamily: 'var(--font-sans)' }}>

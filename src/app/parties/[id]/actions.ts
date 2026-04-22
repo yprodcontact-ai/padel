@@ -306,7 +306,8 @@ export async function updatePartyStatus(partyId: string, action: 'confirm' | 'ca
                   payload: { 
                       message: action === 'confirm' 
                         ? 'Le terrain a bien été réservé. Préparez-vous à jouer !' 
-                        : 'Malheureusement, le créneau était indisponible et la partie a été annulée.' 
+                        : 'Malheureusement, le créneau était indisponible et la partie a été annulée.',
+                      party_id: partyId
                   }
               })
           }

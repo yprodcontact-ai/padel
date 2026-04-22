@@ -39,6 +39,13 @@ export function TopHeader({ userId }: { userId?: string }) {
         return () => { supabase.removeChannel(channel) }
     }, [userId, supabase])
 
+    // Immediately reset badge when visiting notifications page (server marks them as read)
+    useEffect(() => {
+        if (pathname === '/notifications') {
+            setUnreadCount(0)
+        }
+    }, [pathname])
+
     // Fetch user photo
     useEffect(() => {
         if (!userId) return

@@ -4,7 +4,7 @@ import Link from 'next/link'
 
 export const metadata = { title: 'Notifications | Padel' }
 
-type AppNotification = { id: string; lien: string | null; lu: boolean; type: string; titre: string; contenu: string; payload: { message?: string }; created_at: string }
+type AppNotification = { id: string; lu: boolean; type: string; payload: { message?: string; party_id?: string }; created_at: string }
 
 export default async function NotificationsPage() {
   const supabase = createClient()
@@ -29,8 +29,17 @@ export default async function NotificationsPage() {
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-          {notifications.map((notif: AppNotification) => (
-            <Link key={notif.id} href={notif.lien || '#'} style={{ textDecoration: 'none' }}>
+          {notifications.map((notif: AppNotification) => {
+            const notifHref = notif.payload?.party_id ? `/parties/${notif.payload.party_id}` : '#'
+            const notifTitle = notif.type === 'party_complete' ? 'Partie complète ! 💪'
+              : notif.type === 'party_confirmed' ? 'Partie confirmée ✅'
+              : notif.type === 'party_cancelled' ? 'Partie annulée ❌'
+              : notif.type === 'join_request' ? 'Demande de participation 🙋'
+              : notif.type === 'join_accepted' ? 'Demande acceptée ! 🎉'
+              : notif.type === 'join_rejected' ? 'Demande refusée'
+              : 'Nouvelle notification'
+            return (
+            <Link key={notif.id} href={notifHref} style={{ textDecoration: 'none' }}>
               <div style={{ background: '#1C1C1E', padding: '14px 16px', borderRadius: 20, display: 'flex', alignItems: 'flex-start', gap: 14, position: 'relative', overflow: 'hidden', border: !notif.lu ? '1px solid rgba(232,112,58,0.3)' : '1px solid transparent' }}>
                 <div style={{ flexShrink: 0, marginTop: 2 }}>
                   <div style={{ width: 40, height: 40, borderRadius: '50%', background: '#2C2C2E', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -39,16 +48,22 @@ export default async function NotificationsPage() {
                 </div>
                 <div style={{ flex: 1 }}>
                   <h3 style={{ margin: '0 0 4px', fontSize: 14, fontWeight: !notif.lu ? 700 : 600, color: !notif.lu ? '#E8703A' : '#fff' }}>
-                    {notif.type === 'party_complete' ? 'Partie complète ! 💪' : notif.type === 'party_confirmed' ? 'Partie confirmée' : notif.type === 'party_cancelled' ? 'Partie annulée' : 'Nouvelle notification'}
+                    {notifTitle}
                   </h3>
                   <p style={{ margin: '0 0 6px', fontSize: 13, color: '#8E8E93' }}>{notif.payload?.message || ''}</p>
                   <span style={{ fontSize: 10, color: '#8E8E93', opacity: 0.6, fontWeight: 500 }}>
                     {new Date(notif.created_at).toLocaleString('fr-FR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}
                   </span>
                 </div>
+                {notifHref !== '#' && (
+                  <div style={{ flexShrink: 0, display: 'flex', alignItems: 'center', alignSelf: 'center' }}>
+                    <svg width={16} height={16} viewBox="0 0 24 24" fill="none" stroke="#8E8E93" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6" /></svg>
+                  </div>
+                )}
               </div>
             </Link>
-          ))}
+            )
+          })}
         </div>
       )}
     </div>

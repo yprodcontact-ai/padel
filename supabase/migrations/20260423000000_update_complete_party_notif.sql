@@ -36,12 +36,12 @@ BEGIN
 
         -- Notifications Creator
         INSERT INTO notifications (user_id, type, payload)
-        VALUES (v_creator_id, 'party_complete', jsonb_build_object('message', v_notif_message));
+        VALUES (v_creator_id, 'party_complete', jsonb_build_object('message', v_notif_message, 'party_id', p_party_id::text));
 
         -- Notifications joined players
         FOR v_participant_id IN SELECT user_id FROM party_players WHERE party_id = p_party_id AND user_id != v_creator_id LOOP
             INSERT INTO notifications (user_id, type, payload)
-            VALUES (v_participant_id, 'party_complete', jsonb_build_object('message', v_notif_message));
+            VALUES (v_participant_id, 'party_complete', jsonb_build_object('message', v_notif_message, 'party_id', p_party_id::text));
         END LOOP;
     END IF;
 END;
