@@ -8,6 +8,7 @@ import { createClient } from '@/lib/supabase/client'
 
 export function TopHeader({ userId }: { userId?: string }) {
     const [unreadCount, setUnreadCount] = useState(0)
+    const [photoUrl, setPhotoUrl] = useState<string | null>(null)
     const supabase = createClient()
     const pathname = usePathname()
 
@@ -38,200 +39,151 @@ export function TopHeader({ userId }: { userId?: string }) {
         return () => { supabase.removeChannel(channel) }
     }, [userId, supabase])
 
-    /* ─── Homepage: clay texture header with built-in curve ─── */
-    if (pathname === '/') {
-        return (
-            <header
-                style={{
-                    position: 'relative',
-                    width: '100%',
-                    zIndex: 40,
-                    background: '#000',
-                    flexShrink: 0,
-                }}
-            >
-                {/* The PNG image IS the header — it contains the texture + the curve shape */}
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                    src="/images/fond-header-app-padel.png"
-                    alt=""
-                    aria-hidden="true"
-                    style={{
-                        display: 'block',
-                        width: '100%',
-                        height: 'auto',
-                        pointerEvents: 'none',
-                        userSelect: 'none',
-                    }}
-                />
+    // Fetch user photo
+    useEffect(() => {
+        if (!userId) return
+        supabase.from('users').select('photo_url').eq('id', userId).single().then(({ data }) => {
+            if (data?.photo_url) setPhotoUrl(data.photo_url)
+        })
+    }, [userId, supabase])
 
-                {/* Content overlay — positioned on top of the image */}
-                <div
-                    style={{
-                        position: 'absolute',
-                        top: 52,
-                        left: 0,
-                        right: 0,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        padding: '0 20px',
-                        zIndex: 10,
-                    }}
-                    className="pt-safe"
-                >
-                    {/* Avatar */}
-                    <Link href="/profile" style={{ flexShrink: 0 }}>
-                        <div
-                            style={{
-                                width: 44,
-                                height: 44,
-                                borderRadius: '50%',
-                                overflow: 'hidden',
-                                border: '2px solid rgba(255,255,255,0.2)',
-                            }}
-                        >
-                            <img
-                                src="https://i.pravatar.cc/150?img=11"
-                                alt="Avatar"
-                                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                            />
-                        </div>
-                    </Link>
+    /* ─── Hide on auth/onboarding pages ─── */
+    const hiddenPaths = ['/login', '/register', '/forgot-password', '/onboarding']
+    if (hiddenPaths.includes(pathname)) return null
 
-                    {/* Title */}
-                    <span
-                        style={{
-                            color: '#fff',
-                            fontSize: 16,
-                            fontWeight: 500,
-                            letterSpacing: '0.01em',
-                            fontFamily: 'var(--font-sans)',
-                        }}
-                    >
-                        Accueil
-                    </span>
-
-                    {/* Bell */}
-                    <Link
-                        href="/notifications"
-                        className="active:scale-95 transition-transform"
-                        style={{
-                            position: 'relative',
-                            width: 44,
-                            height: 44,
-                            borderRadius: '50%',
-                            background: '#1C1C1E',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            flexShrink: 0,
-                        }}
-                    >
-                        <BellIcon style={{ width: 20, height: 20, color: '#fff' }} strokeWidth={2} />
-                        {unreadCount > 0 && (
-                            <span
-                                style={{
-                                    position: 'absolute',
-                                    top: -1, right: -1,
-                                    width: 18, height: 18,
-                                    borderRadius: '50%',
-                                    background: '#EF4444',
-                                    border: '2px solid #1C1C1E',
-                                    color: '#fff',
-                                    fontSize: 9, fontWeight: 700,
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    pointerEvents: 'none',
-                                }}
-                            >
-                                {unreadCount > 9 ? '9+' : unreadCount}
-                            </span>
-                        )}
-                    </Link>
-                </div>
-            </header>
-        )
+    /* ─── Page title mapping ─── */
+    const getPageTitle = () => {
+        if (pathname === '/') return 'Accueil'
+        if (pathname === '/parties') return 'Parties'
+        if (pathname.startsWith('/parties/create')) return 'Créer'
+        if (pathname.startsWith('/parties/')) return 'Détail'
+        if (pathname === '/messages') return 'Messages'
+        if (pathname.startsWith('/messages/')) return 'Discussion'
+        if (pathname === '/profile') return 'Profil'
+        if (pathname.startsWith('/profile/')) return 'Profil'
+        if (pathname === '/clubs') return 'Clubs'
+        if (pathname.startsWith('/clubs/')) return 'Club'
+        if (pathname === '/notifications') return 'Notifications'
+        if (pathname.startsWith('/players/')) return 'Joueur'
+        return 'PadelConnect'
     }
 
-    /* ─── Default header for all other pages ─── */
+    /* ─── Premium clay texture header — all app pages ─── */
     return (
         <header
-            className="pt-safe"
             style={{
                 position: 'relative',
-                zIndex: 40,
                 width: '100%',
+                zIndex: 40,
                 background: '#000',
-                borderBottom: '1px solid #1C1C1E',
                 flexShrink: 0,
             }}
         >
+            {/* The PNG image IS the header — it contains the texture + the curve shape */}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+                src="/images/fond-header-app-padel.png"
+                alt=""
+                aria-hidden="true"
+                style={{
+                    display: 'block',
+                    width: '100%',
+                    height: 'auto',
+                    pointerEvents: 'none',
+                    userSelect: 'none',
+                }}
+            />
+
+            {/* Content overlay — positioned on top of the image */}
             <div
                 style={{
+                    position: 'absolute',
+                    top: 55,
+                    left: 0,
+                    right: 0,
                     display: 'flex',
-                    height: 56,
-                    width: '100%',
                     alignItems: 'center',
                     justifyContent: 'space-between',
-                    padding: '0 16px',
+                    padding: '0 20px',
+                    zIndex: 10,
                 }}
+                className="pt-safe"
             >
-                <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 8, textDecoration: 'none' }}>
+                {/* Avatar */}
+                <Link href="/profile" style={{ flexShrink: 0 }}>
                     <div
                         style={{
-                            width: 32,
-                            height: 32,
-                            borderRadius: 10,
-                            background: '#E8703A',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
+                            width: 50,
+                            height: 50,
+                            borderRadius: '50%',
+                            overflow: 'hidden',
+                            border: '2px solid rgba(255,255,255,0.2)',
                         }}
                     >
-                        <span style={{ fontWeight: 900, color: '#000', fontSize: 14, fontFamily: 'var(--font-sans)' }}>P</span>
+                        {photoUrl ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img
+                                src={photoUrl}
+                                alt="Avatar"
+                                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                            />
+                        ) : (
+                            <div style={{ width: '100%', height: '100%', background: '#2C2C2E', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, fontWeight: 700, color: '#8E8E93' }}>P</div>
+                        )}
                     </div>
                 </Link>
 
-                {userId && (
-                    <Link
-                        href="/notifications"
-                        className="active:scale-95 transition-transform"
-                        style={{
-                            position: 'relative',
-                            width: 40,
-                            height: 40,
-                            borderRadius: '50%',
-                            background: '#1C1C1E',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                        }}
-                    >
-                        <BellIcon style={{ width: 20, height: 20, color: '#fff' }} strokeWidth={2} />
-                        {unreadCount > 0 && (
-                            <span
-                                style={{
-                                    position: 'absolute',
-                                    top: -1, right: -1,
-                                    width: 16, height: 16,
-                                    borderRadius: '50%',
-                                    background: '#EF4444',
-                                    border: '2px solid #000',
-                                    color: '#fff',
-                                    fontSize: 9, fontWeight: 700,
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    pointerEvents: 'none',
-                                }}
-                            >
-                                {unreadCount > 9 ? '9+' : unreadCount}
-                            </span>
-                        )}
-                    </Link>
-                )}
+                {/* Title */}
+                <span
+                    style={{
+                        color: '#fff',
+                        fontSize: 19,
+                        fontWeight: 600,
+                        letterSpacing: '0.01em',
+                        fontFamily: 'var(--font-sans)',
+                    }}
+                >
+                    {getPageTitle()}
+                </span>
+
+                {/* Bell */}
+                <Link
+                    href="/notifications"
+                    className="active:scale-95 transition-transform"
+                    style={{
+                        position: 'relative',
+                        width: 50,
+                        height: 50,
+                        borderRadius: '50%',
+                        background: '#1C1C1E',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        flexShrink: 0,
+                    }}
+                >
+                    <BellIcon style={{ width: 20, height: 20, color: '#fff' }} strokeWidth={2} />
+                    {unreadCount > 0 && (
+                        <span
+                            style={{
+                                position: 'absolute',
+                                top: -1, right: -1,
+                                width: 18, height: 18,
+                                borderRadius: '50%',
+                                background: '#EF4444',
+                                border: '2px solid #1C1C1E',
+                                color: '#fff',
+                                fontSize: 9, fontWeight: 700,
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                pointerEvents: 'none',
+                            }}
+                        >
+                            {unreadCount > 9 ? '9+' : unreadCount}
+                        </span>
+                    )}
+                </Link>
             </div>
         </header>
     )

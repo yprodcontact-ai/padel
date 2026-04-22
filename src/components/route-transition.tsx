@@ -66,6 +66,7 @@ export function RouteTransition({ children }: { children: React.ReactNode }) {
           animation: showContent ? 'pageEnter 0.28s ease-out forwards' : 'none',
           willChange: 'opacity, transform',
           height: '100%',
+          paddingTop: pathname !== '/' ? 15 : 0,
         }}
       >
         {children}

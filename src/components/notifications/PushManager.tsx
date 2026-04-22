@@ -110,7 +110,7 @@ export function PushManager() {
   // Cas spécial : iOS mais pas installé sur l'écran d'accueil
   if (isIOSInfo.isIos && !isIOSInfo.isStandalone) {
       return (
-          <div className="fixed bottom-[90px] left-4 right-4 bg-background border border-border/50 p-4 rounded-[16px] shadow-2xl flex flex-col gap-3 z-50 animate-in slide-in-from-bottom-10 fade-in duration-500">
+          <div className="fixed bottom-[90px] left-4 right-4 bg-black border border-zinc-800 p-4 rounded-[16px] shadow-2xl flex flex-col gap-3 z-50 animate-in slide-in-from-bottom-10 fade-in duration-500">
              <button onClick={() => setShowPrompt(false)} className="absolute top-2 right-2 p-2 hover:bg-muted rounded-full">
                  <XIcon className="w-4 h-4 text-muted-foreground" />
              </button>

@@ -262,7 +262,7 @@ export default async function Home() {
     <div style={{ background: '#000', minHeight: '100vh', paddingBottom: 100, fontFamily: 'var(--font-sans)' }}>
 
       {/* ═══ HERO ═══ */}
-      <div style={{ padding: '33px 20px 0' }}>
+      <div style={{ padding: '53px 20px 0' }}>
         <h1 style={{ margin: 0, fontSize: 32, lineHeight: 1.15, color: '#fff' }}>
           <span style={{ fontWeight: 300 }}>Hello </span>
           <span style={{ fontWeight: 700 }}>{prenom}</span>
