@@ -184,7 +184,7 @@ export default async function Home() {
 
   // Récupération des parties avec les VRAIS joueurs (join nested)
   const now = new Date().toISOString()
-  const { data: parties } = await supabase
+  const { data: parties } = await (supabase
     .from('parties')
     .select(`
       id,
@@ -198,63 +198,63 @@ export default async function Home() {
         users (prenom, nom, niveau, photo_url)
       )
     `)
-    .eq('statut', 'publiee')
     .gte('date_heure', now)
     .order('date_heure', { ascending: true })
-    .limit(50)
+    .limit(50))
 
-  // FILTRAGE ET MAPPING avec vrais joueurs
-  let nearbyParties: HomePartyInfo[] = []
-  
-  if (parties && userProfile) {
-     const hasCoords = userProfile.lat && userProfile.lng
-     const userVille = (userProfile.ville as string)?.toLowerCase()
+  // MAPPING de toutes les parties
+  const userId = authData.user?.id
+  const allMapped: HomePartyInfo[] = (parties as unknown as FetchedParty[] || []).map((p) => {
+    const hasJoined = p.party_players?.some((player) => player.user_id === userId) || false
+    const players = (p.party_players || []).map(mapPlayer)
+    let distance_km: number | undefined = undefined
 
-     const mappedParties = (parties as unknown as FetchedParty[]).map((p) => {
-        let distance: number | undefined = undefined
-        let include = false
+    if (userProfile?.lat && userProfile?.lng && p.clubs?.lat && p.clubs?.lng) {
+      distance_km = getDistanceFromLatLonInKm(
+        userProfile.lat as number, userProfile.lng as number,
+        p.clubs.lat, p.clubs.lng
+      )
+    }
 
-        if (hasCoords && p.clubs?.lat && p.clubs?.lng) {
-            distance = getDistanceFromLatLonInKm(userProfile.lat as number, userProfile.lng as number, p.clubs.lat, p.clubs.lng)
-            if (distance <= 30) include = true
-        } else if (userVille && p.clubs?.ville?.toLowerCase() === userVille) {
-            include = true
-        } else if (!userVille && !hasCoords) {
-            include = true
-        }
+    return {
+      id: p.id,
+      club_nom: p.clubs?.nom || 'Club inconnu',
+      club_ville: p.clubs?.ville || '',
+      date_heure: p.date_heure,
+      niveau_min: p.niveau_min,
+      niveau_max: p.niveau_max,
+      type: p.type,
+      players,
+      player_count: players.length,
+      has_joined: hasJoined,
+      distance_km,
+    }
+  })
 
-        const hasJoined = p.party_players?.some((player) => player.user_id === authData.user?.id)
-        const players = (p.party_players || []).map(mapPlayer)
+  // ── Parties rejointes par l'utilisateur : TOUJOURS affichées (pas de filtre distance) ──
+  const myNextParty = allMapped.find(p => p.has_joined) || null
 
-        return {
-           info: {
-             id: p.id,
-             club_nom: p.clubs?.nom || 'Club inconnu',
-             club_ville: p.clubs?.ville || '',
-             date_heure: p.date_heure,
-             niveau_min: p.niveau_min,
-             niveau_max: p.niveau_max,
-             type: p.type,
-             players,
-             player_count: players.length,
-             has_joined: hasJoined || false,
-             distance_km: distance,
-           },
-           include,
-           distance
-        }
-     })
+  // ── Parties disponibles : filtre souple par distance/ville, fallback sur tout ──
+  const hasCoords = !!(userProfile?.lat && userProfile?.lng)
+  const userVille = (userProfile?.ville as string)?.toLowerCase()
 
-     nearbyParties = mappedParties
-       .filter(p => p.include)
-       .map(p => p.info)
-       .sort((a, b) => (a.distance_km || 999) - (b.distance_km || 999))
-       .slice(0, 6)
+  const notJoined = allMapped.filter(p => p.id !== myNextParty?.id)
+
+  let availableParties: HomePartyInfo[]
+
+  if (hasCoords) {
+    // Essayer d'abord les parties proches (≤ 50 km)
+    const nearby = notJoined.filter(p => p.distance_km !== undefined && p.distance_km <= 50)
+    availableParties = nearby.length > 0
+      ? nearby.sort((a, b) => (a.distance_km || 999) - (b.distance_km || 999)).slice(0, 6)
+      : notJoined.slice(0, 6) // Fallback: montrer toutes les parties
+  } else if (userVille) {
+    const sameCity = notJoined.filter(p => p.club_ville.toLowerCase() === userVille)
+    availableParties = sameCity.length > 0 ? sameCity.slice(0, 6) : notJoined.slice(0, 6)
+  } else {
+    // Pas de localisation → montrer tout
+    availableParties = notJoined.slice(0, 6)
   }
-
-  // Séparer : la prochaine partie (rejointe par l'utilisateur) vs les parties disponibles
-  const myNextParty = nearbyParties.find(p => p.has_joined) || null
-  const availableParties = nearbyParties.filter(p => p.id !== myNextParty?.id).slice(0, 4)
 
   return (
     <div style={{ background: '#000', minHeight: '100vh', paddingBottom: 100, fontFamily: 'var(--font-sans)' }}>
