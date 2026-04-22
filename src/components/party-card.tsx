@@ -11,6 +11,8 @@ export type PartyInfo = {
   type: string;
   player_count: number;
   has_joined: boolean;
+  is_pending?: boolean;
+  is_below_level?: boolean;
   distance_km?: number;
 }
 
@@ -66,7 +68,13 @@ export function PartyCard({ party }: { party: PartyInfo }) {
         </div>
 
         {/* Button */}
-        <CardJoinButton partyId={party.id} hasJoined={party.has_joined} isFull={party.player_count >= 4} />
+        <CardJoinButton
+          partyId={party.id}
+          hasJoined={party.has_joined}
+          isPending={party.is_pending}
+          isFull={party.player_count >= 4}
+          isBelowLevel={party.is_below_level}
+        />
       </div>
     </Link>
   )

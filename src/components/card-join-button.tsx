@@ -1,11 +1,20 @@
 'use client'
 
-import { useTransition } from 'react'
+import { useTransition, useState } from 'react'
 import { joinParty } from '@/app/parties/[id]/actions'
 import { useRouter } from 'next/navigation'
 
-export function CardJoinButton({ partyId, hasJoined, isFull }: { partyId: string, hasJoined: boolean, isFull: boolean }) {
+interface CardJoinButtonProps {
+  partyId: string
+  hasJoined: boolean
+  isPending?: boolean
+  isFull: boolean
+  isBelowLevel?: boolean
+}
+
+export function CardJoinButton({ partyId, hasJoined, isPending: isPendingProp, isFull, isBelowLevel }: CardJoinButtonProps) {
   const [isPending, startTransition] = useTransition()
+  const [requestSent, setRequestSent] = useState(false)
   const router = useRouter()
 
   if (hasJoined) {
@@ -36,6 +45,36 @@ export function CardJoinButton({ partyId, hasJoined, isFull }: { partyId: string
     )
   }
 
+  if (isPendingProp || requestSent) {
+    return (
+      <button
+        type="button"
+        disabled
+        style={{
+          width: '100%',
+          height: 42,
+          borderRadius: 100,
+          border: '1.5px solid rgba(232,112,58,0.3)',
+          background: 'transparent',
+          color: '#E8703A',
+          fontSize: 13,
+          fontWeight: 600,
+          fontFamily: 'var(--font-sans)',
+          cursor: 'default',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: 6,
+        }}
+      >
+        <svg width={14} height={14} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" />
+        </svg>
+        Demande envoyée
+      </button>
+    )
+  }
+
   if (isFull) {
     return (
       <button
@@ -55,6 +94,42 @@ export function CardJoinButton({ partyId, hasJoined, isFull }: { partyId: string
         }}
       >
         Complet
+      </button>
+    )
+  }
+
+  if (isBelowLevel) {
+    return (
+      <button
+        type="button"
+        disabled={isPending}
+        onClick={(e) => {
+          e.preventDefault()
+          startTransition(async () => {
+            const res = await joinParty(partyId)
+            if (res?.status === 'en_attente') setRequestSent(true)
+            else router.push(`/parties/${partyId}`)
+          })
+        }}
+        style={{
+          width: '100%',
+          height: 42,
+          borderRadius: 100,
+          border: '1.5px solid #E8703A',
+          background: 'transparent',
+          color: '#E8703A',
+          fontSize: 13,
+          fontWeight: 600,
+          fontFamily: 'var(--font-sans)',
+          cursor: 'pointer',
+          opacity: isPending ? 0.6 : 1,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: 6,
+        }}
+      >
+        Demander à rejoindre
       </button>
     )
   }

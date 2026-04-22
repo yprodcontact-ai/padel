@@ -3,9 +3,11 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { PartyActionButtons } from './party-buttons'
 import { BackButton } from '@/components/back-button'
+import { PendingRequests } from './pending-requests'
 
 type Player = {
   user_id: string;
+  statut: string;
   users: {
     prenom: string;
     nom: string;
@@ -28,6 +30,7 @@ export default async function PartyDetailsPage({ params }: { params: { id: strin
       users:createur_id (prenom, nom, niveau, photo_url),
       party_players (
         user_id,
+        statut,
         users (prenom, nom, photo_url, niveau)
       )
     `)
@@ -45,15 +48,32 @@ export default async function PartyDetailsPage({ params }: { params: { id: strin
     .eq('party_id', params.id)
     .single()
 
+  // Fetch current user's level
+  let userLevel: number | null = null
+  if (currentUserId) {
+    const { data: userProfile } = await supabase
+      .from('users')
+      .select('niveau')
+      .eq('id', currentUserId)
+      .single()
+    userLevel = userProfile?.niveau ? parseFloat(userProfile.niveau) : null
+  }
+
   const isCreator = currentUserId === party.createur_id
-  const isParticipant = party.party_players?.some((p: Player) => p.user_id === currentUserId)
-  const playerCount = party.party_players?.length || 0
-  const players = party.party_players || []
+  const allPlayers = party.party_players || []
+  const confirmedPlayers = allPlayers.filter((p: Player) => p.statut === 'inscrit')
+  const pendingPlayers = allPlayers.filter((p: Player) => p.statut === 'en_attente')
+  const isParticipant = confirmedPlayers.some((p: Player) => p.user_id === currentUserId)
+  const isPending = pendingPlayers.some((p: Player) => p.user_id === currentUserId)
+  const playerCount = confirmedPlayers.length
 
   const dateMatch = new Date(party.date_heure).toLocaleString('fr-FR', {
     weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
     hour: '2-digit', minute: '2-digit'
   })
+
+  // Determine if user level is below the party range
+  const isBelowLevel = userLevel !== null && party.niveau_min !== null && userLevel < party.niveau_min
 
   return (
     <div style={{ background: '#000', minHeight: '100vh', paddingBottom: 100, fontFamily: 'var(--font-sans)' }}>
@@ -106,7 +126,7 @@ export default async function PartyDetailsPage({ params }: { params: { id: strin
           </h2>
           
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-            {players.map((player: Player) => (
+            {confirmedPlayers.map((player: Player) => (
               <Link key={player.user_id} href={`/players/${player.user_id}`} style={{ textDecoration: 'none' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12, background: '#2C2C2E', padding: '12px 14px', borderRadius: 16, cursor: 'pointer' }}>
                   {player.users?.photo_url ? (
@@ -143,6 +163,17 @@ export default async function PartyDetailsPage({ params }: { params: { id: strin
             ))}
           </div>
         </div>
+
+        {/* PENDING REQUESTS (visible only to creator) */}
+        {isCreator && pendingPlayers.length > 0 && (
+          <PendingRequests partyId={party.id} pendingPlayers={pendingPlayers.map((p: Player) => ({
+            user_id: p.user_id,
+            prenom: p.users?.prenom || '',
+            nom: p.users?.nom || '',
+            photo_url: p.users?.photo_url || null,
+            niveau: p.users?.niveau || null,
+          }))} />
+        )}
         
         {/* BOUTON CHAT */}
         {isParticipant && conversation && (
@@ -159,6 +190,8 @@ export default async function PartyDetailsPage({ params }: { params: { id: strin
             partyId={party.id}
             isCreator={isCreator}
             isParticipant={isParticipant}
+            isPending={isPending}
+            isBelowLevel={isBelowLevel}
             status={party.statut}
             playerCount={playerCount}
           />

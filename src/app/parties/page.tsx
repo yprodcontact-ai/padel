@@ -12,7 +12,7 @@ type FetchedParty = {
   niveau_max: number;
   type: string;
   clubs: { nom: string; ville: string; lat: number | null; lng: number | null } | null;
-  party_players: { user_id: string }[] | null;
+  party_players: { user_id: string; statut: string }[] | null;
 }
 
 export const metadata = {
@@ -46,7 +46,7 @@ export default async function PartiesSearchPage({
       niveau_max,
       type,
       clubs!inner (nom, ville, lat, lng),
-      party_players (user_id)
+      party_players (user_id, statut)
     `)
     .eq('statut', 'publiee')
     .gte('date_heure', now)
@@ -63,6 +63,13 @@ export default async function PartiesSearchPage({
       query = query.lte('niveau_min', searchNiveau).gte('niveau_max', searchNiveau)
   }
 
+  // Fetch user's level for below-level detection
+  let userLevel: number | null = null
+  if (currentUserId) {
+    const { data: userProfile } = await supabase.from('users').select('niveau').eq('id', currentUserId).single()
+    userLevel = userProfile?.niveau ? parseFloat(userProfile.niveau) : null
+  }
+
   const { data: parties, error } = await query
 
   // Client-side Javascript filters mapping for advanced computation like "places disponibles"
@@ -70,8 +77,11 @@ export default async function PartiesSearchPage({
   
   if (parties && !error) {
      formattedParties = (parties as unknown as FetchedParty[]).map((p) => {
-        const playerCount = p.party_players?.length || 0
-        const hasJoined = p.party_players?.some((player) => player.user_id === currentUserId)
+        const confirmedPlayers = p.party_players?.filter(pl => pl.statut === 'inscrit') || []
+        const playerCount = confirmedPlayers.length
+        const hasJoined = confirmedPlayers.some((player) => player.user_id === currentUserId)
+        const isPendingRequest = p.party_players?.some(pl => pl.user_id === currentUserId && pl.statut === 'en_attente') || false
+        const isBelowLevel = userLevel !== null && p.niveau_min !== null && userLevel < p.niveau_min
 
         return {
            id: p.id,
@@ -82,7 +92,9 @@ export default async function PartiesSearchPage({
            niveau_max: p.niveau_max,
            type: p.type,
            player_count: playerCount,
-           has_joined: hasJoined || false
+           has_joined: hasJoined || false,
+           is_pending: isPendingRequest,
+           is_below_level: isBelowLevel,
         } as PartyInfo
      })
 

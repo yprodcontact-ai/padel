@@ -36,7 +36,17 @@ export function ChatInterface({ conversationId, initialMessages, currentUserId }
 
     return (
         <>
-        <div style={{ flex: 1, overflowY: 'auto', padding: '16px 16px 180px', display: 'flex', flexDirection: 'column', gap: 12 }}>
+        <div style={{
+            flex: 1,
+            overflowY: 'auto',
+            WebkitOverflowScrolling: 'touch',
+            overscrollBehavior: 'contain',
+            padding: '16px 16px 16px',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 12,
+            minHeight: 0,
+        }}>
             {messages.length === 0 ? (
                 <p style={{ textAlign: 'center', color: '#8E8E93', fontSize: 14, padding: '40px 0' }}>Soyez le premier à discuter !</p>
             ) : (
@@ -67,7 +77,7 @@ export function ChatInterface({ conversationId, initialMessages, currentUserId }
         </div>
 
         {/* INPUT */}
-        <div className="pb-safe" style={{ position: 'absolute', bottom: 0, width: '100%', background: '#1C1C1E', borderTop: '1px solid #2C2C2E', padding: '12px 16px 90px' }}>
+        <div className="pb-safe" style={{ flexShrink: 0, background: '#1C1C1E', borderTop: '1px solid #2C2C2E', padding: '12px 16px' }}>
             <form onSubmit={handleSend} style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
                 <input
                     value={newMessage}
