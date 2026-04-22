@@ -17,15 +17,42 @@ export function BottomNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-3 bg-zinc-950/80 backdrop-blur-xl border-t border-zinc-800 md:hidden pb-safe">
+    <nav
+      className="pb-safe md:hidden"
+      style={{
+        position: 'fixed',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        zIndex: 50,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        padding: '12px 24px',
+        background: '#000',
+        borderTop: '1px solid #1C1C1E',
+      }}
+    >
       {NAV_ITEMS.map((item) => {
         const isActive = pathname === item.href;
         
         if (item.isMain) {
           return (
-            <Link key={item.name} href={item.href} className="relative -top-5">
-              <div className="flex items-center justify-center w-14 h-14 rounded-full bg-[#E8703A] shadow-lg shadow-[#E8703A]/20 active:scale-95 transition-transform">
-                <item.icon className="w-6 h-6 text-zinc-950" />
+            <Link key={item.name} href={item.href} style={{ position: 'relative', top: -20 }}>
+              <div
+                className="active:scale-95 transition-transform"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  width: 56,
+                  height: 56,
+                  borderRadius: '50%',
+                  background: '#E8703A',
+                  boxShadow: '0 4px 20px rgba(232, 112, 58, 0.25)',
+                }}
+              >
+                <item.icon style={{ width: 24, height: 24, color: '#000' }} />
               </div>
             </Link>
           );
@@ -35,13 +62,23 @@ export function BottomNav() {
           <Link
             key={item.name}
             href={item.href}
-            className={cn(
-              "flex flex-col items-center justify-center gap-1 w-12",
-              isActive ? "text-[#E8703A]" : "text-zinc-500 hover:text-zinc-300"
-            )}
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 4,
+              width: 48,
+              color: isActive ? '#E8703A' : '#71717A',
+              textDecoration: 'none',
+            }}
           >
-            <item.icon className={cn("w-6 h-6 transition-transform", isActive && "scale-110")} strokeWidth={isActive ? 2.5 : 2} />
-            <span className="text-[10px] font-medium tracking-wide">{item.name}</span>
+            <item.icon
+              className={cn("transition-transform", isActive && "scale-110")}
+              style={{ width: 24, height: 24 }}
+              strokeWidth={isActive ? 2.5 : 2}
+            />
+            <span style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.02em' }}>{item.name}</span>
           </Link>
         );
       })}

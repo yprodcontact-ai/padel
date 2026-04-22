@@ -7,6 +7,7 @@ import { Sidebar } from "@/components/layout/Sidebar";
 import { BottomNav } from "@/components/layout/BottomNav";
 import { TopHeader } from "@/components/layout/TopHeader";
 import { PushManager } from "@/components/notifications/PushManager";
+import { RouteTransition } from "@/components/route-transition";
 import { createClient } from "@/lib/supabase/server";
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-sans' });
@@ -60,14 +61,15 @@ export default async function RootLayout({
   return (
     <html lang="fr" className={cn("font-sans antialiased dark", inter.variable)}>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} bg-zinc-950 text-zinc-50 min-h-screen pb-[80px] md:pb-0`}
+        className={`${geistSans.variable} ${geistMono.variable}`}
+        style={{ background: '#000', color: '#fff', margin: 0, overflow: 'hidden', height: '100vh' }}
       >
         <div className="flex h-screen overflow-hidden">
           <Sidebar />
           <div className="flex-1 flex flex-col overflow-hidden">
              <TopHeader userId={user?.id} />
              <main className="flex-1 overflow-y-auto overflow-x-hidden">
-               {children}
+               <RouteTransition>{children}</RouteTransition>
              </main>
           </div>
           <BottomNav />

@@ -2,6 +2,8 @@ import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
 import { getDistanceFromLatLonInKm } from '@/lib/utils'
 
+export const dynamic = 'force-dynamic'
+
 /* ─── Types ─── */
 type PlayerProfile = {
   prenom: string | null;
@@ -238,7 +240,7 @@ export default async function Home() {
   const hasCoords = !!(userProfile?.lat && userProfile?.lng)
   const userVille = (userProfile?.ville as string)?.toLowerCase()
 
-  const notJoined = allMapped.filter(p => p.id !== myNextParty?.id)
+  const notJoined = allMapped.filter(p => p.id !== myNextParty?.id && p.player_count < 4)
 
   let availableParties: HomePartyInfo[]
 

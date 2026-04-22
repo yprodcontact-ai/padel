@@ -1,93 +1,73 @@
 import { createClient } from '@/lib/supabase/server'
 import { notFound, redirect } from 'next/navigation'
-import Link from 'next/link'
-import { ChevronLeftIcon, MessageCircleIcon } from 'lucide-react'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { startPrivateChat } from '../actions'
-import { Button } from '@/components/ui/button'
+import { BackButton } from '@/components/back-button'
 
-export const metadata = {
-   title: 'Profil Joueur | Padel'
-}
+export const metadata = { title: 'Profil Joueur | Padel' }
 
 export default async function PlayerProfilePage({ params }: { params: { id: string } }) {
   const supabase = createClient()
   const { data: authData } = await supabase.auth.getUser()
   const user = authData.user
-
   if (!user) redirect('/login')
 
-  const { data: player, error } = await supabase
-    .from('users')
-    .select('*')
-    .eq('id', params.id)
-    .single()
-
-  if (error || !player) {
-    notFound()
-  }
-
+  const { data: player, error } = await supabase.from('users').select('*').eq('id', params.id).single()
+  if (error || !player) notFound()
   const isMe = user.id === player.id
 
   return (
-    <div className="flex flex-col min-h-screen bg-muted/10 p-4 pb-24">
-      <div className="pt-2">
-          <Link href="/" className="mb-6 inline-flex items-center text-sm font-bold text-muted-foreground hover:text-foreground bg-background px-4 py-2 rounded-full border shadow-sm">
-            <ChevronLeftIcon className="w-4 h-4 mr-1" /> Retour
-          </Link>
+    <div style={{ background: '#000', minHeight: '100vh', padding: '16px 16px 100px', fontFamily: 'var(--font-sans)' }}>
+      <div style={{ paddingTop: 8 }}>
+        <BackButton variant="pill" />
       </div>
 
-      <div className="bg-background rounded-[24px] p-6 shadow-sm border flex flex-col items-center text-center max-w-sm mx-auto w-full relative overflow-hidden">
-         {/* Effet décoratif gradient arrière plan */}
-         <div className="absolute top-0 w-full h-24 bg-gradient-to-b from-primary/10 to-transparent"></div>
+      <div style={{ background: '#1C1C1E', borderRadius: 28, padding: '32px 24px', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', maxWidth: 400, margin: '0 auto', position: 'relative', overflow: 'hidden' }}>
+        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 90, background: 'linear-gradient(to bottom, rgba(232,112,58,0.15), transparent)' }} />
 
-         <Avatar className="w-28 h-28 mb-4 ring-4 ring-background shadow-xl z-10 relative">
-            <AvatarImage src={player.photo_url || ''} />
-            <AvatarFallback className="text-4xl font-black text-muted-foreground bg-muted">
-                {player.prenom?.charAt(0) || 'J'}
-            </AvatarFallback>
-         </Avatar>
+        {player.photo_url ? (
+          <div style={{ width: 112, height: 112, borderRadius: '50%', overflow: 'hidden', marginBottom: 16, border: '3px solid #fff', position: 'relative', zIndex: 1, boxShadow: '0 8px 24px rgba(0,0,0,0.4)' }}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={player.photo_url} alt={player.prenom} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+          </div>
+        ) : (
+          <div style={{ width: 112, height: 112, borderRadius: '50%', background: '#2C2C2E', marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 40, fontWeight: 800, color: '#8E8E93', border: '3px solid #fff', position: 'relative', zIndex: 1 }}>
+            {player.prenom?.charAt(0) || 'J'}
+          </div>
+        )}
 
-         <h1 className="text-2xl font-black mb-1 z-10">{player.prenom} {player.nom}</h1>
-         <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center mb-8 z-10">
-            <span className="w-2 h-2 rounded-full bg-green-500 mr-2 animate-pulse shadow-[0_0_8px_rgba(34,197,94,0.6)]"></span>
-            Joueur vérifié
-         </p>
+        <h1 style={{ margin: '0 0 6px', fontSize: 24, fontWeight: 800, color: '#fff', zIndex: 1, position: 'relative' }}>{player.prenom} {player.nom}</h1>
+        <p style={{ margin: '0 0 28px', fontSize: 11, fontWeight: 600, color: '#8E8E93', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6, zIndex: 1, position: 'relative' }}>
+          <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#22C55E', display: 'inline-block', boxShadow: '0 0 8px rgba(34,197,94,0.6)' }} />
+          Joueur vérifié
+        </p>
 
-         <div className="grid grid-cols-2 gap-4 w-full mb-8 z-10">
-            <div className="bg-muted/40 p-4 rounded-2xl border shadow-inner">
-               <span className="text-[10px] uppercase font-bold text-muted-foreground block mb-2 opacity-80">Niveau Padel</span>
-               <span className="text-2xl font-black text-primary">{player.niveau || 'N/A'}</span>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, width: '100%', marginBottom: 28, zIndex: 1, position: 'relative' }}>
+          {[
+            { label: 'Niveau Padel', value: player.niveau || 'N/A', isAccent: true },
+            { label: 'Côté Préféré', value: player.poste || 'Mixte' },
+            { label: 'Main Forte', value: player.main || 'Non défini' },
+            { label: 'Localisation', value: player.ville || 'Aucune ville' },
+          ].map(stat => (
+            <div key={stat.label} style={{ background: '#2C2C2E', padding: '16px 12px', borderRadius: 18 }}>
+              <span style={{ display: 'block', fontSize: 10, fontWeight: 600, color: '#8E8E93', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 8 }}>{stat.label}</span>
+              <span style={{ fontSize: stat.isAccent ? 22 : 15, fontWeight: 700, color: stat.isAccent ? '#E8703A' : '#fff', textTransform: 'capitalize' }}>{stat.value}</span>
             </div>
-            <div className="bg-muted/40 p-4 rounded-2xl border shadow-inner">
-               <span className="text-[10px] uppercase font-bold text-muted-foreground block mb-2 opacity-80">Côté Préféré</span>
-               <span className="text-lg font-bold capitalize text-foreground/90">{player.poste || 'Mixte'}</span>
-            </div>
-            <div className="bg-muted/40 p-4 rounded-2xl border shadow-inner">
-               <span className="text-[10px] uppercase font-bold text-muted-foreground block mb-2 opacity-80">Main Forte</span>
-               <span className="text-lg font-bold capitalize text-foreground/90">{player.main || 'Non défini'}</span>
-            </div>
-            <div className="bg-muted/40 p-4 rounded-2xl border shadow-inner">
-               <span className="text-[10px] uppercase font-bold text-muted-foreground block mb-2 opacity-80">Localisation</span>
-               <span className="text-sm font-bold capitalize text-foreground/90 truncate max-w-full block">{player.ville || 'Aucune ville'}</span>
-            </div>
-         </div>
+          ))}
+        </div>
 
-         {!isMe && (
-           <form action={async () => {
-              'use server'
-              await startPrivateChat(player.id)
-           }} className="w-full z-10">
-              <Button type="submit" size="lg" className="w-full shadow-lg font-bold rounded-2xl h-14 hover:scale-[1.02] transition-transform">
-                 <MessageCircleIcon className="mr-2 w-5 h-5" /> Envoyer un message privé
-              </Button>
-           </form>
-         )}
-         {isMe && (
-           <div className="text-xs font-bold text-muted-foreground w-full z-10 opacity-50 border p-3 rounded-xl border-dashed">
-             C&apos;est votre profil public
-           </div>
-         )}
+        {!isMe && (
+          <form action={async () => { 'use server'; await startPrivateChat(player.id) }} style={{ width: '100%', zIndex: 1, position: 'relative' }}>
+            <button type="submit" style={{ width: '100%', height: 52, borderRadius: 100, border: 'none', background: '#E8703A', color: '#fff', fontSize: 15, fontWeight: 600, fontFamily: 'var(--font-sans)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+              <svg width={18} height={18} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" /></svg>
+              Envoyer un message privé
+            </button>
+          </form>
+        )}
+        {isMe && (
+          <div style={{ width: '100%', padding: '12px 16px', borderRadius: 16, border: '1.5px dashed #3A3A3C', textAlign: 'center', fontSize: 12, fontWeight: 600, color: '#8E8E93', zIndex: 1, position: 'relative' }}>
+            C&apos;est votre profil public
+          </div>
+        )}
       </div>
     </div>
   )

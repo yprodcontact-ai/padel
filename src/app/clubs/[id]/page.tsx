@@ -1,120 +1,93 @@
 import { createClient } from '@/lib/supabase/server'
 import { notFound, redirect } from 'next/navigation'
-import Link from 'next/link'
-import { MapPinIcon, PhoneIcon, MailIcon, ChevronLeftIcon, BadgeCheckIcon, LayoutGridIcon } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
 import { setMainClub } from '../actions'
+import { BackButton } from '@/components/back-button'
 
-export const metadata = {
-  title: 'Détail du Club',
-}
+export const metadata = { title: 'Détail du Club' }
 
-export default async function ClubDetailPage({
-  params,
-}: {
-  params: { id: string }
-}) {
+export default async function ClubDetailPage({ params }: { params: { id: string } }) {
   const supabase = createClient()
   const { data: authData } = await supabase.auth.getUser()
-
-  if (!authData.user) {
-    redirect('/login')
-  }
+  if (!authData.user) redirect('/login')
 
   const [clubResponse, userResponse] = await Promise.all([
     supabase.from('clubs').select('*').eq('id', params.id).single(),
     supabase.from('users').select('club_id').eq('id', authData.user.id).single(),
   ])
-
-  if (clubResponse.error || !clubResponse.data) {
-    notFound()
-  }
-
+  if (clubResponse.error || !clubResponse.data) notFound()
   const club = clubResponse.data
   const isMainClub = userResponse.data?.club_id === club.id
-
   const setMainClubWithId = setMainClub.bind(null, club.id)
 
   return (
-    <div className="flex min-h-screen w-full flex-col bg-muted/20 pb-20">
-      {/* Header Image / Map Placeholder */}
-      <div className="relative h-48 bg-primary/20 w-full">
-         {/* Bouton retour */}
-         <Link href="/clubs" className="absolute top-4 left-4 z-10 bg-background/80 p-2 rounded-full shadow-sm backdrop-blur-sm">
-            <ChevronLeftIcon className="w-6 h-6" />
-         </Link>
-         
-         {club.photo_url ? (
-            <>
-               {/* eslint-disable-next-line @next/next/no-img-element */}
-               <img src={club.photo_url} alt={club.nom} className="w-full h-full object-cover" />
-            </>
-         ) : (
-            <div className="w-full h-full flex items-center justify-center text-primary/30">
-               <LayoutGridIcon className="w-20 h-20" />
-            </div>
-         )}
+    <div style={{ background: '#000', minHeight: '100vh', fontFamily: 'var(--font-sans)', paddingBottom: 100 }}>
+      {/* Header Image */}
+      <div style={{ position: 'relative', height: 200, background: '#1C1C1E', width: '100%' }}>
+        <div style={{ position: 'absolute', top: 16, left: 16, zIndex: 10 }}>
+          <BackButton variant="circle" />
+        </div>
+        {club.photo_url ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={club.photo_url} alt={club.nom} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+        ) : (
+          <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <svg width={64} height={64} viewBox="0 0 24 24" fill="none" stroke="#2C2C2E" strokeWidth={1}><rect x="3" y="3" width="7" height="7" /><rect x="14" y="3" width="7" height="7" /><rect x="14" y="14" width="7" height="7" /><rect x="3" y="14" width="7" height="7" /></svg>
+          </div>
+        )}
       </div>
 
-      <div className="px-4 -mt-8 relative z-10 mx-auto w-full max-w-md">
-        <Card className="shadow-lg">
-          <CardContent className="p-6">
-            <div className="flex justify-between items-start mb-4">
-              <h1 className="text-2xl font-bold flex items-center">
-                {club.nom}
-                {club.verified && <BadgeCheckIcon className="w-6 h-6 ml-1 text-blue-500 flex-shrink-0" />}
-              </h1>
-              <div className="text-center bg-primary/10 rounded-lg p-2 min-w-[60px]">
-                 <span className="block font-bold text-primary text-xl leading-none">{club.nb_pistes}</span>
-                 <span className="text-[10px] uppercase font-bold text-primary/70">Pistes</span>
+      <div style={{ padding: '0 16px', marginTop: -32, position: 'relative', zIndex: 10, maxWidth: 480, margin: '-32px auto 0' }}>
+        <div style={{ background: '#1C1C1E', borderRadius: 28, padding: '26px 24px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 }}>
+            <h1 style={{ margin: 0, fontSize: 22, fontWeight: 700, color: '#fff', display: 'flex', alignItems: 'center', gap: 6 }}>
+              {club.nom}
+              {club.verified && <svg width={20} height={20} viewBox="0 0 24 24" fill="#3B82F6" stroke="#3B82F6" strokeWidth={0}><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>}
+            </h1>
+            <div style={{ background: '#E8703A', borderRadius: 14, padding: '10px 14px', textAlign: 'center', minWidth: 52 }}>
+              <span style={{ display: 'block', fontSize: 20, fontWeight: 700, color: '#fff', lineHeight: 1 }}>{club.nb_pistes}</span>
+              <span style={{ fontSize: 9, fontWeight: 600, color: 'rgba(255,255,255,0.8)', textTransform: 'uppercase' }}>Pistes</span>
+            </div>
+          </div>
+
+          <p style={{ margin: '0 0 24px', fontSize: 14, color: '#8E8E93', lineHeight: 1.5 }}>
+            {club.description || 'Aucune description disponible pour ce club.'}
+          </p>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 14, borderTop: '1px solid #2C2C2E', paddingTop: 16 }}>
+            {club.adresse && (
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
+                <svg width={16} height={16} viewBox="0 0 24 24" fill="none" stroke="#8E8E93" strokeWidth={2} style={{ marginTop: 2, flexShrink: 0 }}><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" /><circle cx="12" cy="10" r="3" /></svg>
+                <span style={{ fontSize: 14, color: '#fff' }}>{club.adresse}, {club.ville}</span>
               </div>
-            </div>
+            )}
+            {club.telephone && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <svg width={16} height={16} viewBox="0 0 24 24" fill="none" stroke="#8E8E93" strokeWidth={2} style={{ flexShrink: 0 }}><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72" /></svg>
+                <a href={`tel:${club.telephone.replace(/\s+/g, '')}`} style={{ fontSize: 14, color: '#E8703A', textDecoration: 'none' }}>{club.telephone}</a>
+              </div>
+            )}
+            {club.email && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <svg width={16} height={16} viewBox="0 0 24 24" fill="none" stroke="#8E8E93" strokeWidth={2} style={{ flexShrink: 0 }}><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" /><polyline points="22,6 12,13 2,6" /></svg>
+                <a href={`mailto:${club.email}`} style={{ fontSize: 14, color: '#E8703A', textDecoration: 'none' }}>{club.email}</a>
+              </div>
+            )}
+          </div>
 
-            <p className="text-muted-foreground text-sm mb-6 leading-relaxed">
-              {club.description || "Aucune description disponible pour ce club."}
-            </p>
-
-            <div className="space-y-4 border-t pt-4">
-              {club.adresse && (
-                <div className="flex items-start">
-                  <MapPinIcon className="w-5 h-5 text-muted-foreground mr-3 shrink-0 mt-0.5" />
-                  <span className="text-sm">{club.adresse}, {club.ville}</span>
-                </div>
-              )}
-              {club.telephone && (
-                <div className="flex items-center">
-                  <PhoneIcon className="w-5 h-5 text-muted-foreground mr-3 shrink-0" />
-                  <a href={`tel:${club.telephone.replace(/\s+/g, '')}`} className="text-sm text-primary hover:underline">
-                    {club.telephone}
-                  </a>
-                </div>
-              )}
-              {club.email && (
-                <div className="flex items-center">
-                  <MailIcon className="w-5 h-5 text-muted-foreground mr-3 shrink-0" />
-                  <a href={`mailto:${club.email}`} className="text-sm text-primary hover:underline">
-                    {club.email}
-                  </a>
-                </div>
-              )}
-            </div>
-            
-            <div className="mt-8">
-              {isMainClub ? (
-                <div className="w-full h-12 flex items-center justify-center bg-green-100 text-green-800 font-medium rounded-md text-sm">
-                  ✓ C&apos;est votre club principal
-                </div>
-              ) : (
-                <form action={setMainClubWithId}>
-                  <Button type="submit" className="w-full h-12 text-base">
-                    Définir comme mon club principal
-                  </Button>
-                </form>
-              )}
-            </div>
-          </CardContent>
-        </Card>
+          <div style={{ marginTop: 28 }}>
+            {isMainClub ? (
+              <div style={{ width: '100%', height: 50, borderRadius: 100, background: 'rgba(34,197,94,0.15)', color: '#22C55E', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 600, fontSize: 14 }}>
+                ✓ C&apos;est votre club principal
+              </div>
+            ) : (
+              <form action={setMainClubWithId}>
+                <button type="submit" style={{ width: '100%', height: 50, borderRadius: 100, border: 'none', background: '#E8703A', color: '#fff', fontSize: 15, fontWeight: 600, fontFamily: 'var(--font-sans)', cursor: 'pointer' }}>
+                  Définir comme mon club principal
+                </button>
+              </form>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   )

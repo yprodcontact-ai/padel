@@ -1,68 +1,51 @@
 import { createClient } from '@/lib/supabase/server'
-import { Card, CardContent } from '@/components/ui/card'
-import { MapPinIcon, BadgeCheckIcon } from 'lucide-react'
 import Link from 'next/link'
 import { SearchInput } from './components/search-input'
 
-export const metadata = {
-  title: 'Trouver un Club',
-}
+export const metadata = { title: 'Trouver un Club' }
 
-export default async function ClubsPage({
-  searchParams,
-}: {
-  searchParams: { q?: string }
-}) {
+export default async function ClubsPage({ searchParams }: { searchParams: { q?: string } }) {
   const query = searchParams?.q || ''
   const supabase = createClient()
-
   let request = supabase.from('clubs').select('*').order('nom')
-
-  if (query) {
-    // ilike permet une recherche insensible à la casse
-    request = request.or(`nom.ilike.%${query}%,ville.ilike.%${query}%`)
-  }
-
+  if (query) request = request.or(`nom.ilike.%${query}%,ville.ilike.%${query}%`)
   const { data: clubs, error } = await request
 
   return (
-    <div className="flex min-h-screen w-full flex-col bg-muted/20">
-      <div className="bg-primary px-4 py-6 text-primary-foreground sticky top-0 z-10 shadow-md">
-        <h1 className="text-2xl font-bold mb-4 text-center">Trouver un Club</h1>
+    <div style={{ background: '#000', minHeight: '100vh', fontFamily: 'var(--font-sans)' }}>
+      {/* Header */}
+      <div style={{ background: '#1C1C1E', padding: '24px 16px', position: 'sticky', top: 0, zIndex: 10 }}>
+        <h1 style={{ margin: '0 0 16px', fontSize: 22, fontWeight: 700, color: '#fff', textAlign: 'center' }}>Trouver un Club</h1>
         <SearchInput />
       </div>
 
-      <div className="p-4 space-y-4 max-w-md mx-auto w-full pb-20">
-        {error && <p className="text-destructive">Erreur lors de la récupération des clubs.</p>}
-        
+      <div style={{ padding: '16px 16px 100px', maxWidth: 480, margin: '0 auto' }}>
+        {error && <p style={{ color: '#EF4444', fontSize: 14 }}>Erreur lors de la récupération des clubs.</p>}
         {clubs && clubs.length === 0 && (
-          <p className="text-center text-muted-foreground mt-10">Aucun club ne correspond à votre recherche.</p>
+          <p style={{ textAlign: 'center', color: '#8E8E93', marginTop: 40 }}>Aucun club ne correspond à votre recherche.</p>
         )}
-
-        {clubs && clubs.map((club) => (
-          <Link key={club.id} href={`/clubs/${club.id}`} className="block">
-             <Card className="hover:bg-accent/50 transition-colors border-2 hover:border-primary/50 shadow-sm">
-              <CardContent className="p-4">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <h3 className="font-bold text-lg flex items-center">
-                      {club.nom}
-                      {club.verified && <BadgeCheckIcon className="w-5 h-5 ml-1 text-blue-500 flex-shrink-0" />}
-                    </h3>
-                    <div className="flex items-center text-muted-foreground text-sm mt-1">
-                      <MapPinIcon className="w-4 h-4 mr-1 flex-shrink-0" />
-                      {club.ville}
-                    </div>
-                  </div>
-                  <div className="text-center bg-primary/10 rounded-lg p-2 min-w-[60px]">
-                     <span className="block font-bold text-primary text-xl leading-none">{club.nb_pistes}</span>
-                     <span className="text-[10px] uppercase font-bold text-primary/70">Pistes</span>
-                  </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          {clubs && clubs.map((club) => (
+            <Link key={club.id} href={`/clubs/${club.id}`} style={{ textDecoration: 'none' }}>
+              <div style={{ background: '#1C1C1E', borderRadius: 22, padding: '18px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                <div>
+                  <h3 style={{ margin: 0, fontSize: 16, fontWeight: 600, color: '#fff', display: 'flex', alignItems: 'center', gap: 6 }}>
+                    {club.nom}
+                    {club.verified && <svg width={16} height={16} viewBox="0 0 24 24" fill="#3B82F6" stroke="#3B82F6" strokeWidth={0}><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>}
+                  </h3>
+                  <p style={{ margin: '6px 0 0', fontSize: 13, color: '#8E8E93', display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <svg width={12} height={12} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" /><circle cx="12" cy="10" r="3" /></svg>
+                    {club.ville}
+                  </p>
                 </div>
-              </CardContent>
-            </Card>
-          </Link>
-        ))}
+                <div style={{ background: '#E8703A', borderRadius: 14, padding: '10px 14px', textAlign: 'center', minWidth: 52 }}>
+                  <span style={{ display: 'block', fontSize: 20, fontWeight: 700, color: '#fff', lineHeight: 1 }}>{club.nb_pistes}</span>
+                  <span style={{ fontSize: 9, fontWeight: 600, color: 'rgba(255,255,255,0.8)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Pistes</span>
+                </div>
+              </div>
+            </Link>
+          ))}
+        </div>
       </div>
     </div>
   )

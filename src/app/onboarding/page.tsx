@@ -1,12 +1,29 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { completeOnboarding, getClubs } from './actions'
+
+const inputStyle: React.CSSProperties = {
+  width: '100%',
+  height: 50,
+  borderRadius: 14,
+  border: 'none',
+  background: '#2C2C2E',
+  color: '#fff',
+  fontSize: 15,
+  padding: '0 16px',
+  outline: 'none',
+  fontFamily: 'var(--font-sans)',
+  boxSizing: 'border-box' as const,
+}
+
+const labelStyle: React.CSSProperties = {
+  display: 'block',
+  fontSize: 13,
+  fontWeight: 500,
+  color: '#8E8E93',
+  marginBottom: 8,
+}
 
 export default function OnboardingPage() {
   const [step, setStep] = useState(1)
@@ -35,178 +52,140 @@ export default function OnboardingPage() {
   }
 
   return (
-    <div className="flex min-h-screen w-full flex-col items-center justify-center p-4">
-      <Card className="mx-auto w-full max-w-md">
-        <CardHeader className="text-center">
-          <CardTitle className="text-2xl font-bold">Complétez votre profil</CardTitle>
-          <CardDescription>Étape {step} sur 3</CardDescription>
-          <div className="mt-2 flex w-full space-x-2">
-            {[1, 2, 3].map((i) => (
-              <div
-                key={i}
-                className={`h-2 flex-1 rounded-full ${
-                  step >= i ? 'bg-primary' : 'bg-muted'
-                }`}
-              />
-            ))}
-          </div>
-        </CardHeader>
-        <CardContent>
-          <form 
-            ref={formRef} 
-            className="space-y-6"
-          >
+    <div style={{ background: '#000', minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 16, fontFamily: 'var(--font-sans)' }}>
+      <div style={{ width: '100%', maxWidth: 420 }}>
+        {/* Title */}
+        <div style={{ textAlign: 'center', marginBottom: 28 }}>
+          <h1 style={{ margin: 0, fontSize: 26, fontWeight: 700, color: '#fff' }}>Complétez votre profil</h1>
+          <p style={{ margin: '8px 0 0', fontSize: 14, color: '#8E8E93' }}>Étape {step} sur 3</p>
+        </div>
+
+        {/* Progress bar */}
+        <div style={{ display: 'flex', gap: 8, marginBottom: 28 }}>
+          {[1, 2, 3].map((i) => (
+            <div
+              key={i}
+              style={{
+                flex: 1,
+                height: 6,
+                borderRadius: 100,
+                background: step >= i ? '#E8703A' : '#2C2C2E',
+                transition: 'background 0.3s',
+              }}
+            />
+          ))}
+        </div>
+
+        {/* Card */}
+        <div style={{ background: '#1C1C1E', borderRadius: 28, padding: '28px 24px' }}>
+          <form ref={formRef}>
             {/* ETAPE 1 */}
-            <div className={step === 1 ? 'block' : 'hidden'}>
-              <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="prenom">Prénom</Label>
-                    <Input id="prenom" name="prenom" required={step === 1} placeholder="Jean" className="h-12" />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="nom">Nom</Label>
-                    <Input id="nom" name="nom" required={step === 1} placeholder="Dupont" className="h-12" />
-                  </div>
+            <div style={{ display: step === 1 ? 'flex' : 'none', flexDirection: 'column', gap: 18 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                <div>
+                  <label htmlFor="prenom" style={labelStyle}>Prénom</label>
+                  <input id="prenom" name="prenom" required={step === 1} placeholder="Jean" style={inputStyle} />
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="date_naissance">Date de naissance</Label>
-                  <Input id="date_naissance" name="date_naissance" type="date" required={step === 1} className="h-12" />
+                <div>
+                  <label htmlFor="nom" style={labelStyle}>Nom</label>
+                  <input id="nom" name="nom" required={step === 1} placeholder="Dupont" style={inputStyle} />
                 </div>
-                <div className="space-y-2 pt-2">
-                  <Label>Sexe</Label>
-                  <div className="flex space-x-4">
-                    <label className="flex items-center space-x-2 cursor-pointer">
-                      <input type="radio" name="sexe" value="homme" defaultChecked className="w-4 h-4 accent-primary" />
-                      <span className="font-normal text-sm">Homme</span>
+              </div>
+              <div>
+                <label htmlFor="date_naissance" style={labelStyle}>Date de naissance</label>
+                <input id="date_naissance" name="date_naissance" type="date" required={step === 1} style={{ ...inputStyle, colorScheme: 'dark' }} />
+              </div>
+              <div>
+                <label style={labelStyle}>Sexe</label>
+                <div style={{ display: 'flex', gap: 16 }}>
+                  {[{ v: 'homme', l: 'Homme' }, { v: 'femme', l: 'Femme' }, { v: 'autre', l: 'Autre' }].map((opt) => (
+                    <label key={opt.v} style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', color: '#fff', fontSize: 14 }}>
+                      <input type="radio" name="sexe" value={opt.v} defaultChecked={opt.v === 'homme'} style={{ accentColor: '#E8703A' }} />
+                      {opt.l}
                     </label>
-                    <label className="flex items-center space-x-2 cursor-pointer">
-                      <input type="radio" name="sexe" value="femme" className="w-4 h-4 accent-primary" />
-                      <span className="font-normal text-sm">Femme</span>
-                    </label>
-                    <label className="flex items-center space-x-2 cursor-pointer">
-                      <input type="radio" name="sexe" value="autre" className="w-4 h-4 accent-primary" />
-                      <span className="font-normal text-sm">Autre</span>
-                    </label>
-                  </div>
+                  ))}
                 </div>
               </div>
             </div>
 
             {/* ETAPE 2 */}
-            <div className={step === 2 ? 'block' : 'hidden'}>
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="ville">Ville principale</Label>
-                  <Input id="ville" name="ville" required={step === 2} placeholder="Paris" className="h-12" />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="niveau">Niveau (1.0 à 8.0)</Label>
-                  <Input 
-                    id="niveau" 
-                    name="niveau" 
-                    type="number" 
-                    step="0.5" 
-                    min="1" 
-                    max="8" 
-                    required={step === 2} 
-                    className="h-12" 
-                    defaultValue="4.0"
-                  />
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Ex: 2.0 (Débutant), 4.0 (Intermédiaire), 7.0 (Avancé), 8.0 (Pro)
-                  </p>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="club_id">Club préféré / régulier (Optionnel)</Label>
-                  <Select name="club_id">
-                    <SelectTrigger className="h-12 w-full">
-                      <SelectValue placeholder="Sélectionnez un club" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="">Aucun / Je ne joue pas en club</SelectItem>
-                      {clubs.map((club) => (
-                        <SelectItem key={club.id} value={club.id}>
-                          {club.nom} ({club.ville})
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
+            <div style={{ display: step === 2 ? 'flex' : 'none', flexDirection: 'column', gap: 18 }}>
+              <div>
+                <label htmlFor="ville" style={labelStyle}>Ville principale</label>
+                <input id="ville" name="ville" required={step === 2} placeholder="Paris" style={inputStyle} />
+              </div>
+              <div>
+                <label htmlFor="niveau" style={labelStyle}>Niveau (1.0 à 8.0)</label>
+                <input id="niveau" name="niveau" type="number" step="0.5" min="1" max="8" required={step === 2} defaultValue="4.0" style={inputStyle} />
+                <p style={{ fontSize: 12, color: '#8E8E93', margin: '6px 0 0' }}>
+                  Ex: 2.0 (Débutant), 4.0 (Intermédiaire), 7.0 (Avancé), 8.0 (Pro)
+                </p>
+              </div>
+              <div>
+                <label htmlFor="club_id" style={labelStyle}>Club préféré (Optionnel)</label>
+                <select name="club_id" style={{ ...inputStyle, appearance: 'none' as const }}>
+                  <option value="">Aucun / Je ne joue pas en club</option>
+                  {clubs.map((club) => (
+                    <option key={club.id} value={club.id}>
+                      {club.nom} ({club.ville})
+                    </option>
+                  ))}
+                </select>
               </div>
             </div>
 
             {/* ETAPE 3 */}
-            <div className={step === 3 ? 'block' : 'hidden'}>
-               <div className="space-y-6">
-                <div className="space-y-2">
-                  <Label htmlFor="photo">Photo de profil (Optionnel)</Label>
-                  <Input id="photo" name="photo" type="file" accept="image/*" className="h-12 text-muted-foreground file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20" />
+            <div style={{ display: step === 3 ? 'flex' : 'none', flexDirection: 'column', gap: 22 }}>
+              <div>
+                <label htmlFor="photo" style={labelStyle}>Photo de profil (Optionnel)</label>
+                <input id="photo" name="photo" type="file" accept="image/*" style={{ ...inputStyle, padding: '12px 16px', height: 'auto', fontSize: 13, color: '#8E8E93' }} />
+              </div>
+              <div>
+                <label style={labelStyle}>Main dominante</label>
+                <div style={{ display: 'flex', gap: 16 }}>
+                  {[{ v: 'droite', l: 'Droite' }, { v: 'gauche', l: 'Gauche' }, { v: 'ambidextre', l: 'Ambidextre' }].map((opt) => (
+                    <label key={opt.v} style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', color: '#fff', fontSize: 14 }}>
+                      <input type="radio" name="main" value={opt.v} defaultChecked={opt.v === 'droite'} style={{ accentColor: '#E8703A' }} />
+                      {opt.l}
+                    </label>
+                  ))}
                 </div>
-                
-                <div className="space-y-2">
-                  <Label>Main dominante</Label>
-                  <div className="flex space-x-4">
-                    <label className="flex items-center space-x-2 cursor-pointer">
-                      <input type="radio" name="main" value="droite" defaultChecked className="w-4 h-4 accent-primary" />
-                      <span className="font-normal text-sm">Droite</span>
+              </div>
+              <div>
+                <label style={labelStyle}>Poste préféré</label>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                  {[{ v: 'droite', l: 'Joueur de Droite' }, { v: 'gauche', l: 'Joueur de Gauche' }, { v: 'indifférent', l: 'Indifférent (Je m\'adapte)' }].map((opt) => (
+                    <label key={opt.v} style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', color: '#fff', fontSize: 14 }}>
+                      <input type="radio" name="poste" value={opt.v} defaultChecked={opt.v === 'indifférent'} style={{ accentColor: '#E8703A' }} />
+                      {opt.l}
                     </label>
-                    <label className="flex items-center space-x-2 cursor-pointer">
-                      <input type="radio" name="main" value="gauche" className="w-4 h-4 accent-primary" />
-                      <span className="font-normal text-sm">Gauche</span>
-                    </label>
-                    <label className="flex items-center space-x-2 cursor-pointer">
-                      <input type="radio" name="main" value="ambidextre" className="w-4 h-4 accent-primary" />
-                      <span className="font-normal text-sm">Ambidextre</span>
-                    </label>
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label>Poste préféré</Label>
-                  <div className="flex flex-col space-y-2">
-                    <label className="flex items-center space-x-2 cursor-pointer">
-                      <input type="radio" name="poste" value="droite" className="w-4 h-4 accent-primary" />
-                      <span className="font-normal text-sm">Joueur de Droite</span>
-                    </label>
-                    <label className="flex items-center space-x-2 cursor-pointer">
-                      <input type="radio" name="poste" value="gauche" className="w-4 h-4 accent-primary" />
-                      <span className="font-normal text-sm">Joueur de Gauche</span>
-                    </label>
-                    <label className="flex items-center space-x-2 cursor-pointer">
-                      <input type="radio" name="poste" value="indifférent" defaultChecked className="w-4 h-4 accent-primary" />
-                      <span className="font-normal text-sm">Indifférent (Je m&apos;adapte)</span>
-                    </label>
-                  </div>
+                  ))}
                 </div>
               </div>
             </div>
 
-            {/* Navigation buttons */}
-            <div className="flex justify-between pt-4">
+            {/* Navigation */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 28, paddingTop: 20, borderTop: '1px solid #2C2C2E' }}>
               {step > 1 ? (
-                <Button type="button" variant="outline" onClick={prevStep} className="h-12 w-1/3">
+                <button type="button" onClick={prevStep} style={{ height: 48, padding: '0 24px', borderRadius: 100, border: '1px solid #3A3A3C', background: 'transparent', color: '#fff', fontSize: 14, fontWeight: 500, fontFamily: 'var(--font-sans)', cursor: 'pointer' }}>
                   Précédent
-                </Button>
+                </button>
               ) : (
-                <div className="w-1/3" />
+                <div />
               )}
-              
               {step < 3 ? (
-                <Button type="button" onClick={nextStep} className="h-12 w-1/2">
+                <button type="button" onClick={nextStep} style={{ height: 48, padding: '0 32px', borderRadius: 100, border: 'none', background: '#E8703A', color: '#fff', fontSize: 14, fontWeight: 600, fontFamily: 'var(--font-sans)', cursor: 'pointer' }}>
                   Suivant
-                </Button>
+                </button>
               ) : (
-                <Button type="button" onClick={submitForm} disabled={isLoading} className="h-12 w-1/2">
+                <button type="button" onClick={submitForm} disabled={isLoading} style={{ height: 48, padding: '0 32px', borderRadius: 100, border: 'none', background: '#E8703A', color: '#fff', fontSize: 14, fontWeight: 600, fontFamily: 'var(--font-sans)', cursor: 'pointer', opacity: isLoading ? 0.6 : 1 }}>
                   {isLoading ? 'Enregistrement...' : 'Valider'}
-                </Button>
+                </button>
               )}
             </div>
           </form>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   )
 }

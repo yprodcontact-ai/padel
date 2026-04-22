@@ -47,6 +47,7 @@ export function TopHeader({ userId }: { userId?: string }) {
                     width: '100%',
                     zIndex: 40,
                     background: '#000',
+                    flexShrink: 0,
                 }}
             >
                 {/* The PNG image IS the header — it contains the texture + the curve shape */}
@@ -156,25 +157,82 @@ export function TopHeader({ userId }: { userId?: string }) {
 
     /* ─── Default header for all other pages ─── */
     return (
-        <header className="sticky top-0 z-40 w-full border-b border-border bg-background/80 backdrop-blur-xl pt-safe">
-             <div className="flex h-14 w-full items-center justify-between px-4">
-                <Link href="/" className="flex items-center space-x-2">
-                    <div className="w-8 h-8 rounded-lg bg-primary shadow-sm flex items-center justify-center">
-                       <span className="font-black text-primary-foreground text-sm">P</span>
+        <header
+            className="pt-safe"
+            style={{
+                position: 'relative',
+                zIndex: 40,
+                width: '100%',
+                background: '#000',
+                borderBottom: '1px solid #1C1C1E',
+                flexShrink: 0,
+            }}
+        >
+            <div
+                style={{
+                    display: 'flex',
+                    height: 56,
+                    width: '100%',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    padding: '0 16px',
+                }}
+            >
+                <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 8, textDecoration: 'none' }}>
+                    <div
+                        style={{
+                            width: 32,
+                            height: 32,
+                            borderRadius: 10,
+                            background: '#E8703A',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                        }}
+                    >
+                        <span style={{ fontWeight: 900, color: '#000', fontSize: 14, fontFamily: 'var(--font-sans)' }}>P</span>
                     </div>
                 </Link>
 
                 {userId && (
-                    <Link href="/notifications" className="relative p-2 rounded-full hover:bg-muted transition-colors active:scale-95">
-                        <BellIcon className="w-6 h-6 text-foreground" />
+                    <Link
+                        href="/notifications"
+                        className="active:scale-95 transition-transform"
+                        style={{
+                            position: 'relative',
+                            width: 40,
+                            height: 40,
+                            borderRadius: '50%',
+                            background: '#1C1C1E',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                        }}
+                    >
+                        <BellIcon style={{ width: 20, height: 20, color: '#fff' }} strokeWidth={2} />
                         {unreadCount > 0 && (
-                            <span className="absolute top-1 right-1 w-4 h-4 bg-red-500 shadow-md border-2 border-background text-white rounded-full flex items-center justify-center text-[9px] font-black pointer-events-none">
+                            <span
+                                style={{
+                                    position: 'absolute',
+                                    top: -1, right: -1,
+                                    width: 16, height: 16,
+                                    borderRadius: '50%',
+                                    background: '#EF4444',
+                                    border: '2px solid #000',
+                                    color: '#fff',
+                                    fontSize: 9, fontWeight: 700,
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    pointerEvents: 'none',
+                                }}
+                            >
                                 {unreadCount > 9 ? '9+' : unreadCount}
                             </span>
                         )}
                     </Link>
                 )}
-             </div>
+            </div>
         </header>
     )
 }

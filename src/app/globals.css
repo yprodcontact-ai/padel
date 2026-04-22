@@ -98,3 +98,55 @@
     @apply font-sans;
   }
 }
+
+/* ── App-feel transitions ── */
+
+/* Page enter animation */
+@keyframes pageEnter {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Progress bar animation */
+@keyframes progressBar {
+  0% { width: 0; }
+  50% { width: 70%; }
+  100% { width: 100%; }
+}
+
+/* Spinner */
+@keyframes spin {
+  to { transform: translateY(-50%) rotate(360deg); }
+}
+
+/* Native-app overrides */
+* {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Smooth scroll containers */
+main {
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Links and buttons — subtle press feedback */
+a, button {
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+a:active, button:active {
+  opacity: 0.8;
+  transform: scale(0.97);
+}

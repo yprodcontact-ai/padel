@@ -1,184 +1,89 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import { MessageCircleIcon } from 'lucide-react'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 
-export const metadata = {
-   title: 'Mes Messages | Padel'
-}
+export const metadata = { title: 'Mes Messages | Padel' }
 
-type ChatItem = {
-    id: string;
-    title: string;
-    type: string;
-    chatAvatar: string | null;
-    partyId: string;
-    lastMessageText: string;
-    lastMessageTime: Date | null;
-    lastSenderIsMe: boolean;
-    unreadCount: number;
-};
-
-type ConvParticipantRow = {
-  conversation_id: string;
-  conversations: {
-    type: string;
-    party_id: string;
-    parties: {
-      clubs: { nom: string } | null;
-    } | null;
-    messages: {
-      contenu: string;
-      created_at: string;
-      sender_id: string;
-      lu: boolean;
-    }[] | null;
-    conversation_participants: {
-      user_id: string;
-      users: { prenom: string, photo_url: string } | null;
-    }[] | null;
-  } | null;
-}
+type ChatItem = { id: string; title: string; type: string; chatAvatar: string | null; partyId: string; lastMessageText: string; lastMessageTime: Date | null; lastSenderIsMe: boolean; unreadCount: number }
+type ConvParticipantRow = { conversation_id: string; conversations: { type: string; party_id: string; parties: { date_heure: string; clubs: { nom: string } | null } | null; messages: { contenu: string; created_at: string; sender_id: string; lu: boolean }[] | null; conversation_participants: { user_id: string; users: { prenom: string, photo_url: string } | null }[] | null } | null }
 
 export default async function InboxPage() {
   const supabase = createClient()
   const { data: authData } = await supabase.auth.getUser()
   const user = authData.user
-
   if (!user) redirect('/login')
 
   const { data: participantsRaw, error: queryError } = await supabase
     .from('conversation_participants')
-    .select(`
-        conversation_id,
-        conversations (
-            type,
-            party_id,
-            parties ( clubs (nom) ),
-            messages (
-                contenu, created_at, sender_id, lu
-            ),
-            conversation_participants (
-                user_id,
-                users ( prenom, photo_url )
-            )
-        )
-    `)
+    .select(`conversation_id, conversations ( type, party_id, parties ( date_heure, clubs (nom) ), messages ( contenu, created_at, sender_id, lu ), conversation_participants ( user_id, users ( prenom, photo_url ) ) )`)
     .eq('user_id', user.id)
 
-  if (queryError) {
-      console.error("Inbox Supabase Error:", queryError)
-  }
-
   const participants = participantsRaw as unknown as ConvParticipantRow[]
-
   const chatList = (participants || []).map(p => {
-     const conv = p.conversations
-     if (!conv) return null
-
-     const party = conv.parties
-     
-     let chatTitle = 'Chat'
-     let chatAvatar = null
-
-     if (conv.type === 'groupe') {
-        const clubName = party?.clubs && typeof party.clubs === 'object' ? (party.clubs as Record<string, unknown>).nom as string : 'Match Privé'
-        chatTitle = `Match - ${clubName}`
-     } else if (conv.type === 'prive') {
-        const otherUser = conv.conversation_participants?.find(cp => cp.user_id !== user.id)?.users
-        chatTitle = otherUser?.prenom || 'Utilisateur'
-        chatAvatar = otherUser?.photo_url || null
-     }
-
-     const msgs = conv.messages || []
-     msgs.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
-     const lastMessage = msgs[0]
-     
-     const unreadCount = msgs.filter(m => !m.lu && m.sender_id !== user.id).length
-
-     return {
-         id: p.conversation_id,
-         title: chatTitle,
-         type: conv.type,
-         chatAvatar: chatAvatar,
-         partyId: conv.party_id,
-         lastMessageText: lastMessage?.contenu || 'Aucun message',
-         lastMessageTime: lastMessage ? new Date(lastMessage.created_at) : null,
-         lastSenderIsMe: lastMessage?.sender_id === user.id,
-         unreadCount
-     }
+    const conv = p.conversations; if (!conv) return null
+    let chatTitle = 'Chat'; let chatAvatar = null
+    if (conv.type === 'groupe') { if (conv.parties?.date_heure) { const d = new Date(conv.parties.date_heure); const dateStr = d.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' }); const timeStr = d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }); chatTitle = `Match : ${dateStr} - ${timeStr}` } else { chatTitle = 'Match' } }
+    else if (conv.type === 'prive') { const otherUser = conv.conversation_participants?.find(cp => cp.user_id !== user.id)?.users; chatTitle = otherUser?.prenom || 'Utilisateur'; chatAvatar = otherUser?.photo_url || null }
+    const msgs = conv.messages || []; msgs.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()); const lastMessage = msgs[0]
+    const unreadCount = msgs.filter(m => !m.lu && m.sender_id !== user.id).length
+    return { id: p.conversation_id, title: chatTitle, type: conv.type, chatAvatar, partyId: conv.party_id, lastMessageText: lastMessage?.contenu || 'Aucun message', lastMessageTime: lastMessage ? new Date(lastMessage.created_at) : null, lastSenderIsMe: lastMessage?.sender_id === user.id, unreadCount }
   }).filter(Boolean) as ChatItem[]
-
-  chatList.sort((a, b) => {
-     if (!a.lastMessageTime) return 1
-     if (!b.lastMessageTime) return -1
-     return b.lastMessageTime.getTime() - a.lastMessageTime.getTime()
-  })
+  chatList.sort((a, b) => { if (!a.lastMessageTime) return 1; if (!b.lastMessageTime) return -1; return b.lastMessageTime.getTime() - a.lastMessageTime.getTime() })
 
   return (
-    <div className="flex flex-col min-h-screen bg-muted/10 p-4 pb-24">
-      <h1 className="text-3xl font-black mb-6 pt-4">Messages</h1>
+    <div style={{ background: '#000', minHeight: '100vh', padding: '16px 16px 100px', fontFamily: 'var(--font-sans)' }}>
+      <h1 style={{ margin: '16px 0 24px', fontSize: 30, fontWeight: 800, color: '#fff' }}>Messages</h1>
 
-      {queryError && (
-          <div className="bg-red-500/10 text-red-500 p-4 rounded-xl mb-4 text-xs font-mono">
-              Erreur DB: {JSON.stringify(queryError)}
-          </div>
-      )}
+      {queryError && <div style={{ background: 'rgba(239,68,68,0.1)', color: '#EF4444', padding: 16, borderRadius: 16, marginBottom: 16, fontSize: 12, fontFamily: 'monospace' }}>Erreur DB: {JSON.stringify(queryError)}</div>}
 
       {chatList.length === 0 ? (
-          <div className="flex flex-col items-center justify-center flex-1 text-center opacity-50 mt-20">
-             <MessageCircleIcon className="w-16 h-16 mb-4" />
-             <p>Vous n&apos;avez aucune conversation active.</p>
-             <p className="text-sm mt-2">Rejoignez des parties pour discuter !</p>
-          </div>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', marginTop: 80, opacity: 0.5 }}>
+          <svg width={64} height={64} viewBox="0 0 24 24" fill="none" stroke="#8E8E93" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" style={{ marginBottom: 16 }}><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" /></svg>
+          <p style={{ color: '#8E8E93', margin: 0 }}>Vous n&apos;avez aucune conversation active.</p>
+          <p style={{ color: '#8E8E93', fontSize: 14, margin: '8px 0 0' }}>Rejoignez des parties pour discuter !</p>
+        </div>
       ) : (
-          <div className="flex flex-col gap-3">
-             {chatList.map(chat => (
-                <Link key={chat.id} href={`/messages/${chat.id}`}>
-                   <div className="bg-background border p-4 rounded-[16px] flex items-center gap-4 hover:bg-muted/50 transition-colors shadow-sm relative overflow-hidden">
-                      {chat.unreadCount > 0 && <div className="absolute left-0 top-0 bottom-0 w-1 bg-red-500"></div>}
-                      {!chat.unreadCount && <div className="absolute left-0 top-0 bottom-0 w-1 bg-primary/80"></div>}
-                      
-                      <div className="shrink-0 ml-1">
-                         {chat.type === 'prive' ? (
-                             <Avatar className="w-12 h-12 shadow-sm border border-muted">
-                                <AvatarImage src={chat.chatAvatar || ''} />
-                                <AvatarFallback className="bg-muted text-muted-foreground font-bold text-lg">
-                                    {chat.title.charAt(0)}
-                                </AvatarFallback>
-                             </Avatar>
-                         ) : (
-                             <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-                                <MessageCircleIcon className="w-5 h-5 text-primary" />
-                             </div>
-                         )}
-                      </div>
-                      
-                      <div className="flex-1 overflow-hidden">
-                         <div className="flex justify-between items-baseline mb-1">
-                            <h3 className={`truncate pr-3 text-sm ${chat.unreadCount > 0 ? 'font-black' : 'font-bold'}`}>
-                                {chat.title}
-                            </h3>
-                            <span className="text-[10px] text-muted-foreground shrink-0 font-medium">
-                               {chat.lastMessageTime ? chat.lastMessageTime.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) : ''}
-                            </span>
-                         </div>
-                         <p className={`text-xs truncate ${chat.unreadCount > 0 ? 'text-foreground font-semibold' : 'text-muted-foreground'}`}>
-                            {chat.lastSenderIsMe && <span className="font-semibold opacity-70">Vous : </span>}
-                            {chat.lastMessageText}
-                         </p>
-                      </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+          {chatList.map(chat => (
+            <Link key={chat.id} href={`/messages/${chat.id}`} style={{ textDecoration: 'none' }}>
+              <div style={{ background: '#1C1C1E', padding: '14px 16px', borderRadius: 20, display: 'flex', alignItems: 'center', gap: 14, position: 'relative', overflow: 'hidden' }}>
+                {chat.unreadCount > 0 && <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: 3, background: '#EF4444', borderRadius: '0 4px 4px 0' }} />}
 
-                      {chat.unreadCount > 0 && (
-                          <div className="w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center text-[10px] font-black shrink-0">
-                              {chat.unreadCount}
-                          </div>
-                      )}
-                   </div>
-                </Link>
-             ))}
-          </div>
+                <div style={{ flexShrink: 0 }}>
+                  {chat.type === 'prive' && chat.chatAvatar ? (
+                    <div style={{ width: 48, height: 48, borderRadius: '50%', overflow: 'hidden', border: '2px solid #2C2C2E' }}>
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={chat.chatAvatar} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    </div>
+                  ) : (
+                    <div style={{ width: 48, height: 48, borderRadius: '50%', background: '#2C2C2E', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <svg width={20} height={20} viewBox="0 0 24 24" fill="none" stroke="#E8703A" strokeWidth={2}><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" /></svg>
+                    </div>
+                  )}
+                </div>
+
+                <div style={{ flex: 1, overflow: 'hidden' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 4 }}>
+                    <h3 style={{ margin: 0, fontSize: 14, fontWeight: chat.unreadCount > 0 ? 800 : 600, color: '#fff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', paddingRight: 12 }}>{chat.title}</h3>
+                    <span style={{ fontSize: 10, color: '#8E8E93', flexShrink: 0, fontWeight: 500 }}>
+                      {chat.lastMessageTime ? chat.lastMessageTime.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) : ''}
+                    </span>
+                  </div>
+                  <p style={{ margin: 0, fontSize: 12, color: chat.unreadCount > 0 ? '#fff' : '#8E8E93', fontWeight: chat.unreadCount > 0 ? 600 : 400, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {chat.lastSenderIsMe && <span style={{ fontWeight: 600, opacity: 0.7 }}>Vous : </span>}
+                    {chat.lastMessageText}
+                  </p>
+                </div>
+
+                {chat.unreadCount > 0 && (
+                  <div style={{ width: 20, height: 20, borderRadius: '50%', background: '#EF4444', color: '#fff', fontSize: 10, fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                    {chat.unreadCount}
+                  </div>
+                )}
+              </div>
+            </Link>
+          ))}
+        </div>
       )}
     </div>
   )

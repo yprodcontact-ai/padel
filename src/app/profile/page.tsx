@@ -1,137 +1,96 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { MapPinIcon, TrophyIcon, ActivityIcon } from 'lucide-react'
 
-export const metadata = {
-  title: 'Mon Profil',
-}
+export const metadata = { title: 'Mon Profil' }
 
 function getAge(dateString: string | null) {
   if (!dateString) return null
-  const today = new Date()
-  const birthDate = new Date(dateString)
+  const today = new Date(); const birthDate = new Date(dateString)
   let age = today.getFullYear() - birthDate.getFullYear()
   const m = today.getMonth() - birthDate.getMonth()
-  if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
-      age--
-  }
+  if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) age--
   return age
 }
 
 export default async function ProfilePage() {
   const supabase = createClient()
   const { data: authData, error: authError } = await supabase.auth.getUser()
+  if (authError || !authData.user) redirect('/login')
 
-  if (authError || !authData.user) {
-    redirect('/login')
-  }
-
-  // Récupérer le profil et le nom du club (jointure)
-  const { data: userProfile, error } = await supabase
-    .from('users')
-    .select(`
-      *,
-      clubs:club_id (
-        nom,
-        ville
-      )
-    `)
-    .eq('id', authData.user.id)
-    .single()
-
-  if (error || !userProfile) {
-    // Si l'utilisateur n'a pas de profil, c'est qu'il n'a pas fait l'onboarding
-    // Note: Le trigger 'on_auth_user_created' crée la ligne, donc il devrait y en avoir une.
-    redirect('/onboarding')
-  }
-
+  const { data: userProfile, error } = await supabase.from('users').select(`*, clubs:club_id ( nom, ville )`).eq('id', authData.user.id).single()
+  if (error || !userProfile) redirect('/onboarding')
   const age = getAge(userProfile.date_naissance)
+  const initials = `${userProfile.prenom?.[0] || ''}${userProfile.nom?.[0] || ''}`.toUpperCase()
 
   return (
-    <div className="flex min-h-screen w-full flex-col p-4 bg-muted/20">
-      <div className="mx-auto w-full max-w-md pb-6 flex justify-between items-center">
-        <h1 className="text-2xl font-bold">Profil</h1>
-        <Link href="/profile/edit">
-          <Button variant="outline" size="sm">Modifier</Button>
-        </Link>
-      </div>
+    <div style={{ background: '#000', minHeight: '100vh', padding: '16px 16px 100px', fontFamily: 'var(--font-sans)' }}>
+      <div style={{ maxWidth: 420, margin: '0 auto' }}>
+        {/* Header */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
+          <h1 style={{ margin: 0, fontSize: 24, fontWeight: 700, color: '#fff' }}>Profil</h1>
+          <Link href="/profile/edit" style={{ textDecoration: 'none' }}>
+            <button type="button" style={{ height: 36, padding: '0 18px', borderRadius: 100, border: '1px solid #3A3A3C', background: 'transparent', color: '#fff', fontSize: 13, fontWeight: 500, fontFamily: 'var(--font-sans)', cursor: 'pointer' }}>Modifier</button>
+          </Link>
+        </div>
 
-      <Card className="mx-auto w-full max-w-md overflow-hidden relative shadow-sm">
-        {/* Banner background */}
-        <div className="h-28 bg-primary/10 w-full absolute top-0 left-0" />
-        
-        <CardHeader className="text-center pt-16 relative z-10">
-          <Avatar className="w-24 h-24 mx-auto border-4 border-background shadow-sm bg-muted text-2xl font-bold">
-            <AvatarImage src={userProfile.photo_url || ''} alt={userProfile.prenom || 'User'} className="object-cover" />
-            <AvatarFallback>{(userProfile.prenom?.[0] || '') + (userProfile.nom?.[0] || '')}</AvatarFallback>
-          </Avatar>
-          
-          <CardTitle className="text-2xl font-bold mt-4">
+        {/* Profile Card */}
+        <div style={{ background: '#1C1C1E', borderRadius: 28, padding: '32px 24px', textAlign: 'center', position: 'relative', overflow: 'hidden' }}>
+          {/* Gradient decoration */}
+          <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 90, background: 'linear-gradient(to bottom, rgba(232,112,58,0.15), transparent)' }} />
+
+          {/* Avatar */}
+          {userProfile.photo_url ? (
+            <div style={{ width: 96, height: 96, borderRadius: '50%', overflow: 'hidden', margin: '0 auto 16px', border: '3px solid #fff', position: 'relative', zIndex: 1 }}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={userProfile.photo_url} alt={userProfile.prenom} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            </div>
+          ) : (
+            <div style={{ width: 96, height: 96, borderRadius: '50%', background: '#2C2C2E', margin: '0 auto 16px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 32, fontWeight: 700, color: '#fff', border: '3px solid #fff', position: 'relative', zIndex: 1 }}>
+              {initials}
+            </div>
+          )}
+
+          <h2 style={{ margin: '0 0 4px', fontSize: 22, fontWeight: 700, color: '#fff', position: 'relative', zIndex: 1 }}>
             {userProfile.prenom} {userProfile.nom}
-          </CardTitle>
-          <CardDescription className="flex items-center justify-center space-x-1 mt-1 text-base">
-            <MapPinIcon className="w-4 h-4" />
-            <span>{userProfile.ville || 'Ville non renseignée'}</span>
-          </CardDescription>
-        </CardHeader>
+          </h2>
+          <p style={{ margin: '0 0 24px', fontSize: 13, color: '#8E8E93', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, position: 'relative', zIndex: 1 }}>
+            <svg width={14} height={14} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" /><circle cx="12" cy="10" r="3" /></svg>
+            {userProfile.ville || 'Ville non renseignée'}
+          </p>
 
-        <CardContent className="space-y-6">
-          {/* Statistiques Rapides */}
-          <div className="grid grid-cols-3 gap-4 border-y py-4 px-2">
-            <div className="text-center space-y-1">
-              <span className="text-xs text-muted-foreground uppercase font-semibold">Niveau</span>
-              <p className="text-lg font-bold text-primary">{userProfile.niveau || '-'}</p>
-            </div>
-            <div className="text-center space-y-1 border-x">
-              <span className="text-xs text-muted-foreground uppercase font-semibold">Fiabilité</span>
-              <p className="text-lg font-bold text-primary">{userProfile.fiabilite_score || '10'}/10</p>
-            </div>
-            <div className="text-center space-y-1">
-              <span className="text-xs text-muted-foreground uppercase font-semibold">Âge</span>
-              <p className="text-lg font-bold text-primary">{age ? `${age} ans` : '-'}</p>
-            </div>
+          {/* Stats grid */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10, marginBottom: 24 }}>
+            {[
+              { label: 'Niveau', value: userProfile.niveau || '-' },
+              { label: 'Fiabilité', value: `${userProfile.fiabilite_score || '10'}/10` },
+              { label: 'Âge', value: age ? `${age} ans` : '-' },
+            ].map((stat) => (
+              <div key={stat.label} style={{ background: '#2C2C2E', borderRadius: 16, padding: '14px 8px' }}>
+                <span style={{ display: 'block', fontSize: 10, fontWeight: 600, color: '#8E8E93', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 6 }}>{stat.label}</span>
+                <span style={{ fontSize: 18, fontWeight: 700, color: '#E8703A' }}>{stat.value}</span>
+              </div>
+            ))}
           </div>
 
-          {/* Informations détaillées */}
-          <div className="space-y-4">
-            <div className="flex items-start space-x-3">
-              <TrophyIcon className="w-5 h-5 text-muted-foreground mt-0.5" />
-              <div>
-                <p className="text-sm font-medium leading-none">Club principal</p>
-                <p className="text-sm text-muted-foreground mt-1">
-                  {userProfile.clubs?.nom ? `${userProfile.clubs.nom} (${userProfile.clubs.ville})` : 'Aucun club renseigné'}
-                </p>
+          {/* Details */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 14, textAlign: 'left' }}>
+            {[
+              { icon: '🏆', label: 'Club principal', value: userProfile.clubs?.nom ? `${userProfile.clubs.nom} (${userProfile.clubs.ville})` : 'Aucun club' },
+              { icon: '🎾', label: 'Préférences', value: `Main: ${userProfile.main || '?'} • Poste: ${userProfile.poste || '?'}` },
+              { icon: '#', label: 'Licence FFT', value: userProfile.licence_fft || 'Non renseigné' },
+            ].map((item) => (
+              <div key={item.label} style={{ display: 'flex', alignItems: 'flex-start', gap: 12, padding: '10px 0', borderTop: '1px solid #2C2C2E' }}>
+                <span style={{ fontSize: 18, lineHeight: 1, marginTop: 2 }}>{item.icon}</span>
+                <div>
+                  <p style={{ margin: 0, fontSize: 13, fontWeight: 500, color: '#fff' }}>{item.label}</p>
+                  <p style={{ margin: '4px 0 0', fontSize: 13, color: '#8E8E93' }}>{item.value}</p>
+                </div>
               </div>
-            </div>
-
-            <div className="flex items-start space-x-3">
-              <ActivityIcon className="w-5 h-5 text-muted-foreground mt-0.5" />
-              <div>
-                <p className="text-sm font-medium leading-none">Préférences de jeu</p>
-                <p className="text-sm text-muted-foreground mt-1 capitalize">
-                  Main: {userProfile.main || '?'} • Poste: {userProfile.poste || '?'}
-                </p>
-              </div>
-            </div>
-
-            {/* Bio removed */}
-            <div className="flex items-start space-x-3">
-              <span className="w-5 h-5 flex items-center justify-center text-muted-foreground mt-0.5 font-bold font-serif">#</span>
-              <div>
-                <p className="text-sm font-medium leading-none">Numéro de Licence</p>
-                <p className="text-sm text-muted-foreground mt-1">
-                  {userProfile.licence_fft || 'Non renseigné'}
-                </p>
-              </div>
-            </div>
+            ))}
           </div>
-
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   )
 }

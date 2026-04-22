@@ -4,6 +4,24 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
 
+export async function searchClubPlayers(clubId: string, query: string) {
+  if (!query || query.length < 2) return []
+  const supabase = createClient()
+  const { data: authData } = await supabase.auth.getUser()
+  if (!authData.user) return []
+
+  const { data, error } = await supabase
+    .from('users')
+    .select('id, prenom, nom, photo_url, niveau')
+    .eq('club_id', clubId)
+    .neq('id', authData.user.id)
+    .or(`prenom.ilike.%${query}%,nom.ilike.%${query}%`)
+    .limit(10)
+
+  if (error) { console.error('Error searching players:', error); return [] }
+  return data || []
+}
+
 export async function createParty(formData: FormData) {
   const supabase = createClient()
   const { data: authData } = await supabase.auth.getUser()
@@ -41,16 +59,27 @@ export async function createParty(formData: FormData) {
   }
 
   // Insert creator as first player
-  const { error: playerError } = await supabase.from('party_players').insert([
-    {
-      party_id: data.id,
-      user_id: authData.user.id,
-      statut: 'inscrit'
-    }
-  ])
+  const playersToInsert: { party_id: string; user_id: string; statut: string }[] = [
+    { party_id: data.id, user_id: authData.user.id, statut: 'inscrit' }
+  ]
+
+  // Add invited players (max 2)
+  const invitedPlayersRaw = formData.get('invited_players') as string
+  if (invitedPlayersRaw) {
+    try {
+      const invitedIds: string[] = JSON.parse(invitedPlayersRaw)
+      for (const id of invitedIds.slice(0, 2)) {
+        if (id !== authData.user.id) {
+          playersToInsert.push({ party_id: data.id, user_id: id, statut: 'inscrit' })
+        }
+      }
+    } catch { /* ignore parse errors */ }
+  }
+
+  const { error: playerError } = await supabase.from('party_players').insert(playersToInsert)
 
   if (playerError) {
-    console.error('Error adding creator to party_players', playerError)
+    console.error('Error adding players to party_players', playerError)
   }
 
   revalidatePath('/parties')

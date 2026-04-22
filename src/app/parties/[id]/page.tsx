@@ -2,8 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { PartyActionButtons } from './party-buttons'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { UsersIcon } from 'lucide-react'
+import { BackButton } from '@/components/back-button'
 
 type Player = {
   user_id: string;
@@ -57,41 +56,40 @@ export default async function PartyDetailsPage({ params }: { params: { id: strin
   })
 
   return (
-    <div className="flex min-h-screen w-full flex-col p-4 bg-muted/20 pb-20">
-      <div className="mx-auto w-full max-w-md pt-4">
+    <div style={{ background: '#000', minHeight: '100vh', paddingBottom: 100, fontFamily: 'var(--font-sans)' }}>
+      <div style={{ maxWidth: 480, margin: '0 auto', padding: '16px 16px 0' }}>
         
-        <Link href="/" className="text-sm text-primary mb-4 block">
-          &larr; Retour à l&apos;accueil
-        </Link>
+        {/* Back link */}
+        <div style={{ marginBottom: 20 }}>
+          <BackButton />
+        </div>
         
-        <div className="bg-card rounded-xl shadow-sm border p-6 mb-6">
-          <div className="flex justify-between items-start mb-4">
+        {/* Main card */}
+        <div style={{ background: '#fff', borderRadius: 28, padding: '26px 24px', marginBottom: 16 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 20 }}>
             <div>
-              <span className="bg-primary/10 text-primary px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">
-                {party.type}
-              </span>
-              <h1 className="text-2xl font-bold mt-3">Match ({party.visibilite})</h1>
+              <h1 style={{ margin: 0, fontSize: 24, fontWeight: 700, color: '#000' }}>Match ({party.visibilite})</h1>
             </div>
           </div>
           
-          <div className="space-y-4">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             <div>
-              <p className="text-sm text-muted-foreground">Où</p>
-              <p className="font-semibold text-lg">{party.clubs?.nom} - {party.clubs?.ville}</p>
+              <p style={{ margin: 0, fontSize: 12, fontWeight: 500, color: '#8E8E93', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Où</p>
+              <p style={{ margin: '4px 0 0', fontSize: 17, fontWeight: 600, color: '#000' }}>{party.clubs?.nom} - {party.clubs?.ville}</p>
             </div>
             
             <div>
-              <p className="text-sm text-muted-foreground">Quand</p>
-              <p className="font-semibold text-lg capitalize">{dateMatch}</p>
+              <p style={{ margin: 0, fontSize: 12, fontWeight: 500, color: '#8E8E93', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Quand</p>
+              <p style={{ margin: '4px 0 0', fontSize: 17, fontWeight: 600, color: '#000', textTransform: 'capitalize' }}>{dateMatch}</p>
             </div>
             
             <div>
-               <p className="text-sm text-muted-foreground">Niveaux acceptés</p>
-               <p className="font-semibold text-lg">{party.niveau_min} à {party.niveau_max}</p>
+              <p style={{ margin: 0, fontSize: 12, fontWeight: 500, color: '#8E8E93', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Niveaux acceptés</p>
+              <p style={{ margin: '4px 0 0', fontSize: 17, fontWeight: 600, color: '#000' }}>{party.niveau_min} à {party.niveau_max}</p>
             </div>
 
             {party.commentaire && (
-              <div className="bg-muted p-4 rounded-lg mt-4 text-sm italic">
+              <div style={{ background: '#F5F5F7', padding: '14px 16px', borderRadius: 16, fontSize: 14, fontStyle: 'italic', color: '#3A3A3C', marginTop: 4 }}>
                 &quot;{party.commentaire}&quot;
               </div>
             )}
@@ -99,63 +97,71 @@ export default async function PartyDetailsPage({ params }: { params: { id: strin
         </div>
 
         {/* SECTION JOUEURS */}
-        <div className="bg-card rounded-xl shadow-sm border p-6 mb-6">
-           <h2 className="text-lg font-bold mb-4 flex items-center">
-             <UsersIcon className="w-5 h-5 mr-2 text-primary" />
-             Joueurs Inscrits ({playerCount}/4)
-           </h2>
-           
-           <div className="flex flex-col space-y-4">
-             {players.map((player: Player) => (
-                <Link key={player.user_id} href={`/players/${player.user_id}`}>
-                   <div className="flex items-center space-x-3 bg-muted/30 hover:bg-muted/50 transition-colors p-3 rounded-lg border cursor-pointer">
-                     <Avatar className="h-10 w-10 border-2 border-primary/20">
-                        <AvatarImage src={player.users?.photo_url || ''} />
-                        <AvatarFallback>{player.users?.prenom?.charAt(0) || 'P'}</AvatarFallback>
-                     </Avatar>
-                     <div className="flex-1">
-                       <p className="font-semibold">{player.users?.prenom} {player.users?.nom?.charAt(0)}.</p>
-                       <p className="text-xs text-muted-foreground">Niveau: {player.users?.niveau || 'N/A'}</p>
-                     </div>
-                     {player.user_id === party.createur_id && (
-                       <div className="ml-auto inline-flex items-center justify-center bg-primary/10 text-primary px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider">
-                          Orga
-                       </div>
-                     )}
-                   </div>
-                </Link>
-             ))}
-             
-             {/* Emplacements vides */}
-             {Array.from({ length: Math.max(0, 4 - playerCount) }).map((_, i) => (
-                <div key={`empty-${i}`} className="flex items-center space-x-3 bg-muted/10 p-3 rounded-lg border border-dashed">
-                  <div className="h-10 w-10 rounded-full border-2 border-dashed bg-muted flex items-center justify-center">
-                     <UsersIcon className="w-4 h-4 text-muted-foreground opacity-50" />
+        <div style={{ background: '#1C1C1E', borderRadius: 28, padding: '24px 22px', marginBottom: 16 }}>
+          <h2 style={{ margin: '0 0 16px', fontSize: 17, fontWeight: 600, color: '#fff', display: 'flex', alignItems: 'center', gap: 8 }}>
+            <svg width={18} height={18} viewBox="0 0 24 24" fill="none" stroke="#E8703A" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+              <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4-4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 00-3-3.87" /><path d="M16 3.13a4 4 0 010 7.75" />
+            </svg>
+            Joueurs Inscrits ({playerCount}/4)
+          </h2>
+          
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            {players.map((player: Player) => (
+              <Link key={player.user_id} href={`/players/${player.user_id}`} style={{ textDecoration: 'none' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12, background: '#2C2C2E', padding: '12px 14px', borderRadius: 16, cursor: 'pointer' }}>
+                  {player.users?.photo_url ? (
+                    <div style={{ width: 40, height: 40, borderRadius: '50%', overflow: 'hidden', border: '2px solid #3A3A3C', flexShrink: 0 }}>
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={player.users.photo_url} alt={player.users?.prenom || ''} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    </div>
+                  ) : (
+                    <div style={{ width: 40, height: 40, borderRadius: '50%', background: '#3A3A3C', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: 16, fontWeight: 600, flexShrink: 0 }}>
+                      {player.users?.prenom?.charAt(0) || 'P'}
+                    </div>
+                  )}
+                  <div style={{ flex: 1 }}>
+                    <p style={{ margin: 0, fontSize: 15, fontWeight: 600, color: '#fff' }}>{player.users?.prenom} {player.users?.nom?.charAt(0)}.</p>
+                    <p style={{ margin: '2px 0 0', fontSize: 12, color: '#8E8E93' }}>Niveau: {player.users?.niveau || 'N/A'}</p>
                   </div>
-                  <div className="text-muted-foreground text-sm italic">Place disponible</div>
+                  {player.user_id === party.createur_id && (
+                    <span style={{ background: '#E8703A', color: '#fff', fontSize: 9, fontWeight: 700, padding: '3px 10px', borderRadius: 100, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                      Orga
+                    </span>
+                  )}
                 </div>
-             ))}
-           </div>
+              </Link>
+            ))}
+            
+            {/* Emplacements vides */}
+            {Array.from({ length: Math.max(0, 4 - playerCount) }).map((_, i) => (
+              <div key={`empty-${i}`} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', borderRadius: 16, border: '1.5px dashed #3A3A3C' }}>
+                <div style={{ width: 40, height: 40, borderRadius: '50%', border: '1.5px dashed #3A3A3C', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <svg width={16} height={16} viewBox="0 0 24 24" fill="none" stroke="#3A3A3C" strokeWidth={2}><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4-4v2" /><circle cx="9" cy="7" r="4" /></svg>
+                </div>
+                <span style={{ fontSize: 14, color: '#3A3A3C', fontStyle: 'italic' }}>Place disponible</span>
+              </div>
+            ))}
+          </div>
         </div>
         
         {/* BOUTON CHAT */}
         {isParticipant && conversation && (
-           <Link href={`/messages/${conversation.id}`} className="block mb-6">
-             <div className="bg-primary hover:bg-primary/90 text-primary-foreground p-4 rounded-xl shadow-md text-center font-bold flex items-center justify-center transition-colors">
-                💬 Accéder au Chat de groupe
-             </div>
-           </Link>
+          <Link href={`/messages/${conversation.id}`} style={{ display: 'block', marginBottom: 16, textDecoration: 'none' }}>
+            <div style={{ background: '#E8703A', padding: '16px 20px', borderRadius: 100, textAlign: 'center', fontWeight: 600, fontSize: 15, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+              💬 Accéder au Chat de groupe
+            </div>
+          </Link>
         )}
         
         {/* BOUTONS D'ACTION (Client Component) */}
         {currentUserId && (
-           <PartyActionButtons 
-             partyId={party.id}
-             isCreator={isCreator}
-             isParticipant={isParticipant}
-             status={party.statut}
-             playerCount={playerCount}
-           />
+          <PartyActionButtons 
+            partyId={party.id}
+            isCreator={isCreator}
+            isParticipant={isParticipant}
+            status={party.statut}
+            playerCount={playerCount}
+          />
         )}
 
       </div>

@@ -39,13 +39,21 @@ export async function joinParty(partyId: string) {
     if (rpcError) {
         console.error("Error executing system_complete_party RPC:", rpcError)
     } else {
+        const { data: partyData } = await supabase.from('parties').select('date_heure').eq('id', partyId).single()
         const { data: players } = await supabase.from('party_players').select('user_id').eq('party_id', partyId)
         if (players) {
             const { sendPushNotification } = await import('@/lib/push')
+            let dateStr = ''
+            let timeStr = ''
+            if (partyData?.date_heure) {
+                const d = new Date(partyData.date_heure)
+                dateStr = d.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' })
+                timeStr = d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
+            }
             for (const pl of players) {
                 await sendPushNotification(pl.user_id, {
-                    title: 'Partie complète !',
-                    message: `Votre partie affiche complet (4/4). Réservez le terrain !`,
+                    title: 'Partie complète ! 💪',
+                    message: `Votre partie du ${dateStr} à ${timeStr} est complète ! Réservez le terrain dès maintenant.`,
                     url: `/parties/${partyId}`
                 })
             }

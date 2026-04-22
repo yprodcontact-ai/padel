@@ -1,86 +1,55 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import { BellIcon } from 'lucide-react'
 
-export const metadata = {
-  title: 'Notifications | Padel',
-}
+export const metadata = { title: 'Notifications | Padel' }
 
-type AppNotification = {
-  id: string;
-  lien: string | null;
-  lu: boolean;
-  type: string;
-  titre: string;
-  contenu: string;
-  payload: { message?: string };
-  created_at: string;
-}
+type AppNotification = { id: string; lien: string | null; lu: boolean; type: string; titre: string; contenu: string; payload: { message?: string }; created_at: string }
 
 export default async function NotificationsPage() {
   const supabase = createClient()
   const { data: authData } = await supabase.auth.getUser()
-  const user = authData?.user;
-
+  const user = authData?.user
   if (!user) redirect('/login')
 
-  // Marquer toutes les notifications comme lues à l'ouverture de la page
-  await supabase
-    .from('notifications')
-    .update({ lu: true })
-    .eq('user_id', user.id)
-    .eq('lu', false)
-
-  const { data: notifications } = await supabase
-    .from('notifications')
-    .select('*')
-    .eq('user_id', user.id)
-    .order('created_at', { ascending: false })
-    .limit(50)
+  await supabase.from('notifications').update({ lu: true }).eq('user_id', user.id).eq('lu', false)
+  const { data: notifications } = await supabase.from('notifications').select('*').eq('user_id', user.id).order('created_at', { ascending: false }).limit(50)
 
   return (
-    <div className="flex flex-col min-h-screen bg-muted/10 p-4 pb-24">
-      <h1 className="text-3xl font-black mb-6 flex items-center gap-2">
-         <BellIcon className="w-8 h-8 text-primary" />
-         Notifications
+    <div style={{ background: '#000', minHeight: '100vh', padding: '16px 16px 100px', fontFamily: 'var(--font-sans)' }}>
+      <h1 style={{ margin: '0 0 24px', fontSize: 28, fontWeight: 800, color: '#fff', display: 'flex', alignItems: 'center', gap: 10 }}>
+        <svg width={28} height={28} viewBox="0 0 24 24" fill="none" stroke="#E8703A" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9" /><path d="M13.73 21a2 2 0 01-3.46 0" /></svg>
+        Notifications
       </h1>
 
       {!notifications || notifications.length === 0 ? (
-          <div className="flex flex-col items-center justify-center flex-1 text-center opacity-50 mt-20">
-             <BellIcon className="w-16 h-16 mb-4" />
-             <p>Vous n&apos;avez aucune notification.</p>
-          </div>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', marginTop: 80, opacity: 0.5 }}>
+          <svg width={64} height={64} viewBox="0 0 24 24" fill="none" stroke="#8E8E93" strokeWidth={1.5} style={{ marginBottom: 16 }}><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9" /><path d="M13.73 21a2 2 0 01-3.46 0" /></svg>
+          <p style={{ color: '#8E8E93', margin: 0 }}>Vous n&apos;avez aucune notification.</p>
+        </div>
       ) : (
-          <div className="flex flex-col gap-3">
-             {notifications.map((notif: AppNotification) => (
-                <Link 
-                   key={notif.id} 
-                   href={notif.lien || '#'}
-                   className={`bg-background border p-4 rounded-[16px] flex items-start gap-4 hover:bg-muted/50 transition-colors shadow-sm relative overflow-hidden ${!notif.lu ? 'border-primary/50' : ''}`}
-                >
-                    <div className="shrink-0 mt-1">
-                        <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                            <BellIcon className="w-5 h-5 text-primary" />
-                        </div>
-                    </div>
-                    
-                    <div className="flex-1">
-                        <h3 className={`text-sm mb-1 ${!notif.lu ? 'font-black text-primary' : 'font-bold'}`}>
-                            {notif.type === 'party_confirmed' ? 'Partie confirmée' : notif.type === 'party_cancelled' ? 'Partie annulée' : 'Nouvelle notification'}
-                        </h3>
-                        <p className="text-xs text-muted-foreground">
-                            {notif.payload?.message || ''}
-                        </p>
-                        <span className="text-[10px] text-muted-foreground/60 mt-2 block font-medium">
-                            {new Date(notif.created_at).toLocaleString('fr-FR', {
-                                day: '2-digit', month: '2-digit', hour: '2-digit', minute:'2-digit'
-                            })}
-                        </span>
-                    </div>
-                </Link>
-             ))}
-          </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+          {notifications.map((notif: AppNotification) => (
+            <Link key={notif.id} href={notif.lien || '#'} style={{ textDecoration: 'none' }}>
+              <div style={{ background: '#1C1C1E', padding: '14px 16px', borderRadius: 20, display: 'flex', alignItems: 'flex-start', gap: 14, position: 'relative', overflow: 'hidden', border: !notif.lu ? '1px solid rgba(232,112,58,0.3)' : '1px solid transparent' }}>
+                <div style={{ flexShrink: 0, marginTop: 2 }}>
+                  <div style={{ width: 40, height: 40, borderRadius: '50%', background: '#2C2C2E', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <svg width={18} height={18} viewBox="0 0 24 24" fill="none" stroke="#E8703A" strokeWidth={2}><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9" /><path d="M13.73 21a2 2 0 01-3.46 0" /></svg>
+                  </div>
+                </div>
+                <div style={{ flex: 1 }}>
+                  <h3 style={{ margin: '0 0 4px', fontSize: 14, fontWeight: !notif.lu ? 700 : 600, color: !notif.lu ? '#E8703A' : '#fff' }}>
+                    {notif.type === 'party_complete' ? 'Partie complète ! 💪' : notif.type === 'party_confirmed' ? 'Partie confirmée' : notif.type === 'party_cancelled' ? 'Partie annulée' : 'Nouvelle notification'}
+                  </h3>
+                  <p style={{ margin: '0 0 6px', fontSize: 13, color: '#8E8E93' }}>{notif.payload?.message || ''}</p>
+                  <span style={{ fontSize: 10, color: '#8E8E93', opacity: 0.6, fontWeight: 500 }}>
+                    {new Date(notif.created_at).toLocaleString('fr-FR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}
+                  </span>
+                </div>
+              </div>
+            </Link>
+          ))}
+        </div>
       )}
     </div>
   )

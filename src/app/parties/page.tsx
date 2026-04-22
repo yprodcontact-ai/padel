@@ -1,8 +1,9 @@
 import { createClient } from '@/lib/supabase/server'
 import { PartyCard, PartyInfo } from '@/components/party-card'
 import { SearchFilters } from '@/app/parties/search-filters'
-import Link from 'next/link'
-import { ChevronLeftIcon } from 'lucide-react'
+import { BackButtonSquare } from '@/components/back-button'
+
+export const dynamic = 'force-dynamic'
 
 type FetchedParty = {
   id: string;
@@ -85,24 +86,21 @@ export default async function PartiesSearchPage({
         } as PartyInfo
      })
 
-     if (searchDispo) {
-         formattedParties = formattedParties.filter(p => p.player_count < 4)
-     }
+     formattedParties = formattedParties.filter(p => p.player_count < 4)
   }
 
   return (
-    <div className="flex min-h-screen w-full flex-col bg-muted/10 pb-20">
+    <div style={{ background: '#000', minHeight: '100vh', paddingBottom: 100, fontFamily: 'var(--font-sans)' }}>
       
-      <div className="bg-background border-b px-4 py-4 sticky top-0 z-20 shadow-sm flex items-center justify-between">
-         <div className="flex items-center">
-            <Link href="/" className="mr-3 p-1 rounded-md hover:bg-muted">
-               <ChevronLeftIcon className="w-5 h-5" />
-            </Link>
-            <h1 className="text-xl font-bold">Trouver un match</h1>
-         </div>
+      {/* Header */}
+      <div style={{ position: 'sticky', top: 0, zIndex: 20, background: '#000', borderBottom: '1px solid #1C1C1E', padding: '16px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <BackButtonSquare />
+          <h1 style={{ margin: 0, fontSize: 20, fontWeight: 700, color: '#fff' }}>Trouver un match</h1>
+        </div>
       </div>
 
-      <div className="p-4 space-y-6">
+      <div style={{ padding: '20px 16px' }}>
         
         {/* FILTERS COMPONENT */}
         <SearchFilters 
@@ -113,24 +111,24 @@ export default async function PartiesSearchPage({
         />
 
         {/* RESULTS */}
-        <div>
-           <div className="flex items-center justify-between mb-4">
-              <h2 className="font-semibold text-lg">Résultats ({formattedParties.length})</h2>
-           </div>
+        <div style={{ marginTop: 28 }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+            <h2 style={{ margin: 0, fontSize: 18, fontWeight: 600, color: '#fff' }}>Résultats ({formattedParties.length})</h2>
+          </div>
 
-           {formattedParties.length > 0 ? (
-             <div className="space-y-4">
-               {formattedParties.map(party => (
-                  <PartyCard key={party.id} party={party} />
-               ))}
-             </div>
-           ) : (
-             <div className="text-center py-12 px-4 bg-card rounded-xl border border-dashed text-muted-foreground mt-4">
-                <p className="mb-2 text-3xl">🏜️</p>
-                <h3 className="font-semibold text-foreground">Aucun match trouvé</h3>
-                <p className="text-sm mt-1">Essayez d&apos;élargir vos filtres (ville, niveau, ou décochez les places dispo).</p>
-             </div>
-           )}
+          {formattedParties.length > 0 ? (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+              {formattedParties.map(party => (
+                 <PartyCard key={party.id} party={party} />
+              ))}
+            </div>
+          ) : (
+            <div style={{ background: '#1C1C1E', borderRadius: 28, padding: '40px 24px', textAlign: 'center' }}>
+              <p style={{ margin: 0, fontSize: 32, marginBottom: 12 }}>🏜️</p>
+              <h3 style={{ margin: 0, fontSize: 16, fontWeight: 600, color: '#fff' }}>Aucun match trouvé</h3>
+              <p style={{ margin: '8px 0 0', fontSize: 14, color: '#8E8E93' }}>Essayez d&apos;élargir vos filtres (ville, niveau, ou décochez les places dispo).</p>
+            </div>
+          )}
         </div>
       </div>
     </div>
