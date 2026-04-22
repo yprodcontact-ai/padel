@@ -1,10 +1,19 @@
 import { createClient } from '@/lib/supabase/server'
-import { Card, CardContent } from '@/components/ui/card'
 import Link from 'next/link'
-import { Button } from '@/components/ui/button'
-import { TrophyIcon, CalendarIcon, PlusCircleIcon } from 'lucide-react'
 import { getDistanceFromLatLonInKm } from '@/lib/utils'
-import { PartyCard, PartyInfo } from '@/components/party-card'
+
+/* ─── Types ─── */
+type PlayerProfile = {
+  prenom: string | null;
+  nom: string | null;
+  niveau: number | null;
+  photo_url: string | null;
+}
+
+type FetchedPartyPlayer = {
+  user_id: string;
+  users: PlayerProfile | null;
+}
 
 type FetchedParty = {
   id: string;
@@ -13,15 +22,152 @@ type FetchedParty = {
   niveau_max: number;
   type: string;
   clubs: { nom: string; ville: string; lat: number | null; lng: number | null } | null;
-  party_players: { user_id: string }[] | null;
+  party_players: FetchedPartyPlayer[] | null;
 }
 
+type HomePlayerInfo = {
+  user_id: string;
+  prenom: string;
+  nom: string;
+  niveau: number;
+  photo_url: string | null;
+  initials: string;
+}
+
+type HomePartyInfo = {
+  id: string;
+  club_nom: string;
+  club_ville: string;
+  date_heure: string;
+  niveau_min: number;
+  niveau_max: number;
+  type: string;
+  players: HomePlayerInfo[];
+  player_count: number;
+  has_joined: boolean;
+  distance_km?: number;
+};
+
+/* ─── Reusable sub-components ─── */
+
+function PlayerAvatar({ player, size = 46, style }: { player: HomePlayerInfo; size?: number; style?: React.CSSProperties }) {
+  const hasPhoto = !!player.photo_url
+  return (
+    <div style={{ position: 'relative', width: size, height: size, flexShrink: 0, ...style }}>
+      {hasPhoto ? (
+        <div
+          className="rounded-full overflow-hidden"
+          style={{ width: size, height: size, border: '2.5px solid #fff' }}
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={player.photo_url!} alt={player.prenom} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+        </div>
+      ) : (
+        <div
+          className="rounded-full flex items-center justify-center"
+          style={{
+            width: size, height: size,
+            background: '#3A3A3C',
+            border: '2.5px solid #fff',
+            color: '#fff',
+            fontSize: Math.round(size * 0.3),
+            fontWeight: 600,
+            letterSpacing: '0.04em',
+            fontFamily: 'var(--font-sans)',
+          }}
+        >
+          {player.initials}
+        </div>
+      )}
+      <span
+        className="absolute left-1/2 flex items-center justify-center whitespace-nowrap"
+        style={{
+          bottom: -4,
+          transform: 'translateX(-50%)',
+          background: '#1C1C1E',
+          color: '#fff',
+          fontSize: 9,
+          fontWeight: 700,
+          padding: '1px 6px',
+          borderRadius: 100,
+          border: '1.5px solid #fff',
+          fontFamily: 'var(--font-sans)',
+        }}
+      >
+        niv. {player.niveau}
+      </span>
+    </div>
+  )
+}
+
+function AddPlayerCircle({ size = 46 }: { size?: number }) {
+  return (
+    <div
+      className="rounded-full flex items-center justify-center cursor-pointer"
+      style={{ width: size, height: size, border: '1.5px dashed #A1A1AA', background: '#fff', flexShrink: 0 }}
+    >
+      <svg width={18} height={18} viewBox="0 0 18 18" fill="none" stroke="#A1A1AA" strokeWidth={1.5}>
+        <line x1="9" y1="3" x2="9" y2="15" />
+        <line x1="3" y1="9" x2="15" y2="9" />
+      </svg>
+    </div>
+  )
+}
+
+function DarkBadge({ children }: { children: React.ReactNode }) {
+  return (
+    <span
+      className="inline-flex items-center"
+      style={{ background: '#1C1C1E', color: '#fff', fontSize: 12, fontWeight: 500, padding: '5px 14px', borderRadius: 100, fontFamily: 'var(--font-sans)', letterSpacing: '0.01em' }}
+    >
+      {children}
+    </span>
+  )
+}
+
+/* ─── Helpers ─── */
+function formatDate(iso: string): string {
+  const d = new Date(iso)
+  const now = new Date()
+  const isToday = d.getDate() === now.getDate() && d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear()
+
+  const tomorrow = new Date(now)
+  tomorrow.setDate(tomorrow.getDate() + 1)
+  const isTomorrow = d.getDate() === tomorrow.getDate() && d.getMonth() === tomorrow.getMonth() && d.getFullYear() === tomorrow.getFullYear()
+
+  if (isToday) return 'Aujourd\u2019hui'
+  if (isTomorrow) return 'Demain'
+  return d.toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' })
+}
+
+function formatTime(iso: string): string {
+  return new Date(iso).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
+}
+
+function mapPlayer(pp: FetchedPartyPlayer): HomePlayerInfo {
+  const u = pp.users
+  const prenom = u?.prenom || 'Joueur'
+  const nom = u?.nom || ''
+  return {
+    user_id: pp.user_id,
+    prenom,
+    nom,
+    niveau: u?.niveau ?? 5,
+    photo_url: u?.photo_url || null,
+    initials: `${prenom.charAt(0)}${nom.charAt(0)}`.toUpperCase(),
+  }
+}
+
+
+/* ═══════════════════════════════════════════
+   MAIN PAGE
+   ═══════════════════════════════════════════ */
 export default async function Home() {
   const supabase = createClient()
   const { data: authData } = await supabase.auth.getUser()
 
   let prenom = 'Joueur'
-  let userProfile = null
+  let userProfile: Record<string, unknown> | null = null
 
   if (authData.user) {
     const { data: profile } = await supabase
@@ -36,8 +182,7 @@ export default async function Home() {
     }
   }
 
-  // RECHERCHE DES MATCHS
-  // On récupère les matchs publiés à venir
+  // Récupération des parties avec les VRAIS joueurs (join nested)
   const now = new Date().toISOString()
   const { data: parties } = await supabase
     .from('parties')
@@ -48,35 +193,38 @@ export default async function Home() {
       niveau_max,
       type,
       clubs (nom, ville, lat, lng),
-      party_players (user_id)
+      party_players (
+        user_id,
+        users (prenom, nom, niveau, photo_url)
+      )
     `)
     .eq('statut', 'publiee')
     .gte('date_heure', now)
     .order('date_heure', { ascending: true })
     .limit(50)
 
-  // FILTRAGE ET MAPPING
-  let nearbyParties: PartyInfo[] = []
+  // FILTRAGE ET MAPPING avec vrais joueurs
+  let nearbyParties: HomePartyInfo[] = []
   
   if (parties && userProfile) {
      const hasCoords = userProfile.lat && userProfile.lng
-     const userVille = userProfile.ville?.toLowerCase()
+     const userVille = (userProfile.ville as string)?.toLowerCase()
 
      const mappedParties = (parties as unknown as FetchedParty[]).map((p) => {
         let distance: number | undefined = undefined
         let include = false
 
         if (hasCoords && p.clubs?.lat && p.clubs?.lng) {
-            distance = getDistanceFromLatLonInKm(userProfile.lat, userProfile.lng, p.clubs.lat, p.clubs.lng)
+            distance = getDistanceFromLatLonInKm(userProfile.lat as number, userProfile.lng as number, p.clubs.lat, p.clubs.lng)
             if (distance <= 30) include = true
         } else if (userVille && p.clubs?.ville?.toLowerCase() === userVille) {
             include = true
         } else if (!userVille && !hasCoords) {
-            // Si l'utilisateur n'a renseigné ni ville ni géoloc, on lui montre tout
             include = true
         }
 
         const hasJoined = p.party_players?.some((player) => player.user_id === authData.user?.id)
+        const players = (p.party_players || []).map(mapPlayer)
 
         return {
            info: {
@@ -87,10 +235,11 @@ export default async function Home() {
              niveau_min: p.niveau_min,
              niveau_max: p.niveau_max,
              type: p.type,
-             player_count: p.party_players?.length || 0,
+             players,
+             player_count: players.length,
              has_joined: hasJoined || false,
-             distance_km: distance
-           } as PartyInfo,
+             distance_km: distance,
+           },
            include,
            distance
         }
@@ -99,90 +248,188 @@ export default async function Home() {
      nearbyParties = mappedParties
        .filter(p => p.include)
        .map(p => p.info)
-       // Ne montrer que les parties non crées par soi ou ne pas filtrer ? On montre tout
-       // On trie par distance si possible (on rajoute le tri)
        .sort((a, b) => (a.distance_km || 999) - (b.distance_km || 999))
-       .slice(0, 5) // Les 5 plus proches/imminents
+       .slice(0, 6)
   }
 
+  // Séparer : la prochaine partie (rejointe par l'utilisateur) vs les parties disponibles
+  const myNextParty = nearbyParties.find(p => p.has_joined) || null
+  const availableParties = nearbyParties.filter(p => p.id !== myNextParty?.id).slice(0, 4)
+
   return (
-    <div className="flex min-h-[calc(100vh-80px)] w-full flex-col p-4 bg-muted/20 pb-20">
-      <div className="pt-6 pb-4">
-        <h1 className="text-3xl font-bold mb-1">
-          Salut {prenom} 👋
+    <div style={{ background: '#000', minHeight: '100vh', paddingBottom: 100, fontFamily: 'var(--font-sans)' }}>
+
+      {/* ═══ HERO ═══ */}
+      <div style={{ padding: '33px 20px 0' }}>
+        <h1 style={{ margin: 0, fontSize: 32, lineHeight: 1.15, color: '#fff' }}>
+          <span style={{ fontWeight: 300 }}>Hello </span>
+          <span style={{ fontWeight: 700 }}>{prenom}</span>
         </h1>
-        <p className="text-muted-foreground text-sm">
+        <p style={{ margin: '4px 0 0', fontSize: 15, color: '#8E8E93', fontStyle: 'italic', fontWeight: 300 }}>
           Prêt à jouer au padel aujourd&apos;hui ?
         </p>
       </div>
 
-      <div className="mt-2 flex gap-3">
-         <Link href="/parties/create" className="flex-1">
-           <Button className="w-full flex justify-center items-center h-12 shadow-md">
-              <PlusCircleIcon className="w-5 h-5 mr-2" />
-              Organiser
-           </Button>
-         </Link>
-         <Link href="/parties" className="flex-1">
-           <Button variant="outline" className="w-full flex justify-center items-center h-12 bg-background shadow-sm border-primary/20 text-primary">
-              Rechercher
-           </Button>
-         </Link>
+      {/* ═══ ACTION BUTTONS ═══ */}
+      <div style={{ display: 'flex', gap: 10, padding: '24px 20px 0' }}>
+        <Link href="/parties/create" style={{ flex: 1, textDecoration: 'none' }}>
+          <button type="button" style={{ width: '100%', height: 50, borderRadius: 100, border: 'none', background: '#E8703A', color: '#fff', fontSize: 14, fontWeight: 500, fontFamily: 'var(--font-sans)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, cursor: 'pointer' }}>
+            <span style={{ width: 20, height: 20, borderRadius: '50%', border: '1.5px solid rgba(255,255,255,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, fontWeight: 300, lineHeight: 1 }}>+</span>
+            Créer une partie
+          </button>
+        </Link>
+        <Link href="/parties" style={{ flex: 1, textDecoration: 'none' }}>
+          <button type="button" style={{ width: '100%', height: 50, borderRadius: 100, border: 'none', background: '#2C2C2E', color: '#fff', fontSize: 14, fontWeight: 500, fontFamily: 'var(--font-sans)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, cursor: 'pointer' }}>
+            <svg width={16} height={16} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round"><polyline points="15 10 20 15 15 20" /><path d="M4 4v7a4 4 0 004 4h12" /></svg>
+            Rejoindre une partie
+          </button>
+        </Link>
       </div>
 
-      <div className="mt-8">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold flex items-center">
-            <CalendarIcon className="w-5 h-5 mr-2 text-primary" />
-            Matchs autour de vous
+      {/* ═══ VOTRE PROCHAINE PARTIE ═══ */}
+      <div style={{ marginTop: 36 }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 20px', marginBottom: 16 }}>
+          <h2 style={{ margin: 0, fontSize: 20, fontWeight: 600, color: '#fff', letterSpacing: '-0.01em' }}>
+            Votre prochaine partie
           </h2>
-          <Link href="/parties" className="text-sm font-bold text-primary">
+          <Link href="/parties" style={{ fontSize: 14, color: '#8E8E93', textDecoration: 'none', fontWeight: 400 }}>
             Voir plus &rsaquo;
           </Link>
         </div>
-        
-        {nearbyParties.length > 0 ? (
-          <div className="space-y-4">
-            {nearbyParties.map(party => (
-               <PartyCard key={party.id} party={party} />
-            ))}
+
+        {myNextParty ? (
+          <div style={{ margin: '0 16px', background: '#fff', borderRadius: 28, padding: '22px 22px 20px', position: 'relative' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+              <div>
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
+                  <span style={{ fontSize: 19, fontWeight: 600, color: '#000', fontFamily: 'var(--font-sans)' }}>
+                    {formatDate(myNextParty.date_heure)}
+                  </span>
+                  <span style={{ fontSize: 20, fontWeight: 300, fontStyle: 'italic', color: 'rgba(0,0,0,0.55)', fontFamily: 'var(--font-sans)' }}>
+                    {formatTime(myNextParty.date_heure)}
+                  </span>
+                </div>
+                <div style={{ marginTop: 10 }}>
+                  <DarkBadge>{myNextParty.club_nom}</DarkBadge>
+                </div>
+              </div>
+
+              {/* 2×2 avatar grid from REAL players */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6, marginTop: -2 }}>
+                {myNextParty.players.slice(0, 3).map((player) => (
+                  <PlayerAvatar key={player.user_id} player={player} size={46} />
+                ))}
+                {myNextParty.players.length < 4 && <AddPlayerCircle size={46} />}
+                {myNextParty.players.length >= 4 && (
+                  <PlayerAvatar player={myNextParty.players[3]} size={46} />
+                )}
+              </div>
+            </div>
+
+            {/* Bottom: confirm + cancel */}
+            <div style={{ marginTop: 28, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div style={{ position: 'relative' }}>
+                <div style={{ position: 'absolute', top: -22, left: 4, width: 64, height: 36, opacity: 0.18 }}>
+                  <svg viewBox="0 0 100 60" fill="none" stroke="#000" strokeWidth={1} width="100%" height="100%">
+                    <rect x="0" y="0" width="100" height="60" />
+                    <line x1="50" y1="0" x2="50" y2="60" />
+                    <line x1="0" y1="30" x2="100" y2="30" />
+                  </svg>
+                </div>
+                <button type="button" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, height: 36, padding: '0 16px', borderRadius: 100, border: '1px solid #D4D4D8', background: '#fff', color: '#000', fontSize: 13, fontWeight: 500, fontFamily: 'var(--font-sans)', cursor: 'pointer', position: 'relative', zIndex: 1 }}>
+                  Confirmer la réservation
+                  <svg width={14} height={14} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
+                </button>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, cursor: 'pointer', marginRight: 4 }}>
+                <div style={{ width: 32, height: 32, borderRadius: '50%', border: '1px solid #D4D4D8', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <svg width={12} height={12} viewBox="0 0 24 24" fill="none" stroke="#71717A" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+                </div>
+                <span style={{ fontSize: 9, fontWeight: 600, color: '#A1A1AA', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Annuler</span>
+              </div>
+            </div>
           </div>
         ) : (
-          <Card className="border-dashed border-2 bg-transparent shadow-none border-primary/20">
-            <CardContent className="flex flex-col items-center justify-center p-8 text-center space-y-3">
-              <div className="w-12 h-12 bg-primary/10 text-primary rounded-full flex items-center justify-center text-xl">
-                🎾
-              </div>
-              <h3 className="font-semibold text-foreground">Calme plat !</h3>
-              <p className="text-xs text-muted-foreground max-w-[250px]">
-                Aucun match trouvé autour de chez vous (<span className="capitalize">{userProfile?.ville || "pas de ville"}</span>).
-              </p>
-              <Link href="/parties">
-                <Button className="mt-2" variant="outline">Explorer partout...</Button>
-              </Link>
-            </CardContent>
-          </Card>
+          <div style={{ margin: '0 16px', background: '#1C1C1E', borderRadius: 28, padding: '28px 22px', textAlign: 'center' }}>
+            <p style={{ margin: 0, fontSize: 15, color: '#8E8E93', fontFamily: 'var(--font-sans)' }}>
+              Aucune partie rejointe pour le moment.
+            </p>
+            <Link href="/parties" style={{ display: 'inline-block', marginTop: 12, fontSize: 14, color: '#E8703A', fontWeight: 500, textDecoration: 'none' }}>
+              Explorer les parties &rsaquo;
+            </Link>
+          </div>
         )}
       </div>
 
-      <div className="mt-8">
-        <h2 className="text-lg font-semibold mb-4 flex items-center">
-          <TrophyIcon className="w-5 h-5 mr-2 text-primary" />
-          Clubs à découvrir
-        </h2>
-        <Card className="bg-primary text-primary-foreground border-none">
-          <CardContent className="flex items-center justify-between p-6">
-            <div className="space-y-1">
-              <h3 className="font-bold">Affiliez-vous</h3>
-              <p className="text-sm opacity-90 max-w-[200px]">
-                Trouvez le club de padel le plus proche de chez vous !
-              </p>
-            </div>
-            <Link href="/clubs">
-              <Button variant="secondary" className="font-bold">Voir</Button>
-            </Link>
-          </CardContent>
-        </Card>
+      {/* ═══ PARTIES DISPONIBLES ═══ */}
+      <div style={{ marginTop: 36 }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 20px', marginBottom: 16 }}>
+          <h2 style={{ margin: 0, fontSize: 20, fontWeight: 600, color: '#fff', letterSpacing: '-0.01em' }}>
+            Parties disponibles
+          </h2>
+          <Link href="/parties" style={{ fontSize: 14, color: '#8E8E93', textDecoration: 'none', fontWeight: 400, fontStyle: 'italic' }}>
+            Toutes les parties &rsaquo;
+          </Link>
+        </div>
+
+        {availableParties.length > 0 ? (
+          <div
+            className="[scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
+            style={{ display: 'flex', gap: 14, overflowX: 'auto', paddingLeft: 16, paddingRight: 32, paddingBottom: 8 }}
+          >
+            {availableParties.map((p) => (
+              <Link key={p.id} href={`/parties/${p.id}`} style={{ textDecoration: 'none', flexShrink: 0 }}>
+                <div style={{ minWidth: 260, width: 260, background: '#fff', borderRadius: 28, padding: '22px 22px 22px', display: 'flex', flexDirection: 'column' }}>
+                  {/* Date */}
+                  <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginBottom: 12 }}>
+                    <span style={{ fontSize: 19, fontWeight: 600, color: '#000', fontFamily: 'var(--font-sans)' }}>
+                      {formatDate(p.date_heure)}
+                    </span>
+                    <span style={{ fontSize: 20, fontWeight: 300, fontStyle: 'italic', color: 'rgba(0,0,0,0.55)', fontFamily: 'var(--font-sans)' }}>
+                      {formatTime(p.date_heure)}
+                    </span>
+                  </div>
+
+                  {/* Club */}
+                  <div style={{ marginBottom: 16 }}>
+                    <DarkBadge>{p.club_nom}</DarkBadge>
+                  </div>
+
+                  {/* Niveaux */}
+                  <p style={{ margin: 0, fontSize: 14, color: '#000', fontFamily: 'var(--font-sans)', fontWeight: 400 }}>
+                    Niveaux acceptés : <strong>{p.niveau_min} à {p.niveau_max}</strong>
+                  </p>
+
+                  <div style={{ flex: 1, minHeight: 28 }} />
+
+                  {/* Real players + add circle */}
+                  <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between' }}>
+                    <div style={{ display: 'flex' }}>
+                      {p.players.slice(0, 3).map((player, idx) => (
+                        <PlayerAvatar
+                          key={player.user_id}
+                          player={player}
+                          size={46}
+                          style={{ marginLeft: idx === 0 ? 0 : -12 }}
+                        />
+                      ))}
+                      {p.players.length === 0 && (
+                        <span style={{ fontSize: 13, color: '#8E8E93', fontStyle: 'italic', paddingBottom: 8 }}>Aucun joueur</span>
+                      )}
+                    </div>
+                    {p.player_count < 4 && <AddPlayerCircle size={44} />}
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        ) : (
+          <div style={{ margin: '0 16px', background: '#1C1C1E', borderRadius: 28, padding: '28px 22px', textAlign: 'center' }}>
+            <p style={{ margin: 0, fontSize: 15, color: '#8E8E93' }}>
+              Aucune partie disponible pour le moment.
+            </p>
+          </div>
+        )}
       </div>
     </div>
   )
