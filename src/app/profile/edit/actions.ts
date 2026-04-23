@@ -41,6 +41,8 @@ export async function updateProfile(formData: FormData) {
   const sexe = formData.get('sexe') as 'homme' | 'femme' | 'autre'
   const ville = formData.get('ville') as string
   const licence_fft = formData.get('licence_fft') as string
+  const classement_fft_str = formData.get('classement_fft') as string
+  const classement_fft = classement_fft_str ? parseInt(classement_fft_str, 10) : null
   const niveau = parseFloat(formData.get('niveau') as string)
   const club_id = formData.get('club_id') as string
   const main = formData.get('main') as 'droite' | 'gauche' | 'ambidextre'
@@ -54,6 +56,7 @@ export async function updateProfile(formData: FormData) {
     sexe,
     ville,
     licence_fft,
+    classement_fft,
     niveau,
     club_id: (club_id && club_id !== "none") ? club_id : null,
     main,

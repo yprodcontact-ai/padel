@@ -134,7 +134,7 @@ export function PushManager() {
          </button>
          <div className="flex items-start gap-3">
              <div className="bg-primary p-2 rounded-full shrink-0 animate-pulse">
-                 <BellIcon className="w-6 h-6 text-black" />
+                 <BellIcon className="w-6 h-6 text-white" />
              </div>
              <div className="flex-1 pr-6">
                  <h4 className="font-bold text-sm text-zinc-100">Restez informé</h4>
@@ -144,7 +144,7 @@ export function PushManager() {
          <button 
             onClick={handleRequestPush} 
             disabled={loading}
-            className="w-full mt-2 bg-primary text-black font-bold py-2.5 rounded-lg active:scale-95 transition-all flex items-center justify-center gap-2"
+            className="w-full mt-2 bg-primary text-white font-bold py-2.5 rounded-lg active:scale-95 transition-all flex items-center justify-center gap-2"
          >
              {loading ? 'Activation...' : 'Activer les notifications'}
          </button>

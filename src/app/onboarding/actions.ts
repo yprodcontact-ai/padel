@@ -43,6 +43,8 @@ export async function completeOnboarding(formData: FormData) {
   const ville = formData.get('ville') as string
   const niveau = parseFloat(formData.get('niveau') as string)
   const club_id = formData.get('club_id') as string // UUID optionnel
+  const classement_fft_str = formData.get('classement_fft') as string
+  const classement_fft = classement_fft_str ? parseInt(classement_fft_str, 10) : null
   const main = formData.get('main') as 'droite' | 'gauche' | 'ambidextre'
   const poste = formData.get('poste') as 'droite' | 'gauche' | 'indifférent'
 
@@ -56,6 +58,7 @@ export async function completeOnboarding(formData: FormData) {
       ville,
       niveau,
       club_id: club_id ? club_id : null,
+      classement_fft,
       main,
       poste,
       ...(photoUrl ? { photo_url: photoUrl } : {}),

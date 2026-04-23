@@ -25,12 +25,12 @@ export default async function PlayerProfilePage({ params }: { params: { id: stri
         <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 90, background: 'linear-gradient(to bottom, rgba(232,112,58,0.15), transparent)' }} />
 
         {player.photo_url ? (
-          <div style={{ width: 112, height: 112, borderRadius: '50%', overflow: 'hidden', marginBottom: 16, border: '3px solid #fff', position: 'relative', zIndex: 1, boxShadow: '0 8px 24px rgba(0,0,0,0.4)' }}>
+          <div style={{ width: 112, height: 112, borderRadius: '50%', overflow: 'hidden', marginBottom: 16, border: '3px solid var(--card)', position: 'relative', zIndex: 1, boxShadow: '0 8px 24px rgba(0,0,0,0.08)' }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={player.photo_url} alt={player.prenom} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
           </div>
         ) : (
-          <div style={{ width: 112, height: 112, borderRadius: '50%', backgroundColor: 'var(--muted)', marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 40, fontWeight: 800, color: 'var(--muted-foreground)', border: '3px solid #fff', position: 'relative', zIndex: 1 }}>
+          <div style={{ width: 112, height: 112, borderRadius: '50%', backgroundColor: 'var(--muted)', marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 40, fontWeight: 800, color: 'var(--muted-foreground)', border: '3px solid var(--card)', position: 'relative', zIndex: 1 }}>
             {player.prenom?.charAt(0) || 'J'}
           </div>
         )}
@@ -64,7 +64,7 @@ export default async function PlayerProfilePage({ params }: { params: { id: stri
           </form>
         )}
         {isMe && (
-          <div style={{ width: '100%', padding: '12px 16px', borderRadius: 16, border: '1.5px dashed #3A3A3C', textAlign: 'center', fontSize: 12, fontWeight: 600, color: 'var(--muted-foreground)', zIndex: 1, position: 'relative' }}>
+          <div style={{ width: '100%', padding: '12px 16px', borderRadius: 16, border: '1.5px dashed var(--border)', textAlign: 'center', fontSize: 12, fontWeight: 600, color: 'var(--muted-foreground)', zIndex: 1, position: 'relative' }}>
             C&apos;est votre profil public
           </div>
         )}

@@ -6,7 +6,7 @@ import { createParty, searchClubPlayers, getUserClubId } from './actions'
 import { getClubs } from '@/app/onboarding/actions'
 import Link from 'next/link'
 
-const inputStyle: React.CSSProperties = { width: '100%', height: 50, borderRadius: 14, border: 'none', backgroundColor: 'var(--muted)', color: 'var(--foreground)', fontSize: 15, padding: '0 16px', outline: 'none', fontFamily: 'var(--font-sans)', boxSizing: 'border-box' as const }
+const inputStyle: React.CSSProperties = { width: '100%', height: 50, borderRadius: 14, border: 'none', backgroundColor: 'var(--muted)', color: 'var(--foreground)', fontSize: 15, padding: '0 16px', outline: 'none', fontFamily: 'var(--font-sans)', boxSizing: 'border-box' as const, WebkitAppearance: 'none' }
 const labelStyle: React.CSSProperties = { display: 'block', fontSize: 13, fontWeight: 500, color: 'var(--muted-foreground)', marginBottom: 8 }
 
 type SearchPlayer = { id: string; prenom: string; nom: string; photo_url: string | null; niveau: number | null }
@@ -101,7 +101,7 @@ export default function CreatePartyPage() {
   }
 
   return (
-    <div style={{ backgroundColor: 'var(--background)', minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 16, fontFamily: 'var(--font-sans)' }}>
+    <div style={{ backgroundColor: 'var(--background)', height: '100%', overflowY: 'auto', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 16, fontFamily: 'var(--font-sans)' }}>
       <div style={{ width: '100%', maxWidth: 440 }}>
         <div style={{ textAlign: 'center', marginBottom: 24 }}>
           <h1 style={{ margin: 0, fontSize: 24, fontWeight: 700, color: 'var(--foreground)' }}>Organiser un match</h1>
@@ -224,10 +224,10 @@ export default function CreatePartyPage() {
                   onChange={(e) => setSelectedDate(e.target.value)}
                   min={new Date().toISOString().split('T')[0]}
                   required={step === 3}
-                  style={{ ...inputStyle, height: 54, colorScheme: 'dark', marginBottom: 20 }}
+                  style={{ ...inputStyle, height: 54, marginBottom: 20 }}
                 />
                 <label style={labelStyle}>Créneau horaire</label>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8, maxHeight: 220, overflowY: 'auto', paddingRight: 4 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8, maxHeight: 140, overflowY: 'auto', paddingRight: 4 }}>
                   {timeSlots.map(slot => (
                     <button
                       key={slot}

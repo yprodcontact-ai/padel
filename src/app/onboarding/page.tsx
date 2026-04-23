@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { completeOnboarding, getClubs } from './actions'
+import { Slider } from '@/components/ui/slider'
 
 const inputStyle: React.CSSProperties = {
   width: '100%',
@@ -15,6 +16,7 @@ const inputStyle: React.CSSProperties = {
   outline: 'none',
   fontFamily: 'var(--font-sans)',
   boxSizing: 'border-box' as const,
+  WebkitAppearance: 'none',
 }
 
 const labelStyle: React.CSSProperties = {
@@ -29,6 +31,7 @@ export default function OnboardingPage() {
   const [step, setStep] = useState(1)
   const [clubs, setClubs] = useState<{ id: string; nom: string; ville: string }[]>([])
   const [isLoading, setIsLoading] = useState(false)
+  const [level, setLevel] = useState([4.0])
   const formRef = useRef<HTMLFormElement>(null)
 
   useEffect(() => {
@@ -52,7 +55,7 @@ export default function OnboardingPage() {
   }
 
   return (
-    <div style={{ backgroundColor: 'var(--background)', minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 16, fontFamily: 'var(--font-sans)' }}>
+    <div style={{ backgroundColor: 'var(--background)', height: '100%', overflowY: 'auto', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 16, fontFamily: 'var(--font-sans)' }}>
       <div style={{ width: '100%', maxWidth: 420 }}>
         {/* Title */}
         <div style={{ textAlign: 'center', marginBottom: 28 }}>
@@ -93,12 +96,12 @@ export default function OnboardingPage() {
               </div>
               <div>
                 <label htmlFor="date_naissance" style={labelStyle}>Date de naissance</label>
-                <input id="date_naissance" name="date_naissance" type="date" required={step === 1} style={{ ...inputStyle, colorScheme: 'dark' }} />
+                <input id="date_naissance" name="date_naissance" type="date" required={step === 1} style={inputStyle} />
               </div>
               <div>
                 <label style={labelStyle}>Sexe</label>
                 <div style={{ display: 'flex', gap: 16 }}>
-                  {[{ v: 'homme', l: 'Homme' }, { v: 'femme', l: 'Femme' }, { v: 'autre', l: 'Autre' }].map((opt) => (
+                  {[{ v: 'homme', l: 'Homme' }, { v: 'femme', l: 'Femme' }].map((opt) => (
                     <label key={opt.v} style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', color: 'var(--foreground)', fontSize: 14 }}>
                       <input type="radio" name="sexe" value={opt.v} defaultChecked={opt.v === 'homme'} style={{ accentColor: '#f2c991' }} />
                       {opt.l}
@@ -115,14 +118,18 @@ export default function OnboardingPage() {
                 <input id="ville" name="ville" required={step === 2} placeholder="Paris" style={inputStyle} />
               </div>
               <div>
-                <label htmlFor="niveau" style={labelStyle}>Niveau (1.0 à 8.0)</label>
-                <input id="niveau" name="niveau" type="number" step="0.5" min="1" max="8" required={step === 2} defaultValue="4.0" style={inputStyle} />
-                <p style={{ fontSize: 12, color: 'var(--muted-foreground)', margin: '6px 0 0' }}>
-                  Ex: 2.0 (Débutant), 4.0 (Intermédiaire), 7.0 (Avancé), 8.0 (Pro)
-                </p>
+                <label style={labelStyle}>Niveau (1.0 à 8.0)</label>
+                <input type="hidden" name="niveau" value={level[0]} />
+                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginBottom: 16 }}>
+                  <span style={{ fontSize: 24, fontWeight: 700, color: '#f2c991' }}>{level[0].toFixed(1)}</span>
+                </div>
+                <Slider value={level} min={1} max={8} step={0.5} onValueChange={(v) => setLevel(v as number[])} className="py-4" />
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: 'var(--muted-foreground)', marginTop: 8 }}>
+                  <span>Débutant (1)</span><span>Moyen (4)</span><span>Pro (8)</span>
+                </div>
               </div>
               <div>
-                <label htmlFor="club_id" style={labelStyle}>Club préféré (Optionnel)</label>
+                <label htmlFor="club_id" style={labelStyle}>Club dans lequel vous jouez (Optionnel)</label>
                 <select name="club_id" style={{ ...inputStyle, appearance: 'none' as const }}>
                   <option value="">Aucun / Je ne joue pas en club</option>
                   {clubs.map((club) => (
@@ -131,6 +138,10 @@ export default function OnboardingPage() {
                     </option>
                   ))}
                 </select>
+              </div>
+              <div>
+                <label htmlFor="classement_fft" style={labelStyle}>Classement actuel (Optionnel)</label>
+                <input id="classement_fft" name="classement_fft" type="text" inputMode="numeric" pattern="[0-9]*" placeholder="Ex: 5000" style={inputStyle} />
               </div>
             </div>
 
@@ -143,7 +154,7 @@ export default function OnboardingPage() {
               <div>
                 <label style={labelStyle}>Main dominante</label>
                 <div style={{ display: 'flex', gap: 16 }}>
-                  {[{ v: 'droite', l: 'Droite' }, { v: 'gauche', l: 'Gauche' }, { v: 'ambidextre', l: 'Ambidextre' }].map((opt) => (
+                  {[{ v: 'droite', l: 'Droite' }, { v: 'gauche', l: 'Gauche' }].map((opt) => (
                     <label key={opt.v} style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', color: 'var(--foreground)', fontSize: 14 }}>
                       <input type="radio" name="main" value={opt.v} defaultChecked={opt.v === 'droite'} style={{ accentColor: '#f2c991' }} />
                       {opt.l}
