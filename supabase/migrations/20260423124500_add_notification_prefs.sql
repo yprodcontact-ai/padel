@@ -1,0 +1,3 @@
+ALTER TABLE users 
+ADD COLUMN IF NOT EXISTS notify_messages BOOLEAN DEFAULT true,
+ADD COLUMN IF NOT EXISTS notify_party_updates BOOLEAN DEFAULT true;

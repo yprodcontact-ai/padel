@@ -31,7 +31,7 @@ export async function sendMessage(conversationId: string, content: string) {
   if (error) return { error: "Erreur lors de l'envoi du message" }
 
   // Envoyer la notification web push aux autres membres de la conversation
-  const { data: others } = await supabase.from('conversation_participants').select('user_id').eq('conversation_id', conversationId).neq('user_id', authData.user.id)
+  const { data: others } = await supabase.from('conversation_participants').select('user_id, users(notify_messages)').eq('conversation_id', conversationId).neq('user_id', authData.user.id)
 
   if (others && others.length > 0) {
     const { data: convData } = await supabase.from('conversations').select('type, parties(clubs(nom))').eq('id', conversationId).single()
@@ -46,11 +46,14 @@ export async function sendMessage(conversationId: string, content: string) {
     }
 
     for (const p of others) {
-      await sendPushNotification(p.user_id, {
-        title: `Nouveau message - ${nomPartie}`,
-        message: content.length > 50 ? content.substring(0, 50) + '...' : content,
-        url: `/messages/${conversationId}`
-      })
+      const notify = (p.users as unknown as Record<string, unknown>)?.notify_messages !== false;
+      if (notify) {
+        await sendPushNotification(p.user_id, {
+          title: `Nouveau message - ${nomPartie}`,
+          message: content.length > 50 ? content.substring(0, 50) + '...' : content,
+          url: `/messages/${conversationId}`
+        })
+      }
     }
   }
 

@@ -70,12 +70,15 @@ export async function joinParty(partyId: string) {
     }])
 
     // Push notification
-    const { sendPushNotification } = await import('@/lib/push')
-    await sendPushNotification(party.createur_id, {
-      title: 'Demande de participation 🙋',
-      message: `${playerName} (Niv. ${userLevel ?? '?'}) souhaite rejoindre votre partie`,
-      url: `/parties/${partyId}`
-    })
+    const { data: cUser } = await supabase.from('users').select('notify_party_updates').eq('id', party.createur_id).single()
+    if (cUser?.notify_party_updates !== false) {
+      const { sendPushNotification } = await import('@/lib/push')
+      await sendPushNotification(party.createur_id, {
+        title: 'Demande de participation 🙋',
+        message: `${playerName} (Niv. ${userLevel ?? '?'}) souhaite rejoindre votre partie`,
+        url: `/parties/${partyId}`
+      })
+    }
 
     revalidatePath(`/parties/${partyId}`)
     return { success: true, status: 'en_attente' }
@@ -98,7 +101,7 @@ export async function joinParty(partyId: string) {
     if (rpcError) {
         console.error("Error executing system_complete_party RPC:", rpcError)
     } else {
-        const { data: players } = await supabase.from('party_players').select('user_id').eq('party_id', partyId).eq('statut', 'inscrit')
+        const { data: players } = await supabase.from('party_players').select('user_id, users(notify_party_updates)').eq('party_id', partyId).eq('statut', 'inscrit')
         if (players) {
             const { sendPushNotification } = await import('@/lib/push')
             let dateStr = ''
@@ -109,11 +112,13 @@ export async function joinParty(partyId: string) {
                 timeStr = d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
             }
             for (const pl of players) {
-                await sendPushNotification(pl.user_id, {
-                    title: 'Partie complète ! 💪',
-                    message: `Votre partie du ${dateStr} à ${timeStr} est complète ! Réservez le terrain dès maintenant.`,
-                    url: `/parties/${partyId}`
-                })
+                if ((pl.users as unknown as Record<string, unknown>)?.notify_party_updates !== false) {
+                    await sendPushNotification(pl.user_id, {
+                        title: 'Partie complète ! 💪',
+                        message: `Votre partie du ${dateStr} à ${timeStr} est complète ! Réservez le terrain dès maintenant.`,
+                        url: `/parties/${partyId}`
+                    })
+                }
             }
         }
     }
@@ -160,12 +165,15 @@ export async function handleJoinRequest(partyId: string, requesterId: string, ac
       payload: { message: 'Votre demande a été acceptée ! Vous êtes inscrit à la partie 🎉', party_id: partyId }
     }])
 
+    const { data: rUser } = await supabase.from('users').select('notify_party_updates').eq('id', requesterId).single()
     const { sendPushNotification } = await import('@/lib/push')
-    await sendPushNotification(requesterId, {
-      title: 'Demande acceptée ! 🎉',
-      message: 'Votre demande a été acceptée. Vous êtes inscrit à la partie !',
-      url: `/parties/${partyId}`
-    })
+    if (rUser?.notify_party_updates !== false) {
+      await sendPushNotification(requesterId, {
+        title: 'Demande acceptée ! 🎉',
+        message: 'Votre demande a été acceptée. Vous êtes inscrit à la partie !',
+        url: `/parties/${partyId}`
+      })
+    }
 
     // Check if party is now complete
     const { count } = await supabase
@@ -183,7 +191,7 @@ export async function handleJoinRequest(partyId: string, requesterId: string, ac
       if (rpcError) {
         console.error("Error executing system_complete_party RPC:", rpcError)
       } else {
-        const { data: players } = await supabase.from('party_players').select('user_id').eq('party_id', partyId).eq('statut', 'inscrit')
+        const { data: players } = await supabase.from('party_players').select('user_id, users(notify_party_updates)').eq('party_id', partyId).eq('statut', 'inscrit')
         if (players) {
           let dateStr = ''
           let timeStr = ''
@@ -193,11 +201,13 @@ export async function handleJoinRequest(partyId: string, requesterId: string, ac
             timeStr = d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
           }
           for (const pl of players) {
-            await sendPushNotification(pl.user_id, {
-              title: 'Partie complète ! 💪',
-              message: `Votre partie du ${dateStr} à ${timeStr} est complète ! Réservez le terrain dès maintenant.`,
-              url: `/parties/${partyId}`
-            })
+            if ((pl.users as unknown as Record<string, unknown>)?.notify_party_updates !== false) {
+              await sendPushNotification(pl.user_id, {
+                title: 'Partie complète ! 💪',
+                message: `Votre partie du ${dateStr} à ${timeStr} est complète ! Réservez le terrain dès maintenant.`,
+                url: `/parties/${partyId}`
+              })
+            }
           }
         }
       }
@@ -222,12 +232,15 @@ export async function handleJoinRequest(partyId: string, requesterId: string, ac
       payload: { message: 'Votre demande de participation a été refusée.', party_id: partyId }
     }])
 
+    const { data: rUser } = await supabase.from('users').select('notify_party_updates').eq('id', requesterId).single()
     const { sendPushNotification } = await import('@/lib/push')
-    await sendPushNotification(requesterId, {
-      title: 'Demande refusée',
-      message: 'Votre demande de participation a été refusée par l\'organisateur.',
-      url: `/parties/${partyId}`
-    })
+    if (rUser?.notify_party_updates !== false) {
+      await sendPushNotification(requesterId, {
+        title: 'Demande refusée',
+        message: 'Votre demande de participation a été refusée par l\'organisateur.',
+        url: `/parties/${partyId}`
+      })
+    }
   }
 
   revalidatePath(`/parties/${partyId}`)
@@ -259,7 +272,7 @@ export async function leaveParty(partyId: string) {
       await supabase.from('parties').update({ statut: 'publiee' }).eq('id', partyId)
 
       // Notify the remaining players
-      const { data: remainingPlayers } = await supabase.from('party_players').select('user_id').eq('party_id', partyId).eq('statut', 'inscrit')
+      const { data: remainingPlayers } = await supabase.from('party_players').select('user_id, users(notify_party_updates)').eq('party_id', partyId).eq('statut', 'inscrit')
       if (remainingPlayers && remainingPlayers.length > 0) {
           const { sendPushNotification } = await import('@/lib/push')
           let dateStr = ''
@@ -276,11 +289,13 @@ export async function leaveParty(partyId: string) {
           await supabase.from('notifications').insert(notifications)
 
           for (const pl of remainingPlayers) {
-              await sendPushNotification(pl.user_id, {
-                  title: 'Partie rouverte 🔓',
-                  message: `Un joueur s'est désisté pour la partie du ${dateStr}. La partie cherche de nouveau un joueur.`,
-                  url: `/parties/${partyId}`
-              })
+              if ((pl.users as unknown as Record<string, unknown>)?.notify_party_updates !== false) {
+                  await sendPushNotification(pl.user_id, {
+                      title: 'Partie rouverte 🔓',
+                      message: `Un joueur s'est désisté pour la partie du ${dateStr}. La partie cherche de nouveau un joueur.`,
+                      url: `/parties/${partyId}`
+                  })
+              }
           }
       }
   }
