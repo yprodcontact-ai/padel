@@ -246,7 +246,7 @@ export default async function Home() {
       <RefreshOnMount />
 
       {/* ═══ HERO HEADER ═══ */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '54px 20px 24px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '79px 20px 24px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
           {/* Avatar */}
           {userProfile?.photo_url ? (
