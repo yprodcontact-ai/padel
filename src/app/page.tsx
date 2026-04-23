@@ -27,6 +27,7 @@ type FetchedParty = {
   club_id?: string;
   clubs: { nom: string; ville: string; lat: number | null; lng: number | null } | null;
   party_players: FetchedPartyPlayer[] | null;
+  statut: string;
 }
 
 type HomePlayerInfo = {
@@ -51,6 +52,7 @@ type HomePartyInfo = {
   player_count: number;
   has_joined: boolean;
   distance_km?: number;
+  statut: string;
 };
 
 /* ─── Reusable sub-components ─── */
@@ -185,6 +187,7 @@ export default async function Home() {
       niveau_max,
       type,
       club_id,
+      statut,
       clubs (nom, ville, lat, lng),
       party_players (
         user_id,
@@ -222,6 +225,7 @@ export default async function Home() {
       player_count: players.length,
       has_joined: hasJoined,
       distance_km,
+      statut: p.statut || 'publiee',
     }
   })
 
@@ -305,8 +309,10 @@ export default async function Home() {
               </div>
 
               <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 28 }}>
-                <div style={{ width: 6, height: 6, borderRadius: '50%', backgroundColor: '#34C759' }} />
-                <span style={{ fontSize: 13, color: 'var(--muted-foreground)', fontWeight: 500 }}>Terrain réservé</span>
+                <div style={{ width: 6, height: 6, borderRadius: '50%', backgroundColor: myNextParty.statut === 'confirmee' ? '#34C759' : '#FF3B30' }} />
+                <span style={{ fontSize: 13, color: 'var(--muted-foreground)', fontWeight: 500 }}>
+                  {myNextParty.statut === 'confirmee' ? 'Terrain réservé' : 'Terrain à réserver'}
+                </span>
               </div>
 
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>

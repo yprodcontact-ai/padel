@@ -27,18 +27,30 @@ export function PartyActionButtons({ partyId, isCreator, isParticipant, isPendin
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 16 }}>
       {errorText && <p style={{ color: '#EF4444', fontSize: 13, textAlign: 'center', margin: 0 }}>{errorText}</p>}
-      {isCreator ? (<>
-        {status === 'complete' && (<>
-          <button onClick={() => handleStatus('confirm')} disabled={isPendingTransition} style={{ ...btn, background: '#22C55E', color: 'var(--foreground)' }}>Terrain réservé ✓</button>
-          <button onClick={() => handleStatus('cancel')} disabled={isPendingTransition} style={{ ...btn, background: '#EF4444', color: 'var(--foreground)' }}>Créneau déjà réservé ✗</button>
-        </>)}
-        {status === 'publiee' && <button disabled style={{ ...btn, backgroundColor: 'var(--muted)', color: 'var(--muted-foreground)', cursor: 'default' }}>En attente ({playerCount}/4)</button>}
-        {status === 'confirmee' && <button disabled style={{ ...btn, background: '#22C55E', color: 'var(--foreground)', cursor: 'default' }}>Match Confirmé !</button>}
-        {status === 'annulee' && <button disabled style={{ ...btn, background: '#EF4444', color: 'var(--foreground)', cursor: 'default' }}>Match Annulé</button>}
-      </>) : (<>
-        {isParticipant ? (
-          <button onClick={handleLeave} disabled={isPendingTransition || status === 'confirmee' || status === 'annulee'} style={{ ...btn, background: 'transparent', border: '1.5px solid #EF4444', color: '#EF4444' }}>Quitter la partie</button>
-        ) : isPending || requestSent ? (
+
+      {isParticipant && status === 'complete' && (<>
+        <button onClick={() => handleStatus('confirm')} disabled={isPendingTransition} style={{ ...btn, background: '#22C55E', color: 'var(--foreground)' }}>Terrain réservé ✓</button>
+        <button onClick={() => handleStatus('cancel')} disabled={isPendingTransition} style={{ ...btn, background: '#EF4444', color: 'var(--foreground)' }}>Créneau déjà réservé ✗</button>
+      </>)}
+
+      {isParticipant && status === 'confirmee' && (
+        <button disabled style={{ ...btn, background: '#22C55E', color: 'var(--foreground)', cursor: 'default' }}>Match Confirmé !</button>
+      )}
+
+      {isParticipant && status === 'annulee' && (
+        <button disabled style={{ ...btn, background: '#EF4444', color: 'var(--foreground)', cursor: 'default' }}>Match Annulé</button>
+      )}
+
+      {isCreator && status === 'publiee' && (
+        <button disabled style={{ ...btn, backgroundColor: 'var(--muted)', color: 'var(--muted-foreground)', cursor: 'default' }}>En attente ({playerCount}/4)</button>
+      )}
+
+      {isParticipant && !isCreator && status === 'publiee' && (
+        <button onClick={handleLeave} disabled={isPendingTransition} style={{ ...btn, background: 'transparent', border: '1.5px solid #EF4444', color: '#EF4444' }}>Quitter la partie</button>
+      )}
+
+      {!isParticipant && (<>
+        {isPending || requestSent ? (
           <button disabled style={{ ...btn, backgroundColor: 'var(--muted)', color: '#f2c991', cursor: 'default', border: '1.5px solid rgba(232,112,58,0.3)' }}>
             <svg width={16} height={16} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
               <circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" />

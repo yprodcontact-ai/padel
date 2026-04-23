@@ -324,14 +324,15 @@ export async function updatePartyStatus(partyId: string, action: 'confirm' | 'ca
 
   const userId = authData.user.id
 
-  // Verify ownership
-  const { data: party, error: partyError } = await supabase
-    .from('parties')
-    .select('createur_id, statut')
-    .eq('id', partyId)
-    .single()
+  // Verify ownership or participation
+  const [{ data: party, error: partyError }, { data: player }] = await Promise.all([
+    supabase.from('parties').select('createur_id, statut').eq('id', partyId).single(),
+    supabase.from('party_players').select('statut').eq('party_id', partyId).eq('user_id', userId).single()
+  ])
 
-  if (partyError || !party || party.createur_id !== userId) {
+  const isAuthorized = party?.createur_id === userId || player?.statut === 'inscrit'
+
+  if (partyError || !party || !isAuthorized) {
     return { error: 'Non autorisé' }
   }
 

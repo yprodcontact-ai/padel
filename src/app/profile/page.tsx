@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
+import { logout } from '@/app/auth/actions'
 
 export const metadata = { title: 'Mon Profil' }
 
@@ -90,6 +91,15 @@ export default async function ProfilePage() {
               </div>
             ))}
           </div>
+        </div>
+
+        <div style={{ marginTop: 32, display: 'flex', justifyContent: 'center' }}>
+          <form action={logout} style={{ width: '100%' }}>
+            <button type="submit" style={{ width: '100%', height: 48, borderRadius: 16, border: '1px solid #ef4444', backgroundColor: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', fontSize: 15, fontWeight: 600, fontFamily: 'var(--font-sans)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+              <svg width={18} height={18} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" /></svg>
+              Déconnexion
+            </button>
+          </form>
         </div>
       </div>
     </div>
