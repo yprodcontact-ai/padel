@@ -25,7 +25,7 @@ export function PartyActionButtons({ partyId, isCreator, isParticipant, isPendin
   const btn: React.CSSProperties = { width: '100%', height: 50, borderRadius: 100, border: 'none', fontSize: 15, fontWeight: 600, fontFamily: 'var(--font-sans)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginTop: 8 }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 16 }}>
       {errorText && <p style={{ color: '#EF4444', fontSize: 13, textAlign: 'center', margin: 0 }}>{errorText}</p>}
       {isCreator ? (<>
         {status === 'complete' && (<>
