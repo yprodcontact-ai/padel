@@ -48,10 +48,23 @@ export default async function PartiesSearchPage({
   const { data: authData } = await supabase.auth.getUser()
   const currentUserId = authData.user?.id
 
+  // Fetch user's level and club for defaults and below-level detection
+  let userLevel: number | null = null
+  let userClubId: string | null = null
+  if (currentUserId) {
+    const { data: userProfile } = await supabase.from('users').select('niveau, club_id').eq('id', currentUserId).single()
+    userLevel = userProfile?.niveau ? parseFloat(userProfile.niveau) : null
+    userClubId = userProfile?.club_id || null
+  }
+
+  // If no filters are provided AT ALL in searchParams, we apply defaults
+  const isDefaultMode = Object.keys(searchParams).length === 0;
+
   // Extraction of filters from URL
-  const searchVille = typeof searchParams.ville === 'string' ? searchParams.ville : ''
+  const searchClub = isDefaultMode ? userClubId : (typeof searchParams.club === 'string' ? searchParams.club : '')
   const searchType = typeof searchParams.type === 'string' ? searchParams.type : ''
-  const searchNiveau = typeof searchParams.niveau === 'string' ? parseInt(searchParams.niveau) : null
+  const searchNiveauStr = typeof searchParams.niveau === 'string' ? searchParams.niveau : (isDefaultMode && userLevel ? userLevel.toString() : 'tous')
+  const searchNiveau = searchNiveauStr !== 'tous' && searchNiveauStr !== '' ? parseFloat(searchNiveauStr) : null
   const searchDispo = searchParams.dispo === 'true'
   
   const now = new Date().toISOString()
@@ -65,6 +78,7 @@ export default async function PartiesSearchPage({
       niveau_min,
       niveau_max,
       type,
+      club_id,
       clubs!inner (nom, ville, lat, lng),
       party_players (
         user_id,
@@ -76,22 +90,15 @@ export default async function PartiesSearchPage({
     .gte('date_heure', now)
     .order('date_heure', { ascending: true })
 
-  // Apply Supabase level filters natively
-  if (searchVille) {
-      query = query.ilike('clubs.ville', `%${searchVille}%`)
+  // Apply filters natively
+  if (searchClub && searchClub !== 'tous') {
+      query = query.eq('club_id', searchClub)
   }
   if (searchType && searchType !== 'tous') {
       query = query.eq('type', searchType)
   }
-  if (searchNiveau) {
+  if (searchNiveau !== null) {
       query = query.lte('niveau_min', searchNiveau).gte('niveau_max', searchNiveau)
-  }
-
-  // Fetch user's level for below-level detection
-  let userLevel: number | null = null
-  if (currentUserId) {
-    const { data: userProfile } = await supabase.from('users').select('niveau').eq('id', currentUserId).single()
-    userLevel = userProfile?.niveau ? parseFloat(userProfile.niveau) : null
   }
 
   const { data: parties, error } = await query
@@ -142,9 +149,9 @@ export default async function PartiesSearchPage({
         
         {/* FILTERS COMPONENT */}
         <SearchFilters 
-            initialVille={searchVille} 
+            initialClub={searchClub || ''} 
             initialType={searchType} 
-            initialNiveau={searchNiveau}
+            initialNiveau={searchNiveauStr || 'tous'}
             initialDispo={searchDispo}
         />
 

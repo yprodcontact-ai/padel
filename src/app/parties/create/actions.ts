@@ -90,6 +90,55 @@ export async function createParty(formData: FormData) {
     console.error('Error adding players to party_players', playerError)
   }
 
+  // Trigger Match Parfait notifications
+  if (club_id && club_id !== 'none') {
+    try {
+      const excludedIds = playersToInsert.map(p => p.user_id)
+      
+      const { data: matchingUsers, error: matchError } = await supabase
+        .from('users')
+        .select('id')
+        .eq('notify_new_parties', true)
+        .eq('club_id', club_id)
+        .gte('niveau', niveau_min)
+        .lte('niveau', niveau_max)
+        
+      if (!matchError && matchingUsers && matchingUsers.length > 0) {
+        const usersToNotify = matchingUsers.filter(u => !excludedIds.includes(u.id))
+        
+        if (usersToNotify.length > 0) {
+          const d = new Date(date_heure)
+          const dateStr = d.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' })
+          const timeStr = d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
+          
+          const notifications = usersToNotify.map(u => ({
+            user_id: u.id,
+            type: 'perfect_match',
+            payload: { 
+              message: `Un nouveau match de votre niveau vient d'être créé le ${dateStr} à ${timeStr} !`, 
+              party_id: data.id 
+            }
+          }))
+          
+          await supabase.from('notifications').insert(notifications)
+
+          const { sendPushNotification } = await import('@/lib/push')
+          for (const u of usersToNotify) {
+            await sendPushNotification(u.id, {
+              title: 'Match Parfait ! 🎾',
+              message: `Une partie (Niv ${niveau_min}-${niveau_max}) vient d'être créée dans votre club le ${dateStr}.`,
+              url: `/parties/${data.id}`
+            }).catch(() => {})
+          }
+        }
+      } else if (matchError) {
+        console.error("Match parfait query failed (maybe migration missing?):", matchError)
+      }
+    } catch (err) {
+      console.error("Failed to process match parfait notifications:", err)
+    }
+  }
+
   revalidatePath('/parties')
   revalidatePath('/')
   

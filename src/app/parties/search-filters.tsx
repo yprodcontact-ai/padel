@@ -1,48 +1,61 @@
 'use client'
 
 import { useRouter, usePathname } from 'next/navigation'
-import { useState, useTransition } from 'react'
+import { useState, useTransition, useEffect } from 'react'
+import { getClubs } from '@/app/onboarding/actions'
 
 interface FiltersProps {
-  initialVille: string;
+  initialClub: string;
   initialType: string;
-  initialNiveau: number | null;
+  initialNiveau: string;
   initialDispo: boolean;
 }
 
-export function SearchFilters({ initialVille, initialType, initialNiveau, initialDispo }: FiltersProps) {
+export function SearchFilters({ initialClub, initialType, initialNiveau, initialDispo }: FiltersProps) {
   const router = useRouter()
   const pathname = usePathname()
   const [isPending, startTransition] = useTransition()
   
-  const [ville, setVille] = useState(initialVille)
+  const [clubs, setClubs] = useState<{ id: string; nom: string; ville: string }[]>([])
+  const [club, setClub] = useState(initialClub || 'tous')
   const [type, setType] = useState(initialType || 'tous')
-  const [niveau, setNiveau] = useState<string>(initialNiveau ? initialNiveau.toString() : 'tous')
+  const [niveau, setNiveau] = useState<string>(initialNiveau || 'tous')
   const [dispo, setDispo] = useState(initialDispo)
   const [expanded, setExpanded] = useState(false)
 
+  useEffect(() => {
+    getClubs().then(setClubs)
+  }, [])
+
   const applyFilters = () => {
     const params = new URLSearchParams()
-    if (ville) params.set('ville', ville)
+    if (club && club !== 'tous') params.set('club', club)
+    else params.set('club', 'tous')
+    
     if (type && type !== 'tous') params.set('type', type)
+    else params.set('type', 'tous')
+    
     if (niveau && niveau !== 'tous') params.set('niveau', niveau)
+    else params.set('niveau', 'tous')
+    
     if (dispo) params.set('dispo', 'true')
+    
     startTransition(() => {
        router.push(`${pathname}?${params.toString()}`)
     })
   }
 
   const resetFilters = () => {
-    setVille('')
+    setClub('tous')
     setType('tous')
     setNiveau('tous')
     setDispo(false)
     startTransition(() => {
-       router.push(pathname)
+       router.push(`${pathname}?club=tous&niveau=tous&type=tous`)
     })
   }
 
-  const activeFiltersCount = (ville ? 1 : 0) + (niveau !== 'tous' ? 1 : 0) + (dispo ? 1 : 0)
+  const activeFiltersCount = (club !== 'tous' && club !== '' ? 1 : 0) + (niveau !== 'tous' ? 1 : 0) + (dispo ? 1 : 0)
 
   const selectStyle: React.CSSProperties = {
     width: '100%',
@@ -63,15 +76,12 @@ export function SearchFilters({ initialVille, initialType, initialNiveau, initia
     <div style={{ background: '#1C1C1E', borderRadius: 22, padding: 16 }}>
       <div style={{ display: 'flex', gap: 10 }}>
         <div style={{ position: 'relative', flex: 1 }}>
-          <svg width={16} height={16} viewBox="0 0 24 24" fill="none" stroke="#8E8E93" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)' }}>
-            <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
+          <svg width={16} height={16} viewBox="0 0 24 24" fill="none" stroke="#8E8E93" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', zIndex: 1 }}>
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><polyline points="9 22 9 12 15 12 15 22" />
           </svg>
-          <input
-            type="text"
-            placeholder="Ville (ex: Paris)"
-            value={ville}
-            onChange={(e) => setVille(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && applyFilters()}
+          <select
+            value={club}
+            onChange={(e) => setClub(e.target.value)}
             style={{
               width: '100%',
               height: 44,
@@ -85,8 +95,14 @@ export function SearchFilters({ initialVille, initialType, initialNiveau, initia
               outline: 'none',
               fontFamily: 'var(--font-sans)',
               boxSizing: 'border-box',
+              appearance: 'none'
             }}
-          />
+          >
+            <option value="tous">Tous les clubs</option>
+            {clubs.map(c => (
+              <option key={c.id} value={c.id}>{c.nom} ({c.ville})</option>
+            ))}
+          </select>
         </div>
         <button
           type="button"
@@ -151,3 +167,4 @@ export function SearchFilters({ initialVille, initialType, initialNiveau, initia
     </div>
   )
 }
+

@@ -97,7 +97,17 @@ export default async function ProfileEditPage() {
               </div>
             </div>
 
-            <button type="submit" style={{ width: '100%', height: 50, borderRadius: 100, border: 'none', background: '#E8703A', color: '#fff', fontSize: 15, fontWeight: 600, fontFamily: 'var(--font-sans)', cursor: 'pointer', marginTop: 8 }}>
+            {/* Section 3 */}
+            <h2 style={{ margin: '8px 0 0', fontSize: 16, fontWeight: 600, color: '#fff', paddingBottom: 10, borderBottom: '1px solid #2C2C2E' }}>Notifications</h2>
+
+            <div>
+              <label style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }}>
+                <input type="checkbox" name="notify_new_parties" value="true" defaultChecked={userProfile.notify_new_parties ?? true} style={{ accentColor: '#E8703A', width: 20, height: 20, flexShrink: 0 }} />
+                <span style={{ fontSize: 14, color: '#fff', lineHeight: 1.4 }}>M&apos;avertir des nouveaux matchs de mon niveau dans mon club (Match Parfait)</span>
+              </label>
+            </div>
+
+            <button type="submit" style={{ width: '100%', height: 50, borderRadius: 100, border: 'none', background: '#E8703A', color: '#fff', fontSize: 15, fontWeight: 600, fontFamily: 'var(--font-sans)', cursor: 'pointer', marginTop: 16 }}>
               Enregistrer les modifications
             </button>
           </form>

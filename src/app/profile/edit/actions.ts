@@ -45,6 +45,7 @@ export async function updateProfile(formData: FormData) {
   const club_id = formData.get('club_id') as string
   const main = formData.get('main') as 'droite' | 'gauche' | 'ambidextre'
   const poste = formData.get('poste') as 'droite' | 'gauche' | 'indifférent'
+  const notify_new_parties = formData.get('notify_new_parties') === 'true'
 
   const updates = {
     nom,
@@ -57,6 +58,7 @@ export async function updateProfile(formData: FormData) {
     club_id: (club_id && club_id !== "none") ? club_id : null,
     main,
     poste,
+    notify_new_parties,
     ...(photoUrl ? { photo_url: photoUrl } : {}),
   }
 

@@ -254,9 +254,35 @@ export async function leaveParty(partyId: string) {
   }
 
   // Check if it was complete and revert to publiee
-  const { data: party } = await supabase.from('parties').select('statut').eq('id', partyId).single()
+  const { data: party } = await supabase.from('parties').select('statut, date_heure').eq('id', partyId).single()
   if (party && party.statut === 'complete') {
       await supabase.from('parties').update({ statut: 'publiee' }).eq('id', partyId)
+
+      // Notify the remaining players
+      const { data: remainingPlayers } = await supabase.from('party_players').select('user_id').eq('party_id', partyId).eq('statut', 'inscrit')
+      if (remainingPlayers && remainingPlayers.length > 0) {
+          const { sendPushNotification } = await import('@/lib/push')
+          let dateStr = ''
+          if (party.date_heure) {
+             const d = new Date(party.date_heure)
+             dateStr = d.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' })
+          }
+
+          const notifications = remainingPlayers.map(p => ({
+            user_id: p.user_id,
+            type: 'party_reopened',
+            payload: { message: `Un joueur a quitté la partie du ${dateStr}. Une place est de nouveau libre !`, party_id: partyId }
+          }))
+          await supabase.from('notifications').insert(notifications)
+
+          for (const pl of remainingPlayers) {
+              await sendPushNotification(pl.user_id, {
+                  title: 'Partie rouverte 🔓',
+                  message: `Un joueur s'est désisté pour la partie du ${dateStr}. La partie cherche de nouveau un joueur.`,
+                  url: `/parties/${partyId}`
+              })
+          }
+      }
   }
 
   revalidatePath(`/parties/${partyId}`)

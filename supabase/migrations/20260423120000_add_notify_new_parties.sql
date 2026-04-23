@@ -1,0 +1,1 @@
+ALTER TABLE users ADD COLUMN IF NOT EXISTS notify_new_parties BOOLEAN DEFAULT true;

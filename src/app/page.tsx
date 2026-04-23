@@ -23,6 +23,7 @@ type FetchedParty = {
   niveau_min: number;
   niveau_max: number;
   type: string;
+  club_id?: string;
   clubs: { nom: string; ville: string; lat: number | null; lng: number | null } | null;
   party_players: FetchedPartyPlayer[] | null;
 }
@@ -38,6 +39,7 @@ type HomePlayerInfo = {
 
 type HomePartyInfo = {
   id: string;
+  club_id: string;
   club_nom: string;
   club_ville: string;
   date_heure: string;
@@ -194,6 +196,7 @@ export default async function Home() {
       niveau_min,
       niveau_max,
       type,
+      club_id,
       clubs (nom, ville, lat, lng),
       party_players (
         user_id,
@@ -220,6 +223,7 @@ export default async function Home() {
 
     return {
       id: p.id,
+      club_id: p.club_id || '',
       club_nom: p.clubs?.nom || 'Club inconnu',
       club_ville: p.clubs?.ville || '',
       date_heure: p.date_heure,
@@ -236,27 +240,18 @@ export default async function Home() {
   // ── Parties rejointes par l'utilisateur : TOUJOURS affichées (pas de filtre distance) ──
   const myNextParty = allMapped.find(p => p.has_joined) || null
 
-  // ── Parties disponibles : filtre souple par distance/ville, fallback sur tout ──
-  const hasCoords = !!(userProfile?.lat && userProfile?.lng)
-  const userVille = (userProfile?.ville as string)?.toLowerCase()
+  // ── Parties disponibles : Filtre par niveau et club ──
+  const userNiveau = typeof userProfile?.niveau === 'number' ? userProfile.niveau : null
+  const userClubId = userProfile?.club_id
 
   const notJoined = allMapped.filter(p => p.id !== myNextParty?.id && p.player_count < 4)
 
-  let availableParties: HomePartyInfo[]
-
-  if (hasCoords) {
-    // Essayer d'abord les parties proches (≤ 50 km)
-    const nearby = notJoined.filter(p => p.distance_km !== undefined && p.distance_km <= 50)
-    availableParties = nearby.length > 0
-      ? nearby.sort((a, b) => (a.distance_km || 999) - (b.distance_km || 999)).slice(0, 6)
-      : notJoined.slice(0, 6) // Fallback: montrer toutes les parties
-  } else if (userVille) {
-    const sameCity = notJoined.filter(p => p.club_ville.toLowerCase() === userVille)
-    availableParties = sameCity.length > 0 ? sameCity.slice(0, 6) : notJoined.slice(0, 6)
-  } else {
-    // Pas de localisation → montrer tout
-    availableParties = notJoined.slice(0, 6)
-  }
+  const availableParties = notJoined.filter(p => {
+    if (userNiveau === null || !userClubId) return false;
+    const matchLevel = p.niveau_min <= userNiveau && p.niveau_max >= userNiveau;
+    const matchClub = p.club_id === userClubId;
+    return matchLevel && matchClub;
+  }).slice(0, 6)
 
   return (
     <div style={{ background: '#000', minHeight: '100vh', paddingBottom: 100, fontFamily: 'var(--font-sans)' }}>

@@ -269,17 +269,8 @@ export default function CreatePartyPage() {
               {/* Step 5: Visibilité + Commentaire */}
               <div style={{ display: step === 5 ? 'flex' : 'none', flexDirection: 'column', gap: 20 }}>
                 <input type="hidden" name="type" value="loisir" />
+                <input type="hidden" name="visibilite" value="publique" />
                 <h2 style={{ margin: 0, fontSize: 18, fontWeight: 600, color: '#fff', textAlign: 'center' }}>Derniers détails</h2>
-                <div>
-                  <label style={{ ...labelStyle, textTransform: 'uppercase', fontSize: 11, letterSpacing: '0.04em' }}>Visibilité</label>
-                  <div style={{ display: 'flex', gap: 16 }}>
-                    {[{v:'publique',l:'Publique'},{v:'amis',l:'Match Privé'}].map(o => (
-                      <label key={o.v} style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#fff', fontSize: 14, cursor: 'pointer' }}>
-                        <input type="radio" name="visibilite" value={o.v} defaultChecked={o.v === 'publique'} style={{ accentColor: '#E8703A' }} />{o.l}
-                      </label>
-                    ))}
-                  </div>
-                </div>
                 <div>
                   <label style={labelStyle}>Commentaire (Optionnel)</label>
                   <textarea name="commentaire" placeholder="Ex: J'amène les balles neuves !" style={{ ...inputStyle, height: 120, padding: '14px 16px', resize: 'none' }} />
