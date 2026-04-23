@@ -98,6 +98,9 @@ export function TopHeader({ userId }: { userId?: string }) {
                     height: 'auto',
                     pointerEvents: 'none',
                     userSelect: 'none',
+                    position: 'relative',
+                    top: -15,
+                    marginBottom: -15,
                 }}
             />
 

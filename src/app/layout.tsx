@@ -1,5 +1,4 @@
 import type { Metadata, Viewport } from "next";
-import localFont from "next/font/local";
 import "./globals.css";
 import { Inter } from "next/font/google";
 import { cn } from "@/lib/utils";
@@ -10,17 +9,10 @@ import { PushManager } from "@/components/notifications/PushManager";
 import { RouteTransition } from "@/components/route-transition";
 import { createClient } from "@/lib/supabase/server";
 
-const inter = Inter({ subsets: ['latin'], variable: '--font-sans' });
-
-const geistSans = localFont({
-  src: "./fonts/GeistVF.woff",
-  variable: "--font-geist-sans",
-  weight: "100 900",
-});
-const geistMono = localFont({
-  src: "./fonts/GeistMonoVF.woff",
-  variable: "--font-geist-mono",
-  weight: "100 900",
+const inter = Inter({
+  subsets: ['latin'],
+  variable: '--font-sans',
+  display: 'swap',
 });
 
 export const metadata: Metadata = {
@@ -59,9 +51,9 @@ export default async function RootLayout({
   const { data: authData } = await supabase.auth.getUser()
   const user = authData?.user ?? null;
   return (
-    <html lang="fr" className={cn("font-sans antialiased dark", inter.variable)}>
+    <html lang="fr" className={cn("antialiased dark", inter.variable)}>
       <body
-        className={`${geistSans.variable} ${geistMono.variable}`}
+        className={inter.className}
         style={{ background: '#000', color: '#fff', margin: 0, overflow: 'hidden', height: '100vh' }}
       >
         <div className="flex h-screen overflow-hidden">
