@@ -38,6 +38,13 @@ export async function createParty(formData: FormData) {
     redirect('/login')
   }
 
+  const { checkUserActiveParty } = await import('@/lib/party-utils')
+  const isActive = await checkUserActiveParty(authData.user.id)
+  if (isActive) {
+    return { error: "Vous êtes déjà inscrit à une partie à venir. Vous pourrez en rejoindre une autre 5 minutes après le début de celle-ci." }
+  }
+
+
   const club_id = formData.get('club_id') as string // required
   const date_heure = formData.get('date_heure') as string // required
   const niveau_min = parseFloat(formData.get('niveau_min') as string)

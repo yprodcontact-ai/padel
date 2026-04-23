@@ -13,6 +13,12 @@ export async function joinParty(partyId: string) {
 
   const userId = authData.user.id
 
+  const { checkUserActiveParty } = await import('@/lib/party-utils')
+  const isActive = await checkUserActiveParty(userId)
+  if (isActive) {
+    return { error: "Vous êtes déjà inscrit à une partie à venir. Vous pourrez en rejoindre une autre 5 minutes après le début de celle-ci." }
+  }
+
   // Fetch party level requirements
   const { data: party, error: partyError } = await supabase
     .from('parties')
@@ -146,6 +152,12 @@ export async function handleJoinRequest(partyId: string, requesterId: string, ac
   }
 
   if (action === 'accept') {
+    const { checkUserActiveParty } = await import('@/lib/party-utils')
+    const isActive = await checkUserActiveParty(requesterId)
+    if (isActive) {
+      return { error: 'Ce joueur a déjà rejoint une autre partie.' }
+    }
+
     // Update player status to 'inscrit'
     const { error: updateError } = await supabase
       .from('party_players')
