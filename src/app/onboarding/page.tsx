@@ -8,8 +8,8 @@ const inputStyle: React.CSSProperties = {
   height: 50,
   borderRadius: 14,
   border: 'none',
-  background: '#2C2C2E',
-  color: '#fff',
+  backgroundColor: 'var(--muted)',
+  color: 'var(--foreground)',
   fontSize: 15,
   padding: '0 16px',
   outline: 'none',
@@ -21,7 +21,7 @@ const labelStyle: React.CSSProperties = {
   display: 'block',
   fontSize: 13,
   fontWeight: 500,
-  color: '#8E8E93',
+  color: 'var(--muted-foreground)',
   marginBottom: 8,
 }
 
@@ -52,12 +52,12 @@ export default function OnboardingPage() {
   }
 
   return (
-    <div style={{ background: '#000', minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 16, fontFamily: 'var(--font-sans)' }}>
+    <div style={{ backgroundColor: 'var(--background)', minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 16, fontFamily: 'var(--font-sans)' }}>
       <div style={{ width: '100%', maxWidth: 420 }}>
         {/* Title */}
         <div style={{ textAlign: 'center', marginBottom: 28 }}>
-          <h1 style={{ margin: 0, fontSize: 26, fontWeight: 700, color: '#fff' }}>Complétez votre profil</h1>
-          <p style={{ margin: '8px 0 0', fontSize: 14, color: '#8E8E93' }}>Étape {step} sur 3</p>
+          <h1 style={{ margin: 0, fontSize: 26, fontWeight: 700, color: 'var(--foreground)' }}>Complétez votre profil</h1>
+          <p style={{ margin: '8px 0 0', fontSize: 14, color: 'var(--muted-foreground)' }}>Étape {step} sur 3</p>
         </div>
 
         {/* Progress bar */}
@@ -69,7 +69,7 @@ export default function OnboardingPage() {
                 flex: 1,
                 height: 6,
                 borderRadius: 100,
-                background: step >= i ? '#E8703A' : '#2C2C2E',
+                background: step >= i ? '#f2c991' : 'var(--muted)',
                 transition: 'background 0.3s',
               }}
             />
@@ -77,7 +77,7 @@ export default function OnboardingPage() {
         </div>
 
         {/* Card */}
-        <div style={{ background: '#1C1C1E', borderRadius: 28, padding: '28px 24px' }}>
+        <div style={{ backgroundColor: 'var(--card)', borderRadius: 28, padding: '28px 24px' }}>
           <form ref={formRef}>
             {/* ETAPE 1 */}
             <div style={{ display: step === 1 ? 'flex' : 'none', flexDirection: 'column', gap: 18 }}>
@@ -99,8 +99,8 @@ export default function OnboardingPage() {
                 <label style={labelStyle}>Sexe</label>
                 <div style={{ display: 'flex', gap: 16 }}>
                   {[{ v: 'homme', l: 'Homme' }, { v: 'femme', l: 'Femme' }, { v: 'autre', l: 'Autre' }].map((opt) => (
-                    <label key={opt.v} style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', color: '#fff', fontSize: 14 }}>
-                      <input type="radio" name="sexe" value={opt.v} defaultChecked={opt.v === 'homme'} style={{ accentColor: '#E8703A' }} />
+                    <label key={opt.v} style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', color: 'var(--foreground)', fontSize: 14 }}>
+                      <input type="radio" name="sexe" value={opt.v} defaultChecked={opt.v === 'homme'} style={{ accentColor: '#f2c991' }} />
                       {opt.l}
                     </label>
                   ))}
@@ -117,7 +117,7 @@ export default function OnboardingPage() {
               <div>
                 <label htmlFor="niveau" style={labelStyle}>Niveau (1.0 à 8.0)</label>
                 <input id="niveau" name="niveau" type="number" step="0.5" min="1" max="8" required={step === 2} defaultValue="4.0" style={inputStyle} />
-                <p style={{ fontSize: 12, color: '#8E8E93', margin: '6px 0 0' }}>
+                <p style={{ fontSize: 12, color: 'var(--muted-foreground)', margin: '6px 0 0' }}>
                   Ex: 2.0 (Débutant), 4.0 (Intermédiaire), 7.0 (Avancé), 8.0 (Pro)
                 </p>
               </div>
@@ -138,14 +138,14 @@ export default function OnboardingPage() {
             <div style={{ display: step === 3 ? 'flex' : 'none', flexDirection: 'column', gap: 22 }}>
               <div>
                 <label htmlFor="photo" style={labelStyle}>Photo de profil (Optionnel)</label>
-                <input id="photo" name="photo" type="file" accept="image/*" style={{ ...inputStyle, padding: '12px 16px', height: 'auto', fontSize: 13, color: '#8E8E93' }} />
+                <input id="photo" name="photo" type="file" accept="image/*" style={{ ...inputStyle, padding: '12px 16px', height: 'auto', fontSize: 13, color: 'var(--muted-foreground)' }} />
               </div>
               <div>
                 <label style={labelStyle}>Main dominante</label>
                 <div style={{ display: 'flex', gap: 16 }}>
                   {[{ v: 'droite', l: 'Droite' }, { v: 'gauche', l: 'Gauche' }, { v: 'ambidextre', l: 'Ambidextre' }].map((opt) => (
-                    <label key={opt.v} style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', color: '#fff', fontSize: 14 }}>
-                      <input type="radio" name="main" value={opt.v} defaultChecked={opt.v === 'droite'} style={{ accentColor: '#E8703A' }} />
+                    <label key={opt.v} style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', color: 'var(--foreground)', fontSize: 14 }}>
+                      <input type="radio" name="main" value={opt.v} defaultChecked={opt.v === 'droite'} style={{ accentColor: '#f2c991' }} />
                       {opt.l}
                     </label>
                   ))}
@@ -155,8 +155,8 @@ export default function OnboardingPage() {
                 <label style={labelStyle}>Poste préféré</label>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                   {[{ v: 'droite', l: 'Joueur de Droite' }, { v: 'gauche', l: 'Joueur de Gauche' }, { v: 'indifférent', l: 'Indifférent (Je m\'adapte)' }].map((opt) => (
-                    <label key={opt.v} style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', color: '#fff', fontSize: 14 }}>
-                      <input type="radio" name="poste" value={opt.v} defaultChecked={opt.v === 'indifférent'} style={{ accentColor: '#E8703A' }} />
+                    <label key={opt.v} style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', color: 'var(--foreground)', fontSize: 14 }}>
+                      <input type="radio" name="poste" value={opt.v} defaultChecked={opt.v === 'indifférent'} style={{ accentColor: '#f2c991' }} />
                       {opt.l}
                     </label>
                   ))}
@@ -167,18 +167,18 @@ export default function OnboardingPage() {
             {/* Navigation */}
             <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 28, paddingTop: 20, borderTop: '1px solid #2C2C2E' }}>
               {step > 1 ? (
-                <button type="button" onClick={prevStep} style={{ height: 48, padding: '0 24px', borderRadius: 100, border: '1px solid #3A3A3C', background: 'transparent', color: '#fff', fontSize: 14, fontWeight: 500, fontFamily: 'var(--font-sans)', cursor: 'pointer' }}>
+                <button type="button" onClick={prevStep} style={{ height: 48, padding: '0 24px', borderRadius: 100, border: '1px solid #3A3A3C', background: 'transparent', color: 'var(--foreground)', fontSize: 14, fontWeight: 500, fontFamily: 'var(--font-sans)', cursor: 'pointer' }}>
                   Précédent
                 </button>
               ) : (
                 <div />
               )}
               {step < 3 ? (
-                <button type="button" onClick={nextStep} style={{ height: 48, padding: '0 32px', borderRadius: 100, border: 'none', background: '#E8703A', color: '#fff', fontSize: 14, fontWeight: 600, fontFamily: 'var(--font-sans)', cursor: 'pointer' }}>
+                <button type="button" onClick={nextStep} style={{ height: 48, padding: '0 32px', borderRadius: 100, border: '1px solid #cf9619', background: '#f2c991', color: 'var(--foreground)', fontSize: 14, fontWeight: 600, fontFamily: 'var(--font-sans)', cursor: 'pointer' }}>
                   Suivant
                 </button>
               ) : (
-                <button type="button" onClick={submitForm} disabled={isLoading} style={{ height: 48, padding: '0 32px', borderRadius: 100, border: 'none', background: '#E8703A', color: '#fff', fontSize: 14, fontWeight: 600, fontFamily: 'var(--font-sans)', cursor: 'pointer', opacity: isLoading ? 0.6 : 1 }}>
+                <button type="button" onClick={submitForm} disabled={isLoading} style={{ height: 48, padding: '0 32px', borderRadius: 100, border: '1px solid #cf9619', background: '#f2c991', color: 'var(--foreground)', fontSize: 14, fontWeight: 600, fontFamily: 'var(--font-sans)', cursor: 'pointer', opacity: isLoading ? 0.6 : 1 }}>
                   {isLoading ? 'Enregistrement...' : 'Valider'}
                 </button>
               )}

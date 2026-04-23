@@ -31,22 +31,22 @@ export default async function InboxPage() {
   chatList.sort((a, b) => { if (!a.lastMessageTime) return 1; if (!b.lastMessageTime) return -1; return b.lastMessageTime.getTime() - a.lastMessageTime.getTime() })
 
   return (
-    <div style={{ background: '#000', minHeight: '100vh', padding: '16px 16px 100px', fontFamily: 'var(--font-sans)' }}>
-      <h1 style={{ margin: '16px 0 24px', fontSize: 30, fontWeight: 800, color: '#fff' }}>Messages</h1>
+    <div style={{ backgroundColor: 'var(--background)', minHeight: '100vh', padding: '16px 16px 100px', fontFamily: 'var(--font-sans)' }}>
+      <h1 style={{ margin: '16px 0 24px', fontSize: 30, fontWeight: 800, color: 'var(--foreground)' }}>Messages</h1>
 
       {queryError && <div style={{ background: 'rgba(239,68,68,0.1)', color: '#EF4444', padding: 16, borderRadius: 16, marginBottom: 16, fontSize: 12, fontFamily: 'monospace' }}>Erreur DB: {JSON.stringify(queryError)}</div>}
 
       {chatList.length === 0 ? (
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', marginTop: 80, opacity: 0.5 }}>
-          <svg width={64} height={64} viewBox="0 0 24 24" fill="none" stroke="#8E8E93" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" style={{ marginBottom: 16 }}><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" /></svg>
-          <p style={{ color: '#8E8E93', margin: 0 }}>Vous n&apos;avez aucune conversation active.</p>
-          <p style={{ color: '#8E8E93', fontSize: 14, margin: '8px 0 0' }}>Rejoignez des parties pour discuter !</p>
+          <svg width={64} height={64} viewBox="0 0 24 24" fill="none" stroke='var(--muted-foreground)' strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" style={{ marginBottom: 16 }}><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" /></svg>
+          <p style={{ color: 'var(--muted-foreground)', margin: 0 }}>Vous n&apos;avez aucune conversation active.</p>
+          <p style={{ color: 'var(--muted-foreground)', fontSize: 14, margin: '8px 0 0' }}>Rejoignez des parties pour discuter !</p>
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
           {chatList.map(chat => (
             <Link key={chat.id} href={`/messages/${chat.id}`} style={{ textDecoration: 'none' }}>
-              <div style={{ background: '#1C1C1E', padding: '14px 16px', borderRadius: 20, display: 'flex', alignItems: 'center', gap: 14, position: 'relative', overflow: 'hidden' }}>
+              <div style={{ backgroundColor: 'var(--card)', padding: '14px 16px', borderRadius: 20, display: 'flex', alignItems: 'center', gap: 14, position: 'relative', overflow: 'hidden' }}>
                 {chat.unreadCount > 0 && <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: 3, background: '#EF4444', borderRadius: '0 4px 4px 0' }} />}
 
                 <div style={{ flexShrink: 0 }}>
@@ -56,27 +56,27 @@ export default async function InboxPage() {
                       <img src={chat.chatAvatar} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                     </div>
                   ) : (
-                    <div style={{ width: 48, height: 48, borderRadius: '50%', background: '#2C2C2E', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      <svg width={20} height={20} viewBox="0 0 24 24" fill="none" stroke="#E8703A" strokeWidth={2}><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" /></svg>
+                    <div style={{ width: 48, height: 48, borderRadius: '50%', backgroundColor: 'var(--muted)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <svg width={20} height={20} viewBox="0 0 24 24" fill="none" stroke="#f2c991" strokeWidth={2}><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" /></svg>
                     </div>
                   )}
                 </div>
 
                 <div style={{ flex: 1, overflow: 'hidden' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 4 }}>
-                    <h3 style={{ margin: 0, fontSize: 14, fontWeight: chat.unreadCount > 0 ? 800 : 600, color: '#fff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', paddingRight: 12 }}>{chat.title}</h3>
-                    <span style={{ fontSize: 10, color: '#8E8E93', flexShrink: 0, fontWeight: 500 }}>
+                    <h3 style={{ margin: 0, fontSize: 14, fontWeight: chat.unreadCount > 0 ? 800 : 600, color: 'var(--foreground)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', paddingRight: 12 }}>{chat.title}</h3>
+                    <span style={{ fontSize: 10, color: 'var(--muted-foreground)', flexShrink: 0, fontWeight: 500 }}>
                       {chat.lastMessageTime ? chat.lastMessageTime.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) : ''}
                     </span>
                   </div>
-                  <p style={{ margin: 0, fontSize: 12, color: chat.unreadCount > 0 ? '#fff' : '#8E8E93', fontWeight: chat.unreadCount > 0 ? 600 : 400, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  <p style={{ margin: 0, fontSize: 12, color: chat.unreadCount > 0 ? 'var(--foreground)' : 'var(--muted-foreground)', fontWeight: chat.unreadCount > 0 ? 600 : 400, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                     {chat.lastSenderIsMe && <span style={{ fontWeight: 600, opacity: 0.7 }}>Vous : </span>}
                     {chat.lastMessageText}
                   </p>
                 </div>
 
                 {chat.unreadCount > 0 && (
-                  <div style={{ width: 20, height: 20, borderRadius: '50%', background: '#EF4444', color: '#fff', fontSize: 10, fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <div style={{ width: 20, height: 20, borderRadius: '50%', background: '#EF4444', color: 'var(--foreground)', fontSize: 10, fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                     {chat.unreadCount}
                   </div>
                 )}

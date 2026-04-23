@@ -62,8 +62,8 @@ export function SearchFilters({ initialClub, initialType, initialNiveau, initial
     height: 46,
     borderRadius: 14,
     border: 'none',
-    background: '#2C2C2E',
-    color: '#fff',
+    backgroundColor: 'var(--muted)',
+    color: 'var(--foreground)',
     fontSize: 14,
     padding: '0 14px',
     outline: 'none',
@@ -73,10 +73,10 @@ export function SearchFilters({ initialClub, initialType, initialNiveau, initial
   }
 
   return (
-    <div style={{ background: '#1C1C1E', borderRadius: 22, padding: 16 }}>
+    <div style={{ backgroundColor: 'var(--card)', borderRadius: 22, padding: 16 }}>
       <div style={{ display: 'flex', gap: 10 }}>
         <div style={{ position: 'relative', flex: 1 }}>
-          <svg width={16} height={16} viewBox="0 0 24 24" fill="none" stroke="#8E8E93" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', zIndex: 1 }}>
+          <svg width={16} height={16} viewBox="0 0 24 24" fill="none" stroke='var(--muted-foreground)' strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', zIndex: 1 }}>
             <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><polyline points="9 22 9 12 15 12 15 22" />
           </svg>
           <select
@@ -87,8 +87,8 @@ export function SearchFilters({ initialClub, initialType, initialNiveau, initial
               height: 44,
               borderRadius: 14,
               border: 'none',
-              background: '#2C2C2E',
-              color: '#fff',
+              backgroundColor: 'var(--muted)',
+              color: 'var(--foreground)',
               fontSize: 14,
               paddingLeft: 40,
               paddingRight: 14,
@@ -112,8 +112,8 @@ export function SearchFilters({ initialClub, initialType, initialNiveau, initial
             padding: '0 16px',
             borderRadius: 14,
             border: 'none',
-            background: activeFiltersCount > 0 ? '#E8703A' : '#2C2C2E',
-            color: '#fff',
+            background: activeFiltersCount > 0 ? '#f2c991' : 'var(--muted)',
+            color: 'var(--foreground)',
             fontSize: 13,
             fontWeight: 500,
             fontFamily: 'var(--font-sans)',
@@ -127,7 +127,7 @@ export function SearchFilters({ initialClub, initialType, initialNiveau, initial
             <line x1="4" y1="21" x2="4" y2="14" /><line x1="4" y1="10" x2="4" y2="3" /><line x1="12" y1="21" x2="12" y2="12" /><line x1="12" y1="8" x2="12" y2="3" /><line x1="20" y1="21" x2="20" y2="16" /><line x1="20" y1="12" x2="20" y2="3" /><line x1="1" y1="14" x2="7" y2="14" /><line x1="9" y1="8" x2="15" y2="8" /><line x1="17" y1="16" x2="23" y2="16" />
           </svg>
           {activeFiltersCount > 0 && (
-            <span style={{ width: 20, height: 20, borderRadius: '50%', background: '#fff', color: '#E8703A', fontSize: 11, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <span style={{ width: 20, height: 20, borderRadius: '50%', backgroundColor: 'var(--foreground)', color: '#f2c991', fontSize: 11, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               {activeFiltersCount}
             </span>
           )}
@@ -140,7 +140,7 @@ export function SearchFilters({ initialClub, initialType, initialNiveau, initial
           {/* Type masqué pour le moment */}
 
           <div>
-            <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#8E8E93', marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.04em' }}>Mon Niveau</label>
+            <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--muted-foreground)', marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.04em' }}>Mon Niveau</label>
             <select value={niveau} onChange={(e) => setNiveau(e.target.value)} style={selectStyle}>
               <option value="tous">Peu importe</option>
               {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(n => (
@@ -149,16 +149,16 @@ export function SearchFilters({ initialClub, initialType, initialNiveau, initial
             </select>
           </div>
 
-          <label style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer', padding: '10px 12px', borderRadius: 14, background: '#2C2C2E' }}>
-            <input type="checkbox" checked={dispo} onChange={(e) => setDispo(e.target.checked)} style={{ accentColor: '#E8703A', width: 18, height: 18 }} />
-            <span style={{ fontSize: 14, fontWeight: 500, color: '#fff' }}>Places disponibles uniquement</span>
+          <label style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer', padding: '10px 12px', borderRadius: 14, backgroundColor: 'var(--muted)' }}>
+            <input type="checkbox" checked={dispo} onChange={(e) => setDispo(e.target.checked)} style={{ accentColor: '#f2c991', width: 18, height: 18 }} />
+            <span style={{ fontSize: 14, fontWeight: 500, color: 'var(--foreground)' }}>Places disponibles uniquement</span>
           </label>
 
           <div style={{ display: 'flex', gap: 12, paddingTop: 4 }}>
-            <button type="button" onClick={resetFilters} style={{ height: 44, padding: '0 20px', borderRadius: 100, border: '1px solid #3A3A3C', background: 'transparent', color: '#8E8E93', fontSize: 13, fontWeight: 500, fontFamily: 'var(--font-sans)', cursor: 'pointer' }}>
+            <button type="button" onClick={resetFilters} style={{ height: 44, padding: '0 20px', borderRadius: 100, border: '1px solid #3A3A3C', background: 'transparent', color: 'var(--muted-foreground)', fontSize: 13, fontWeight: 500, fontFamily: 'var(--font-sans)', cursor: 'pointer' }}>
               Réinitialiser
             </button>
-            <button type="button" onClick={applyFilters} disabled={isPending} style={{ flex: 1, height: 44, borderRadius: 100, border: 'none', background: '#E8703A', color: '#fff', fontSize: 14, fontWeight: 600, fontFamily: 'var(--font-sans)', cursor: 'pointer', opacity: isPending ? 0.6 : 1 }}>
+            <button type="button" onClick={applyFilters} disabled={isPending} style={{ flex: 1, height: 44, borderRadius: 100, border: '1px solid #cf9619', background: '#f2c991', color: 'var(--foreground)', fontSize: 14, fontWeight: 600, fontFamily: 'var(--font-sans)', cursor: 'pointer', opacity: isPending ? 0.6 : 1 }}>
               {isPending ? 'Recherche...' : 'Appliquer'}
             </button>
           </div>

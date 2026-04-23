@@ -62,7 +62,7 @@ function PlayerAvatar({ player, size = 46, style }: { player: HomePlayerInfo; si
       {hasPhoto ? (
         <div
           className="rounded-full overflow-hidden"
-          style={{ width: size, height: size, border: '2.5px solid #fff' }}
+          style={{ width: size, height: size, border: '2.5px solid var(--card)' }}
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={player.photo_url!} alt={player.prenom} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
@@ -72,13 +72,12 @@ function PlayerAvatar({ player, size = 46, style }: { player: HomePlayerInfo; si
           className="rounded-full flex items-center justify-center"
           style={{
             width: size, height: size,
-            background: '#3A3A3C',
-            border: '2.5px solid #fff',
-            color: '#fff',
-            fontSize: Math.round(size * 0.3),
+            backgroundColor: 'var(--border)',
+            border: '2.5px solid var(--card)',
+            color: 'var(--foreground)',
+            fontSize: Math.round(size * 0.35),
             fontWeight: 600,
-            letterSpacing: '0.04em',
-            fontFamily: 'var(--font-sans)',
+            letterSpacing: '0.02em',
           }}
         >
           {player.initials}
@@ -89,14 +88,14 @@ function PlayerAvatar({ player, size = 46, style }: { player: HomePlayerInfo; si
         style={{
           bottom: -4,
           transform: 'translateX(-50%)',
-          background: '#1C1C1E',
-          color: '#fff',
+          backgroundColor: 'var(--foreground)',
+          color: 'var(--card)',
           fontSize: 9,
           fontWeight: 700,
-          padding: '1px 6px',
+          padding: '2px 6px',
           borderRadius: 100,
-          border: '1.5px solid #fff',
-          fontFamily: 'var(--font-sans)',
+          border: '1.5px solid var(--card)',
+          letterSpacing: '0.02em',
         }}
       >
         niv. {player.niveau}
@@ -105,28 +104,17 @@ function PlayerAvatar({ player, size = 46, style }: { player: HomePlayerInfo; si
   )
 }
 
-function AddPlayerCircle({ size = 46 }: { size?: number }) {
+function AddPlayerCircle({ size = 46, style }: { size?: number, style?: React.CSSProperties }) {
   return (
     <div
       className="rounded-full flex items-center justify-center cursor-pointer"
-      style={{ width: size, height: size, border: '1.5px dashed #A1A1AA', background: '#fff', flexShrink: 0 }}
+      style={{ width: size, height: size, border: '1px dashed var(--muted-foreground)', backgroundColor: 'transparent', flexShrink: 0, ...style }}
     >
-      <svg width={18} height={18} viewBox="0 0 18 18" fill="none" stroke="#A1A1AA" strokeWidth={1.5}>
-        <line x1="9" y1="3" x2="9" y2="15" />
-        <line x1="3" y1="9" x2="15" y2="9" />
+      <svg width={18} height={18} viewBox="0 0 18 18" fill="none" stroke='var(--muted-foreground)' strokeWidth={1.5}>
+        <line x1="9" y1="4" x2="9" y2="14" />
+        <line x1="4" y1="9" x2="14" y2="9" />
       </svg>
     </div>
-  )
-}
-
-function DarkBadge({ children }: { children: React.ReactNode }) {
-  return (
-    <span
-      className="inline-flex items-center"
-      style={{ background: '#1C1C1E', color: '#fff', fontSize: 12, fontWeight: 500, padding: '5px 14px', borderRadius: 100, fontFamily: 'var(--font-sans)', letterSpacing: '0.01em' }}
-    >
-      {children}
-    </span>
   )
 }
 
@@ -162,7 +150,6 @@ function mapPlayer(pp: FetchedPartyPlayer): HomePlayerInfo {
     initials: `${prenom.charAt(0)}${nom.charAt(0)}`.toUpperCase(),
   }
 }
-
 
 /* ═══════════════════════════════════════════
    MAIN PAGE
@@ -255,114 +242,110 @@ export default async function Home() {
   }).slice(0, 6)
 
   return (
-    <div style={{ background: '#000', minHeight: '100vh', paddingBottom: 100, fontFamily: 'var(--font-sans)' }}>
+    <div style={{ backgroundColor: 'var(--background)', minHeight: '100vh', paddingBottom: 100 }}>
       <RefreshOnMount />
 
-      {/* ═══ HERO ═══ */}
-      <div style={{ padding: '53px 20px 0' }}>
-        <h1 style={{ margin: 0, fontSize: 32, lineHeight: 1.15, color: '#fff' }}>
-          <span style={{ fontWeight: 300 }}>Hello </span>
-          <span style={{ fontWeight: 700 }}>{prenom}</span>
-        </h1>
-        <p style={{ margin: '4px 0 0', fontSize: 15, color: '#8E8E93', fontStyle: 'italic', fontWeight: 300 }}>
-          Prêt à jouer au padel aujourd&apos;hui ?
-        </p>
+      {/* ═══ HERO HEADER ═══ */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '54px 20px 24px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+          {/* Avatar */}
+          {userProfile?.photo_url ? (
+            <div style={{ width: 56, height: 56, borderRadius: '50%', overflow: 'hidden' }}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={userProfile.photo_url as string} alt={prenom} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            </div>
+          ) : (
+            <div style={{ width: 56, height: 56, borderRadius: '50%', backgroundColor: 'var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, fontWeight: 600, color: 'var(--foreground)' }}>
+              {prenom.charAt(0)}
+            </div>
+          )}
+          
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
+            <span style={{ fontSize: 15, fontWeight: 600, color: 'var(--foreground)', letterSpacing: '-0.01em' }}>Bonjour</span>
+            <span style={{ fontSize: 32, fontWeight: 300, color: 'var(--foreground)', letterSpacing: '-0.02em', lineHeight: 1.1 }}>{prenom}</span>
+          </div>
+        </div>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <Link href="/messages" style={{ display: 'flex', alignItems: 'center', height: 52, padding: '0 22px', borderRadius: 100, backgroundColor: 'var(--card)', border: 'none', boxShadow: '0 2px 10px rgba(0,0,0,0.03)', fontSize: 15, fontWeight: 500, color: 'var(--foreground)', cursor: 'pointer', textDecoration: 'none' }}>
+            Chat
+          </Link>
+          <Link href="/notifications" style={{ width: 52, height: 52, borderRadius: '50%', backgroundColor: 'var(--card)', border: 'none', boxShadow: '0 2px 10px rgba(0,0,0,0.03)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--foreground)', cursor: 'pointer', textDecoration: 'none' }}>
+            <svg width={20} height={20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+          </Link>
+        </div>
       </div>
 
-      {/* ═══ ACTION BUTTONS ═══ */}
-      <div style={{ display: 'flex', gap: 10, padding: '24px 20px 0' }}>
-        <Link href="/parties/create" style={{ flex: 1, textDecoration: 'none' }}>
-          <button type="button" style={{ width: '100%', height: 50, borderRadius: 100, border: 'none', background: '#E8703A', color: '#fff', fontSize: 14, fontWeight: 500, fontFamily: 'var(--font-sans)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, cursor: 'pointer' }}>
-            <span style={{ width: 20, height: 20, borderRadius: '50%', border: '1.5px solid rgba(255,255,255,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, fontWeight: 300, lineHeight: 1 }}>+</span>
-            Créer une partie
-          </button>
-        </Link>
-        <Link href="/parties" style={{ flex: 1, textDecoration: 'none' }}>
-          <button type="button" style={{ width: '100%', height: 50, borderRadius: 100, border: 'none', background: '#2C2C2E', color: '#fff', fontSize: 14, fontWeight: 500, fontFamily: 'var(--font-sans)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, cursor: 'pointer' }}>
-            <svg width={16} height={16} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round"><polyline points="15 10 20 15 15 20" /><path d="M4 4v7a4 4 0 004 4h12" /></svg>
-            Rejoindre une partie
-          </button>
-        </Link>
+      {/* ═══ MAIN TITLE ═══ */}
+      <div style={{ padding: '0 20px', marginBottom: 28 }}>
+        <h1 style={{ margin: 0, fontSize: 38, lineHeight: 1.05, letterSpacing: '-0.03em', color: 'var(--foreground)', fontWeight: 400 }}>
+          Votre prochaine<br />
+          <span style={{ color: 'var(--muted-foreground)' }}>partie de padel</span>
+        </h1>
       </div>
 
       {/* ═══ VOTRE PROCHAINE PARTIE ═══ */}
-      <div style={{ marginTop: 36 }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 20px', marginBottom: 16 }}>
-          <h2 style={{ margin: 0, fontSize: 20, fontWeight: 600, color: '#fff', letterSpacing: '-0.01em' }}>
-            Votre prochaine partie
-          </h2>
-        </div>
-
-        {myNextParty ? (
-          <Link href={`/parties/${myNextParty.id}`} style={{ display: 'block', margin: '0 16px', textDecoration: 'none', color: 'inherit' }}>
-          <div style={{ background: '#fff', borderRadius: 28, padding: '22px 22px 20px', position: 'relative' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-              <div>
-                <div style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
-                  <span style={{ fontSize: 19, fontWeight: 600, color: '#000', fontFamily: 'var(--font-sans)' }}>
+      {myNextParty ? (
+        <div style={{ padding: '0 16px', marginBottom: 36 }}>
+          <Link href={`/parties/${myNextParty.id}`} style={{ display: 'block', textDecoration: 'none', color: 'inherit' }}>
+            <div style={{ backgroundColor: 'var(--card)', borderRadius: 28, padding: '24px', border: '1px solid var(--border)', boxShadow: '0 4px 24px rgba(0,0,0,0.04)' }}>
+              
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 }}>
+                <div>
+                  <h2 style={{ margin: '0 0 4px', fontSize: 26, fontWeight: 500, color: 'var(--foreground)', letterSpacing: '-0.01em' }}>
                     {formatDate(myNextParty.date_heure)}
-                  </span>
-                  <span style={{ fontSize: 20, fontWeight: 300, fontStyle: 'italic', color: 'rgba(0,0,0,0.55)', fontFamily: 'var(--font-sans)' }}>
-                    {formatTime(myNextParty.date_heure)}
-                  </span>
+                  </h2>
+                  <p style={{ margin: 0, fontSize: 15, fontStyle: 'italic', color: 'var(--muted-foreground)' }}>
+                    {myNextParty.club_nom}
+                  </p>
                 </div>
-                <div style={{ marginTop: 10 }}>
-                  <DarkBadge>{myNextParty.club_nom}</DarkBadge>
+                <div style={{ height: 40, padding: '0 16px', borderRadius: 100, border: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, fontWeight: 500, color: 'var(--foreground)' }}>
+                  {formatTime(myNextParty.date_heure)}
                 </div>
               </div>
 
-              {/* 2×2 avatar grid from REAL players */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6, marginTop: -2 }}>
-                {myNextParty.players.slice(0, 3).map((player) => (
-                  <PlayerAvatar key={player.user_id} player={player} size={46} />
-                ))}
-                {myNextParty.players.length < 4 && <AddPlayerCircle size={46} />}
-                {myNextParty.players.length >= 4 && (
-                  <PlayerAvatar player={myNextParty.players[3]} size={46} />
-                )}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 28 }}>
+                <div style={{ width: 6, height: 6, borderRadius: '50%', backgroundColor: '#34C759' }} />
+                <span style={{ fontSize: 13, color: 'var(--muted-foreground)', fontWeight: 500 }}>Terrain réservé</span>
               </div>
-            </div>
 
-            {/* Bottom: confirm + cancel */}
-            <div style={{ marginTop: 28, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <div style={{ position: 'relative' }}>
-                <div style={{ position: 'absolute', top: -22, left: 4, width: 64, height: 36, opacity: 0.18 }}>
-                  <svg viewBox="0 0 100 60" fill="none" stroke="#000" strokeWidth={1} width="100%" height="100%">
-                    <rect x="0" y="0" width="100" height="60" />
-                    <line x1="50" y1="0" x2="50" y2="60" />
-                    <line x1="0" y1="30" x2="100" y2="30" />
-                  </svg>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+                <div style={{ display: 'flex' }}>
+                  {myNextParty.players.slice(0, 3).map((player, idx) => (
+                    <PlayerAvatar key={player.user_id} player={player} size={50} style={{ marginLeft: idx === 0 ? 0 : -14 }} />
+                  ))}
+                  {myNextParty.players.length < 4 && <AddPlayerCircle size={50} style={{ marginLeft: myNextParty.players.length > 0 ? -14 : 0 }} />}
+                  {myNextParty.players.length >= 4 && (
+                    <PlayerAvatar player={myNextParty.players[3]} size={50} style={{ marginLeft: -14 }} />
+                  )}
                 </div>
-                <button type="button" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, height: 36, padding: '0 16px', borderRadius: 100, border: '1px solid #D4D4D8', background: '#fff', color: '#000', fontSize: 13, fontWeight: 500, fontFamily: 'var(--font-sans)', cursor: 'pointer', position: 'relative', zIndex: 1 }}>
-                  Confirmer la réservation
-                  <svg width={14} height={14} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
-                </button>
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, cursor: 'pointer', marginRight: 4 }}>
-                <div style={{ width: 32, height: 32, borderRadius: '50%', border: '1px solid #D4D4D8', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <svg width={12} height={12} viewBox="0 0 24 24" fill="none" stroke="#71717A" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, height: 44, padding: '0 6px 0 16px', borderRadius: 100, backgroundColor: 'var(--muted)' }}>
+                  <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--foreground)' }}>Détails</span>
+                  <div style={{ width: 32, height: 32, borderRadius: '50%', backgroundColor: 'var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--foreground)' }}>
+                    <svg width={14} height={14} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round"><path d="M7 17l9.2-9.2M17 17V7H7"/></svg>
+                  </div>
                 </div>
-                <span style={{ fontSize: 9, fontWeight: 600, color: '#A1A1AA', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Annuler</span>
               </div>
+
             </div>
-          </div>
           </Link>
-        ) : (
-          <div style={{ margin: '0 16px', background: '#1C1C1E', borderRadius: 28, padding: '28px 22px', textAlign: 'center' }}>
-            <p style={{ margin: 0, fontSize: 15, color: '#8E8E93', fontFamily: 'var(--font-sans)' }}>
-              Aucune partie rejointe pour le moment.
-            </p>
-            <Link href="/parties" style={{ display: 'inline-block', marginTop: 12, fontSize: 14, color: '#E8703A', fontWeight: 500, textDecoration: 'none' }}>
-              Explorer les parties &rsaquo;
-            </Link>
-          </div>
-        )}
-      </div>
+        </div>
+      ) : (
+        <div style={{ margin: '0 16px 36px', backgroundColor: 'var(--card)', borderRadius: 28, padding: '28px 22px', textAlign: 'center', border: '1px solid var(--border)', boxShadow: '0 4px 24px rgba(0,0,0,0.04)' }}>
+          <p style={{ margin: 0, fontSize: 15, color: 'var(--muted-foreground)' }}>
+            Aucune partie rejointe pour le moment.
+          </p>
+          <Link href="/parties" style={{ display: 'inline-block', marginTop: 12, fontSize: 14, color: '#f2c991', fontWeight: 500, textDecoration: 'none' }}>
+            Explorer les parties &rsaquo;
+          </Link>
+        </div>
+      )}
 
       {/* ═══ PARTIES DISPONIBLES ═══ */}
-      <div style={{ marginTop: 36 }}>
+      <div>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 20px', marginBottom: 16 }}>
-          <h2 style={{ margin: 0, fontSize: 20, fontWeight: 600, color: '#fff', letterSpacing: '-0.01em' }}>
+          <h2 style={{ margin: 0, fontSize: 20, fontWeight: 500, color: 'var(--foreground)', letterSpacing: '-0.01em' }}>
             Parties disponibles
           </h2>
           <RefreshButton />
@@ -371,69 +354,59 @@ export default async function Home() {
         {availableParties.length > 0 ? (
           <div
             className="[scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
-            style={{ display: 'flex', gap: 14, overflowX: 'auto', paddingLeft: 16, paddingRight: 32, paddingBottom: 8 }}
+            style={{ display: 'flex', gap: 16, overflowX: 'auto', paddingLeft: 16, paddingRight: 32, paddingBottom: 32 }}
           >
             {availableParties.map((p) => (
               <Link key={p.id} href={`/parties/${p.id}`} style={{ textDecoration: 'none', flexShrink: 0 }}>
-                <div style={{ minWidth: 260, width: 260, background: '#fff', borderRadius: 28, padding: '22px 22px 22px', display: 'flex', flexDirection: 'column' }}>
-                  {/* Date */}
-                  <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginBottom: 12 }}>
-                    <span style={{ fontSize: 19, fontWeight: 600, color: '#000', fontFamily: 'var(--font-sans)' }}>
-                      {formatDate(p.date_heure)}
-                    </span>
-                    <span style={{ fontSize: 20, fontWeight: 300, fontStyle: 'italic', color: 'rgba(0,0,0,0.55)', fontFamily: 'var(--font-sans)' }}>
+                <div style={{ minWidth: 280, width: 280, backgroundColor: 'var(--card)', borderRadius: 28, padding: '24px', border: '1px solid var(--border)', boxShadow: '0 4px 24px rgba(0,0,0,0.04)', display: 'flex', flexDirection: 'column' }}>
+                  
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 }}>
+                    <div>
+                      <h3 style={{ margin: '0 0 4px', fontSize: 26, fontWeight: 500, color: 'var(--foreground)', letterSpacing: '-0.01em' }}>
+                        {formatDate(p.date_heure)}
+                      </h3>
+                      <p style={{ margin: 0, fontSize: 15, fontStyle: 'italic', color: 'var(--muted-foreground)' }}>
+                        {p.club_nom}
+                      </p>
+                    </div>
+                    <div style={{ height: 40, padding: '0 16px', borderRadius: 100, border: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, fontWeight: 500, color: 'var(--foreground)' }}>
                       {formatTime(p.date_heure)}
-                    </span>
+                    </div>
                   </div>
 
-                  {/* Club */}
-                  <div style={{ marginBottom: 16 }}>
-                    <DarkBadge>{p.club_nom}</DarkBadge>
-                  </div>
-
-                  {/* Niveaux */}
-                  <p style={{ margin: 0, fontSize: 14, color: '#000', fontFamily: 'var(--font-sans)', fontWeight: 400 }}>
-                    Niveaux acceptés : <strong>{p.niveau_min} à {p.niveau_max}</strong>
+                  <p style={{ margin: '0 0 28px', fontSize: 13, color: 'var(--foreground)', fontWeight: 500 }}>
+                    Niveaux acceptés : <strong style={{ fontWeight: 700 }}>{p.niveau_min} à {p.niveau_max}</strong>
                   </p>
 
-                  <div style={{ flex: 1, minHeight: 28 }} />
+                  <div style={{ flex: 1 }} />
 
-                  {/* Real players + add circle */}
-                  <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between' }}>
-                    <div style={{ display: 'flex' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+                    <div style={{ display: 'flex', alignItems: 'center' }}>
                       {p.players.slice(0, 3).map((player, idx) => (
-                        <PlayerAvatar
-                          key={player.user_id}
-                          player={player}
-                          size={46}
-                          style={{ marginLeft: idx === 0 ? 0 : -12 }}
-                        />
+                        <PlayerAvatar key={player.user_id} player={player} size={50} style={{ marginLeft: idx === 0 ? 0 : -14 }} />
                       ))}
                       {p.players.length === 0 && (
-                        <span style={{ fontSize: 13, color: '#8E8E93', fontStyle: 'italic', paddingBottom: 8 }}>Aucun joueur</span>
+                        <span style={{ fontSize: 13, color: 'var(--muted-foreground)', fontStyle: 'italic', marginRight: 12 }}>Aucun joueur</span>
                       )}
+                      {p.players.length < 4 && <AddPlayerCircle size={50} style={{ marginLeft: p.players.length > 0 ? -14 : 0 }} />}
                     </div>
-                    {p.player_count < 4 && <AddPlayerCircle size={44} />}
+
+                    <div style={{ width: 44, height: 44, borderRadius: '50%', backgroundColor: 'var(--muted)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--foreground)' }}>
+                      <svg width={20} height={20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                    </div>
                   </div>
+
                 </div>
               </Link>
             ))}
           </div>
         ) : (
-          <div style={{ margin: '0 16px', background: '#1C1C1E', borderRadius: 28, padding: '28px 22px', textAlign: 'center' }}>
-            <p style={{ margin: 0, fontSize: 15, color: '#8E8E93' }}>
+          <div style={{ margin: '0 16px', backgroundColor: 'var(--card)', borderRadius: 28, padding: '28px 22px', textAlign: 'center', border: '1px solid var(--border)', boxShadow: '0 4px 24px rgba(0,0,0,0.04)' }}>
+            <p style={{ margin: 0, fontSize: 15, color: 'var(--muted-foreground)' }}>
               Aucune partie disponible pour le moment.
             </p>
           </div>
         )}
-
-        {/* Bouton Toutes les parties */}
-        <div style={{ padding: '0 20px', marginTop: 24, marginBottom: 16 }}>
-          <Link href="/parties" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', height: 50, borderRadius: 100, border: '1px solid #3A3A3C', color: '#fff', fontSize: 15, fontWeight: 600, textDecoration: 'none', background: 'transparent' }}>
-            Toutes les parties
-          </Link>
-        </div>
-
       </div>
     </div>
   )

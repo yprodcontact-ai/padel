@@ -53,7 +53,7 @@ export function RouteTransition({ children }: { children: React.ReactNode }) {
         <div
           style={{
             height: '100%',
-            background: 'linear-gradient(90deg, #E8703A, #f59e0b, #E8703A)',
+            background: 'linear-gradient(90deg, #f2c991, #f59e0b, #f2c991)',
             borderRadius: '0 2px 2px 0',
             animation: isTransitioning ? 'progressBar 0.4s ease-out forwards' : 'none',
           }}

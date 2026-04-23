@@ -68,7 +68,7 @@ export default async function ProfilePage() {
             ].map((stat) => (
               <div key={stat.label} style={{ background: '#2C2C2E', borderRadius: 16, padding: '14px 8px' }}>
                 <span style={{ display: 'block', fontSize: 10, fontWeight: 600, color: '#8E8E93', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 6 }}>{stat.label}</span>
-                <span style={{ fontSize: 18, fontWeight: 700, color: '#E8703A' }}>{stat.value}</span>
+                <span style={{ fontSize: 18, fontWeight: 700, color: '#f2c991' }}>{stat.value}</span>
               </div>
             ))}
           </div>

@@ -48,7 +48,7 @@ export function ChatInterface({ conversationId, initialMessages, currentUserId }
             minHeight: 0,
         }}>
             {messages.length === 0 ? (
-                <p style={{ textAlign: 'center', color: '#8E8E93', fontSize: 14, padding: '40px 0' }}>Soyez le premier à discuter !</p>
+                <p style={{ textAlign: 'center', color: 'var(--muted-foreground)', fontSize: 14, padding: '40px 0' }}>Soyez le premier à discuter !</p>
             ) : (
                 messages.map((m, i) => {
                     const isMe = m.sender_id === currentUserId
@@ -56,18 +56,18 @@ export function ChatInterface({ conversationId, initialMessages, currentUserId }
                     return (
                         <div key={m.id || i} style={{ display: 'flex', width: '100%', justifyContent: isMe ? 'flex-end' : 'flex-start' }}>
                             <div style={{ display: 'flex', flexDirection: 'column', maxWidth: '80%', alignItems: isMe ? 'flex-end' : 'flex-start' }}>
-                                {!isMe && <span style={{ fontSize: 10, color: '#8E8E93', marginBottom: 4, marginLeft: 4, fontWeight: 600 }}>{m.senderData?.prenom || 'Joueur'}</span>}
+                                {!isMe && <span style={{ fontSize: 10, color: 'var(--muted-foreground)', marginBottom: 4, marginLeft: 4, fontWeight: 600 }}>{m.senderData?.prenom || 'Joueur'}</span>}
                                 <div style={{
                                     padding: '10px 16px',
                                     borderRadius: isMe ? '20px 20px 4px 20px' : '20px 20px 20px 4px',
                                     fontSize: 14,
-                                    background: isMe ? '#E8703A' : '#1C1C1E',
-                                    color: '#fff',
+                                    background: isMe ? '#f2c991' : 'var(--card)',
+                                    color: 'var(--foreground)',
                                     lineHeight: 1.4,
                                 }}>
                                     {m.contenu}
                                 </div>
-                                <span style={{ fontSize: 10, color: '#8E8E93', marginTop: 4, padding: '0 4px', opacity: 0.7 }}>{time}</span>
+                                <span style={{ fontSize: 10, color: 'var(--muted-foreground)', marginTop: 4, padding: '0 4px', opacity: 0.7 }}>{time}</span>
                             </div>
                         </div>
                     )
@@ -77,20 +77,20 @@ export function ChatInterface({ conversationId, initialMessages, currentUserId }
         </div>
 
         {/* INPUT */}
-        <div className="pb-safe" style={{ flexShrink: 0, background: '#1C1C1E', borderTop: '1px solid #2C2C2E', padding: '12px 16px', paddingBottom: 90 }}>
+        <div className="pb-safe" style={{ flexShrink: 0, backgroundColor: 'var(--card)', borderTop: '1px solid #2C2C2E', padding: '12px 16px', paddingBottom: 90 }}>
             <form onSubmit={handleSend} style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
                 <input
                     value={newMessage}
                     onChange={e => setNewMessage(e.target.value)}
                     placeholder="Écrivez votre message..."
-                    style={{ flex: 1, height: 44, borderRadius: 100, border: 'none', background: '#2C2C2E', color: '#fff', fontSize: 14, padding: '0 20px', outline: 'none', fontFamily: 'var(--font-sans)' }}
+                    style={{ flex: 1, height: 44, borderRadius: 100, border: 'none', backgroundColor: 'var(--muted)', color: 'var(--foreground)', fontSize: 14, padding: '0 20px', outline: 'none', fontFamily: 'var(--font-sans)' }}
                 />
                 <button
                     type="submit"
                     disabled={!newMessage.trim() || isSending}
-                    style={{ width: 44, height: 44, borderRadius: '50%', border: 'none', background: '#E8703A', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0, opacity: (!newMessage.trim() || isSending) ? 0.4 : 1 }}
+                    style={{ width: 44, height: 44, borderRadius: '50%', border: '1px solid #cf9619', background: '#f2c991', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0, opacity: (!newMessage.trim() || isSending) ? 0.4 : 1 }}
                 >
-                    <svg width={18} height={18} viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round"><line x1="22" y1="2" x2="11" y2="13" /><polygon points="22 2 15 22 11 13 2 9 22 2" /></svg>
+                    <svg width={18} height={18} viewBox="0 0 24 24" fill="none" stroke='var(--foreground)' strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round"><line x1="22" y1="2" x2="11" y2="13" /><polygon points="22 2 15 22 11 13 2 9 22 2" /></svg>
                 </button>
             </form>
         </div>

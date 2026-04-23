@@ -111,8 +111,9 @@ export function BottomNav({ userId }: { userId?: string }) {
         alignItems: 'center',
         justifyContent: 'space-between',
         padding: '12px 24px',
-        background: '#000',
-        borderTop: '1px solid #1C1C1E',
+        background: 'var(--card)',
+        borderTop: '1px solid var(--border)',
+        boxShadow: '0 -4px 24px rgba(0,0,0,0.02)',
       }}
     >
       {NAV_ITEMS.map((item) => {
@@ -130,11 +131,10 @@ export function BottomNav({ userId }: { userId?: string }) {
                   width: 56,
                   height: 56,
                   borderRadius: '50%',
-                  background: '#E8703A',
-                  boxShadow: '0 4px 20px rgba(232, 112, 58, 0.25)',
+                  background: '#f2c991', border: '1px solid #cf9619', boxShadow: '0 4px 20px rgba(232, 112, 58, 0.25)',
                 }}
               >
-                <item.icon style={{ width: 24, height: 24, color: '#000' }} />
+                <item.icon style={{ width: 24, height: 24, color: '#FFF' }} />
               </div>
             </Link>
           );
@@ -153,7 +153,7 @@ export function BottomNav({ userId }: { userId?: string }) {
               justifyContent: 'center',
               gap: 4,
               width: 48,
-              color: isActive ? '#E8703A' : '#71717A',
+              color: isActive ? '#f2c991' : 'var(--muted-foreground)',
               textDecoration: 'none',
               position: 'relative',
             }}
@@ -173,8 +173,8 @@ export function BottomNav({ userId }: { userId?: string }) {
                     minWidth: 16,
                     height: 16,
                     borderRadius: '50%',
-                    background: '#EF4444',
-                    border: '2px solid #000',
+                    background: '#FF3B30',
+                    border: '2px solid var(--card)',
                     color: '#fff',
                     fontSize: 9,
                     fontWeight: 700,

@@ -135,13 +135,13 @@ export default async function PartiesSearchPage({
   }
 
   return (
-    <div style={{ background: '#000', minHeight: '100vh', paddingBottom: 100, fontFamily: 'var(--font-sans)' }}>
+    <div style={{ backgroundColor: 'var(--background)', minHeight: '100vh', paddingBottom: 100, fontFamily: 'var(--font-sans)' }}>
       
       {/* Header */}
-      <div style={{ position: 'sticky', top: 0, zIndex: 20, background: '#000', borderBottom: '1px solid #1C1C1E', padding: '16px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <div style={{ position: 'sticky', top: 0, zIndex: 20, backgroundColor: 'var(--background)', borderBottom: '1px solid #1C1C1E', padding: '16px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <BackButtonSquare />
-          <h1 style={{ margin: 0, fontSize: 20, fontWeight: 700, color: '#fff' }}>Trouver un match</h1>
+          <h1 style={{ margin: 0, fontSize: 20, fontWeight: 700, color: 'var(--foreground)' }}>Trouver un match</h1>
         </div>
       </div>
 
@@ -158,7 +158,7 @@ export default async function PartiesSearchPage({
         {/* RESULTS */}
         <div style={{ marginTop: 28 }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-            <h2 style={{ margin: 0, fontSize: 18, fontWeight: 600, color: '#fff' }}>Résultats ({formattedParties.length})</h2>
+            <h2 style={{ margin: 0, fontSize: 18, fontWeight: 600, color: 'var(--foreground)' }}>Résultats ({formattedParties.length})</h2>
           </div>
 
           {formattedParties.length > 0 ? (
@@ -168,10 +168,10 @@ export default async function PartiesSearchPage({
               ))}
             </div>
           ) : (
-            <div style={{ background: '#1C1C1E', borderRadius: 28, padding: '40px 24px', textAlign: 'center' }}>
+            <div style={{ backgroundColor: 'var(--card)', borderRadius: 28, padding: '40px 24px', textAlign: 'center' }}>
               <p style={{ margin: 0, fontSize: 32, marginBottom: 12 }}>🏜️</p>
-              <h3 style={{ margin: 0, fontSize: 16, fontWeight: 600, color: '#fff' }}>Aucun match trouvé</h3>
-              <p style={{ margin: '8px 0 0', fontSize: 14, color: '#8E8E93' }}>Essayez d&apos;élargir vos filtres (ville, niveau, ou décochez les places dispo).</p>
+              <h3 style={{ margin: 0, fontSize: 16, fontWeight: 600, color: 'var(--foreground)' }}>Aucun match trouvé</h3>
+              <p style={{ margin: '8px 0 0', fontSize: 14, color: 'var(--muted-foreground)' }}>Essayez d&apos;élargir vos filtres (ville, niveau, ou décochez les places dispo).</p>
             </div>
           )}
         </div>

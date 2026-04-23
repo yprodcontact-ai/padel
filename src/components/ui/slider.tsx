@@ -111,7 +111,7 @@ function Slider({ value, min = 0, max = 100, step = 1, onValueChange, className 
           width: '100%',
           height: 6,
           borderRadius: 100,
-          background: '#3A3A3C',
+          backgroundColor: 'var(--border)',
           cursor: 'pointer',
         }}
       >
@@ -124,7 +124,7 @@ function Slider({ value, min = 0, max = 100, step = 1, onValueChange, className 
             left: `${leftPercent}%`,
             width: `${rightPercent - leftPercent}%`,
             borderRadius: 100,
-            background: '#E8703A',
+            background: '#f2c991',
           }}
         />
       </div>
@@ -140,14 +140,14 @@ function Slider({ value, min = 0, max = 100, step = 1, onValueChange, className 
           width: 24,
           height: 24,
           borderRadius: '50%',
-          background: '#fff',
+          backgroundColor: 'var(--foreground)',
           boxShadow: draggingIndex === 0
             ? '0 0 0 6px rgba(232,112,58,0.25), 0 2px 6px rgba(0,0,0,0.3)'
             : '0 2px 6px rgba(0,0,0,0.3)',
           cursor: 'grab',
           zIndex: draggingIndex === 0 ? 3 : 2,
           transition: draggingIndex === 0 ? 'none' : 'box-shadow 0.15s',
-          border: '2px solid #E8703A',
+          border: '2px solid #f2c991',
         }}
       />
 
@@ -162,14 +162,14 @@ function Slider({ value, min = 0, max = 100, step = 1, onValueChange, className 
           width: 24,
           height: 24,
           borderRadius: '50%',
-          background: '#fff',
+          backgroundColor: 'var(--foreground)',
           boxShadow: draggingIndex === 1
             ? '0 0 0 6px rgba(232,112,58,0.25), 0 2px 6px rgba(0,0,0,0.3)'
             : '0 2px 6px rgba(0,0,0,0.3)',
           cursor: 'grab',
           zIndex: draggingIndex === 1 ? 3 : 2,
           transition: draggingIndex === 1 ? 'none' : 'box-shadow 0.15s',
-          border: '2px solid #E8703A',
+          border: '2px solid #f2c991',
         }}
       />
 

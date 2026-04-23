@@ -34,15 +34,15 @@ export default async function MessagePage({ params }: { params: { id: string } }
   }))
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', background: '#000', position: 'relative' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', backgroundColor: 'var(--background)', position: 'relative' }}>
       {/* HEADER */}
-      <div style={{ background: '#1C1C1E', borderBottom: '1px solid #2C2C2E', padding: '14px 16px', zIndex: 20, display: 'flex', alignItems: 'center', flexShrink: 0 }}>
+      <div style={{ backgroundColor: 'var(--card)', borderBottom: '1px solid #2C2C2E', padding: '14px 16px', zIndex: 20, display: 'flex', alignItems: 'center', flexShrink: 0 }}>
         <div style={{ marginRight: 12 }}>
           <BackButtonSquare />
         </div>
         <div>
-          <h1 style={{ margin: 0, fontSize: 17, fontWeight: 600, color: '#fff', fontFamily: 'var(--font-sans)' }}>{chatTitle}</h1>
-          <p style={{ margin: '2px 0 0', fontSize: 11, color: '#8E8E93', display: 'flex', alignItems: 'center', gap: 4 }}>
+          <h1 style={{ margin: 0, fontSize: 17, fontWeight: 600, color: 'var(--foreground)', fontFamily: 'var(--font-sans)' }}>{chatTitle}</h1>
+          <p style={{ margin: '2px 0 0', fontSize: 11, color: 'var(--muted-foreground)', display: 'flex', alignItems: 'center', gap: 4 }}>
             <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#22C55E', display: 'inline-block' }} />
             En direct
           </p>

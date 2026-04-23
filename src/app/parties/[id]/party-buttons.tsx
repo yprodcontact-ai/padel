@@ -29,17 +29,17 @@ export function PartyActionButtons({ partyId, isCreator, isParticipant, isPendin
       {errorText && <p style={{ color: '#EF4444', fontSize: 13, textAlign: 'center', margin: 0 }}>{errorText}</p>}
       {isCreator ? (<>
         {status === 'complete' && (<>
-          <button onClick={() => handleStatus('confirm')} disabled={isPendingTransition} style={{ ...btn, background: '#22C55E', color: '#fff' }}>Terrain réservé ✓</button>
-          <button onClick={() => handleStatus('cancel')} disabled={isPendingTransition} style={{ ...btn, background: '#EF4444', color: '#fff' }}>Créneau déjà réservé ✗</button>
+          <button onClick={() => handleStatus('confirm')} disabled={isPendingTransition} style={{ ...btn, background: '#22C55E', color: 'var(--foreground)' }}>Terrain réservé ✓</button>
+          <button onClick={() => handleStatus('cancel')} disabled={isPendingTransition} style={{ ...btn, background: '#EF4444', color: 'var(--foreground)' }}>Créneau déjà réservé ✗</button>
         </>)}
-        {status === 'publiee' && <button disabled style={{ ...btn, background: '#2C2C2E', color: '#8E8E93', cursor: 'default' }}>En attente ({playerCount}/4)</button>}
-        {status === 'confirmee' && <button disabled style={{ ...btn, background: '#22C55E', color: '#fff', cursor: 'default' }}>Match Confirmé !</button>}
-        {status === 'annulee' && <button disabled style={{ ...btn, background: '#EF4444', color: '#fff', cursor: 'default' }}>Match Annulé</button>}
+        {status === 'publiee' && <button disabled style={{ ...btn, backgroundColor: 'var(--muted)', color: 'var(--muted-foreground)', cursor: 'default' }}>En attente ({playerCount}/4)</button>}
+        {status === 'confirmee' && <button disabled style={{ ...btn, background: '#22C55E', color: 'var(--foreground)', cursor: 'default' }}>Match Confirmé !</button>}
+        {status === 'annulee' && <button disabled style={{ ...btn, background: '#EF4444', color: 'var(--foreground)', cursor: 'default' }}>Match Annulé</button>}
       </>) : (<>
         {isParticipant ? (
           <button onClick={handleLeave} disabled={isPendingTransition || status === 'confirmee' || status === 'annulee'} style={{ ...btn, background: 'transparent', border: '1.5px solid #EF4444', color: '#EF4444' }}>Quitter la partie</button>
         ) : isPending || requestSent ? (
-          <button disabled style={{ ...btn, background: '#2C2C2E', color: '#E8703A', cursor: 'default', border: '1.5px solid rgba(232,112,58,0.3)' }}>
+          <button disabled style={{ ...btn, backgroundColor: 'var(--muted)', color: '#f2c991', cursor: 'default', border: '1.5px solid rgba(232,112,58,0.3)' }}>
             <svg width={16} height={16} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
               <circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" />
             </svg>
@@ -48,17 +48,17 @@ export function PartyActionButtons({ partyId, isCreator, isParticipant, isPendin
         ) : (<>
           {status === 'publiee' && playerCount < 4 ? (
             isBelowLevel ? (
-              <button onClick={handleJoin} disabled={isPendingTransition} style={{ ...btn, background: 'transparent', border: '1.5px solid #E8703A', color: '#E8703A', opacity: isPendingTransition ? 0.6 : 1 }}>
+              <button onClick={handleJoin} disabled={isPendingTransition} style={{ ...btn, background: 'transparent', border: '1.5px solid #f2c991', color: '#f2c991', opacity: isPendingTransition ? 0.6 : 1 }}>
                 <svg width={16} height={16} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
                   <path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4-4v2" /><circle cx="8.5" cy="7" r="4" /><line x1="20" y1="8" x2="20" y2="14" /><line x1="23" y1="11" x2="17" y2="11" />
                 </svg>
                 Demander à rejoindre
               </button>
             ) : (
-              <button onClick={handleJoin} disabled={isPendingTransition} style={{ ...btn, background: '#E8703A', color: '#fff', opacity: isPendingTransition ? 0.6 : 1 }}>Rejoindre la partie</button>
+              <button onClick={handleJoin} disabled={isPendingTransition} style={{ ...btn, background: '#f2c991', border: '1px solid #cf9619', color: 'var(--foreground)', opacity: isPendingTransition ? 0.6 : 1 }}>Rejoindre la partie</button>
             )
           ) : (
-            <button disabled style={{ ...btn, background: '#2C2C2E', color: '#8E8E93', cursor: 'default' }}>{status === 'annulee' ? 'Partie annulée' : 'Partie complète'}</button>
+            <button disabled style={{ ...btn, backgroundColor: 'var(--muted)', color: 'var(--muted-foreground)', cursor: 'default' }}>{status === 'annulee' ? 'Partie annulée' : 'Partie complète'}</button>
           )}
         </>)}
       </>)}

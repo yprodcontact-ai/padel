@@ -19,7 +19,7 @@ export function RefreshButton() {
   return (
     <button 
       onClick={() => router.refresh()} 
-      style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 6, color: '#8E8E93' }}
+      style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 6, color: 'var(--muted-foreground)' }}
       aria-label="Actualiser la page"
     >
       <svg width={16} height={16} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round">

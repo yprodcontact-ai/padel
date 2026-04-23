@@ -23,7 +23,7 @@ export function BackButton({ label, variant = 'link' }: { label?: string; varian
           backdropFilter: 'blur(8px)',
         }}
       >
-        <svg width={18} height={18} viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6" /></svg>
+        <svg width={18} height={18} viewBox="0 0 24 24" fill="none" stroke='var(--foreground)' strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6" /></svg>
       </button>
     )
   }
@@ -38,8 +38,8 @@ export function BackButton({ label, variant = 'link' }: { label?: string; varian
           alignItems: 'center',
           gap: 6,
           fontSize: 13,
-          color: '#fff',
-          background: '#1C1C1E',
+          color: 'var(--foreground)',
+          backgroundColor: 'var(--card)',
           padding: '8px 16px',
           borderRadius: 100,
           border: 'none',
@@ -64,7 +64,7 @@ export function BackButton({ label, variant = 'link' }: { label?: string; varian
         alignItems: 'center',
         gap: 6,
         fontSize: 13,
-        color: '#E8703A',
+        color: '#f2c991',
         background: 'none',
         padding: 0,
         border: 'none',
@@ -92,12 +92,12 @@ export function BackButtonSquare() {
         width: 36,
         height: 36,
         borderRadius: 12,
-        background: '#1C1C1E',
+        backgroundColor: 'var(--card)',
         border: 'none',
         cursor: 'pointer',
       }}
     >
-      <svg width={16} height={16} viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6" /></svg>
+      <svg width={16} height={16} viewBox="0 0 24 24" fill="none" stroke='var(--foreground)' strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6" /></svg>
     </button>
   )
 }
