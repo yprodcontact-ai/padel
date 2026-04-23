@@ -98,6 +98,9 @@ export function BottomNav({ userId }: { userId?: string }) {
     }
   }, [pathname, userId, supabase]);
 
+  const hiddenPaths = ['/login', '/register', '/forgot-password', '/onboarding'];
+  if (!userId || hiddenPaths.includes(pathname)) return null;
+
   return (
     <nav
       className="pb-safe md:hidden"
