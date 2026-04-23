@@ -9,8 +9,8 @@ import { createClient } from "@/lib/supabase/client";
 
 const NAV_ITEMS = [
   { name: "Accueil", href: "/", icon: Home },
-  { name: "Parties", href: "/games", icon: Trophy },
-  { name: "Créer", href: "/create", icon: PlusCircle, isMain: true },
+  { name: "Parties", href: "/parties", icon: Trophy },
+  { name: "Créer", href: "/parties/create", icon: PlusCircle, isMain: true },
   { name: "Messages", href: "/messages", icon: MessageCircle },
   { name: "Profil", href: "/profile", icon: User },
 ];

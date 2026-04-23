@@ -6,8 +6,8 @@ import { Home, Trophy, PlusCircle, MessageCircle, User } from "lucide-react";
 
 const NAV_ITEMS = [
   { name: "Accueil", href: "/", icon: Home },
-  { name: "Parties", href: "/games", icon: Trophy },
-  { name: "Créer", href: "/create", icon: PlusCircle },
+  { name: "Parties", href: "/parties", icon: Trophy },
+  { name: "Créer", href: "/parties/create", icon: PlusCircle },
   { name: "Messages", href: "/messages", icon: MessageCircle },
   { name: "Profil", href: "/profile", icon: User },
 ];
