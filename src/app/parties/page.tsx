@@ -1,9 +1,15 @@
 import { createClient } from '@/lib/supabase/server'
-import { PartyCard, PartyInfo } from '@/components/party-card'
+import { PartyCard, PartyInfo, PlayerInfo } from '@/components/party-card'
 import { SearchFilters } from '@/app/parties/search-filters'
 import { BackButtonSquare } from '@/components/back-button'
 
 export const dynamic = 'force-dynamic'
+
+type FetchedPartyPlayer = {
+  user_id: string;
+  statut: string;
+  users: { prenom: string | null; nom: string | null; niveau: number | null; photo_url: string | null } | null;
+}
 
 type FetchedParty = {
   id: string;
@@ -12,11 +18,25 @@ type FetchedParty = {
   niveau_max: number;
   type: string;
   clubs: { nom: string; ville: string; lat: number | null; lng: number | null } | null;
-  party_players: { user_id: string; statut: string }[] | null;
+  party_players: FetchedPartyPlayer[] | null;
 }
 
 export const metadata = {
   title: 'Recherche de parties | Padel',
+}
+
+function mapPlayer(pp: FetchedPartyPlayer): PlayerInfo {
+  const u = pp.users
+  const prenom = u?.prenom || 'Joueur'
+  const nom = u?.nom || ''
+  return {
+    user_id: pp.user_id,
+    prenom,
+    nom,
+    niveau: u?.niveau ?? 5,
+    photo_url: u?.photo_url || null,
+    initials: `${prenom.charAt(0)}${nom.charAt(0)}`.toUpperCase(),
+  }
 }
 
 export default async function PartiesSearchPage({
@@ -36,7 +56,7 @@ export default async function PartiesSearchPage({
   
   const now = new Date().toISOString()
 
-  // Base query: Upcoming matched parties
+  // Base query: Upcoming matched parties with player details
   let query = supabase
     .from('parties')
     .select(`
@@ -46,7 +66,11 @@ export default async function PartiesSearchPage({
       niveau_max,
       type,
       clubs!inner (nom, ville, lat, lng),
-      party_players (user_id, statut)
+      party_players (
+        user_id,
+        statut,
+        users (prenom, nom, niveau, photo_url)
+      )
     `)
     .eq('statut', 'publiee')
     .gte('date_heure', now)
@@ -82,6 +106,7 @@ export default async function PartiesSearchPage({
         const hasJoined = confirmedPlayers.some((player) => player.user_id === currentUserId)
         const isPendingRequest = p.party_players?.some(pl => pl.user_id === currentUserId && pl.statut === 'en_attente') || false
         const isBelowLevel = userLevel !== null && p.niveau_min !== null && userLevel < p.niveau_min
+        const players = confirmedPlayers.map(mapPlayer)
 
         return {
            id: p.id,
@@ -95,6 +120,7 @@ export default async function PartiesSearchPage({
            has_joined: hasJoined || false,
            is_pending: isPendingRequest,
            is_below_level: isBelowLevel,
+           players,
         } as PartyInfo
      })
 
