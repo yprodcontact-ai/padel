@@ -116,6 +116,39 @@ export default async function PartyDetailsPage({ params }: { params: { id: strin
           </div>
         </div>
 
+        {/* PENDING REQUESTS (visible only to creator) */}
+        {isCreator && pendingPlayers.length > 0 && (
+          <PendingRequests partyId={party.id} pendingPlayers={pendingPlayers.map((p: Player) => ({
+            user_id: p.user_id,
+            prenom: p.users?.prenom || '',
+            nom: p.users?.nom || '',
+            photo_url: p.users?.photo_url || null,
+            niveau: p.users?.niveau || null,
+          }))} />
+        )}
+        
+        {/* BOUTON CHAT */}
+        {isParticipant && conversation && (
+          <Link href={`/messages/${conversation.id}`} style={{ display: 'block', marginBottom: 16, textDecoration: 'none' }}>
+            <div style={{ background: '#E8703A', padding: '16px 20px', borderRadius: 100, textAlign: 'center', fontWeight: 600, fontSize: 15, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+              💬 Accéder au Chat de groupe
+            </div>
+          </Link>
+        )}
+        
+        {/* BOUTONS D'ACTION (Client Component) */}
+        {currentUserId && (
+          <PartyActionButtons 
+            partyId={party.id}
+            isCreator={isCreator}
+            isParticipant={isParticipant}
+            isPending={isPending}
+            isBelowLevel={isBelowLevel}
+            status={party.statut}
+            playerCount={playerCount}
+          />
+        )}
+
         {/* SECTION JOUEURS */}
         <div style={{ background: '#1C1C1E', borderRadius: 28, padding: '24px 22px', marginBottom: 16 }}>
           <h2 style={{ margin: '0 0 16px', fontSize: 17, fontWeight: 600, color: '#fff', display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -163,39 +196,6 @@ export default async function PartyDetailsPage({ params }: { params: { id: strin
             ))}
           </div>
         </div>
-
-        {/* PENDING REQUESTS (visible only to creator) */}
-        {isCreator && pendingPlayers.length > 0 && (
-          <PendingRequests partyId={party.id} pendingPlayers={pendingPlayers.map((p: Player) => ({
-            user_id: p.user_id,
-            prenom: p.users?.prenom || '',
-            nom: p.users?.nom || '',
-            photo_url: p.users?.photo_url || null,
-            niveau: p.users?.niveau || null,
-          }))} />
-        )}
-        
-        {/* BOUTON CHAT */}
-        {isParticipant && conversation && (
-          <Link href={`/messages/${conversation.id}`} style={{ display: 'block', marginBottom: 16, textDecoration: 'none' }}>
-            <div style={{ background: '#E8703A', padding: '16px 20px', borderRadius: 100, textAlign: 'center', fontWeight: 600, fontSize: 15, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
-              💬 Accéder au Chat de groupe
-            </div>
-          </Link>
-        )}
-        
-        {/* BOUTONS D'ACTION (Client Component) */}
-        {currentUserId && (
-          <PartyActionButtons 
-            partyId={party.id}
-            isCreator={isCreator}
-            isParticipant={isParticipant}
-            isPending={isPending}
-            isBelowLevel={isBelowLevel}
-            status={party.statut}
-            playerCount={playerCount}
-          />
-        )}
 
       </div>
     </div>

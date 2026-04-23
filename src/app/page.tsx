@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
 import { getDistanceFromLatLonInKm } from '@/lib/utils'
+import { RefreshOnMount, RefreshButton } from '@/components/RefreshOnMount'
 
 export const dynamic = 'force-dynamic'
 
@@ -255,6 +256,7 @@ export default async function Home() {
 
   return (
     <div style={{ background: '#000', minHeight: '100vh', paddingBottom: 100, fontFamily: 'var(--font-sans)' }}>
+      <RefreshOnMount />
 
       {/* ═══ HERO ═══ */}
       <div style={{ padding: '53px 20px 0' }}>
@@ -289,9 +291,6 @@ export default async function Home() {
           <h2 style={{ margin: 0, fontSize: 20, fontWeight: 600, color: '#fff', letterSpacing: '-0.01em' }}>
             Votre prochaine partie
           </h2>
-          <Link href="/parties" style={{ fontSize: 14, color: '#8E8E93', textDecoration: 'none', fontWeight: 400 }}>
-            Voir plus &rsaquo;
-          </Link>
         </div>
 
         {myNextParty ? (
@@ -366,9 +365,7 @@ export default async function Home() {
           <h2 style={{ margin: 0, fontSize: 20, fontWeight: 600, color: '#fff', letterSpacing: '-0.01em' }}>
             Parties disponibles
           </h2>
-          <Link href="/parties" style={{ fontSize: 14, color: '#8E8E93', textDecoration: 'none', fontWeight: 400, fontStyle: 'italic' }}>
-            Toutes les parties &rsaquo;
-          </Link>
+          <RefreshButton />
         </div>
 
         {availableParties.length > 0 ? (
@@ -429,6 +426,14 @@ export default async function Home() {
             </p>
           </div>
         )}
+
+        {/* Bouton Toutes les parties */}
+        <div style={{ padding: '0 20px', marginTop: 24, marginBottom: 16 }}>
+          <Link href="/parties" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', height: 50, borderRadius: 100, border: '1px solid #3A3A3C', color: '#fff', fontSize: 15, fontWeight: 600, textDecoration: 'none', background: 'transparent' }}>
+            Toutes les parties
+          </Link>
+        </div>
+
       </div>
     </div>
   )
