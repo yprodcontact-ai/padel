@@ -111,6 +111,7 @@
 * {
   -webkit-tap-highlight-color: transparent;
   -webkit-touch-callout: none;
+  touch-action: manipulation;
 }
 
 html {
@@ -127,6 +128,7 @@ main {
 /* Links and buttons — subtle press feedback */
 a, button {
   transition: opacity 0.15s ease, transform 0.15s ease;
+  will-change: transform, opacity;
 }
 a:active, button:active {
   opacity: 0.8;

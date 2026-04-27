@@ -1,7 +1,7 @@
 'use client'
 
 import { usePathname } from 'next/navigation'
-import { useEffect, useState, useRef, useCallback } from 'react'
+import { useEffect, useState } from 'react'
 
 /**
  * RouteTransition — Provides two native-app-feel effects:
@@ -11,28 +11,13 @@ import { useEffect, useState, useRef, useCallback } from 'react'
 export function RouteTransition({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const [isTransitioning, setIsTransitioning] = useState(false)
-  const [showContent, setShowContent] = useState(true)
-  const prevPathRef = useRef(pathname)
-
-  const animateTransition = useCallback(() => {
-    // Don't animate on first mount
-    if (prevPathRef.current === pathname) return
-
-    prevPathRef.current = pathname
-    setIsTransitioning(true)
-    setShowContent(false)
-
-    // Tiny delay then show new content with animation
-    requestAnimationFrame(() => {
-      setShowContent(true)
-      // Hide progress bar after animation
-      setTimeout(() => setIsTransitioning(false), 350)
-    })
-  }, [pathname])
 
   useEffect(() => {
-    animateTransition()
-  }, [animateTransition])
+    // Only animate the progress bar, do not delay or unmount the content!
+    setIsTransitioning(true)
+    const t = setTimeout(() => setIsTransitioning(false), 350)
+    return () => clearTimeout(t)
+  }, [pathname])
 
   return (
     <>
@@ -60,10 +45,16 @@ export function RouteTransition({ children }: { children: React.ReactNode }) {
         />
       </div>
 
-      {/* Page content with fade animation */}
+      {/* 
+        Page content with fade animation.
+        Using key={pathname} forces React to mount a fresh DOM node on navigation, 
+        which instantly triggers the native CSS animation without JS latency.
+        This removes the "ignoble" flash on mobile.
+      */}
       <div
+        key={pathname}
         style={{
-          animation: showContent ? 'pageEnter 0.28s ease-out forwards' : 'none',
+          animation: 'pageEnter 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards',
           willChange: 'opacity, transform',
           height: '100%',
           paddingTop: pathname !== '/' ? 15 : 0,
