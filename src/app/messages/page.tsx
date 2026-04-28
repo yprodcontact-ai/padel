@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { formatDateShort, formatTime } from '@/lib/date-utils'
+import { RefreshOnMount } from '@/components/RefreshOnMount'
 
 export const metadata = { title: 'Mes Messages | Padel' }
 
@@ -33,6 +34,7 @@ export default async function InboxPage() {
 
   return (
     <div style={{ backgroundColor: 'var(--background)', minHeight: '100vh', padding: '16px 16px 130px', fontFamily: 'var(--font-sans)' }}>
+      <RefreshOnMount />
       <h1 style={{ margin: '16px 0 24px', fontSize: 30, fontWeight: 800, color: 'var(--foreground)' }}>Messages</h1>
 
       {queryError && <div style={{ background: 'rgba(239,68,68,0.1)', color: '#EF4444', padding: 16, borderRadius: 16, marginBottom: 16, fontSize: 12, fontFamily: 'monospace' }}>Erreur DB: {JSON.stringify(queryError)}</div>}

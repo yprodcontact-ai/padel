@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { BellIcon, XIcon, DownloadIcon } from 'lucide-react'
+import Link from 'next/link'
 
 const urlBase64ToUint8Array = (base64String: string) => {
   const padding = '='.repeat((4 - base64String.length % 4) % 4)
@@ -119,10 +120,13 @@ export function PushManager() {
                      <DownloadIcon style={{ width: 24, height: 24, color: '#f2c991' }} />
                  </div>
                  <div style={{ flex: 1, paddingRight: 24 }}>
-                     <h4 style={{ margin: 0, fontWeight: 700, fontSize: 14, color: 'var(--foreground)' }}>Application Native</h4>
+                     <h4 style={{ margin: 0, fontWeight: 700, fontSize: 14, color: 'var(--foreground)' }}>Installer l&apos;application</h4>
                      <p style={{ margin: '4px 0 0', fontSize: 12, color: 'var(--muted-foreground)', lineHeight: 1.5 }}>Pour recevoir les notifications, ajoutez WizzPadel à votre <b>Écran d&apos;accueil</b> depuis le bouton de Partage.</p>
                  </div>
              </div>
+             <Link href="/install" onClick={() => setShowPrompt(false)} style={{ width: '100%', marginTop: 4, background: 'transparent', border: '1px solid var(--border)', color: 'var(--foreground)', fontWeight: 600, fontSize: 14, padding: '10px 0', borderRadius: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, fontFamily: 'var(--font-sans)', textDecoration: 'none' }}>
+                 Comment faire ? 🤔
+             </Link>
           </div>
       )
   }
