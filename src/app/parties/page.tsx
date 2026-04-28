@@ -135,7 +135,7 @@ export default async function PartiesSearchPage({
   }
 
   return (
-    <div style={{ backgroundColor: 'var(--background)', minHeight: '100vh', paddingBottom: 100, fontFamily: 'var(--font-sans)' }}>
+    <div style={{ backgroundColor: 'var(--background)', minHeight: '100vh', paddingBottom: 130, fontFamily: 'var(--font-sans)' }}>
       
       {/* Header */}
       <div style={{ position: 'sticky', top: 0, zIndex: 20, backgroundColor: 'var(--background)', borderBottom: '1px solid #1C1C1E', padding: '16px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>

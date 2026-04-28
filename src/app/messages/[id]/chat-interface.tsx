@@ -78,7 +78,7 @@ export function ChatInterface({ conversationId, initialMessages, currentUserId }
         </div>
 
         {/* INPUT */}
-        <div className="pb-safe" style={{ flexShrink: 0, backgroundColor: 'var(--card)', borderTop: '1px solid #2C2C2E', padding: '12px 16px', paddingBottom: 90 }}>
+        <div className="pb-safe" style={{ flexShrink: 0, backgroundColor: 'var(--card)', borderTop: '1px solid #2C2C2E', padding: '12px 16px', paddingBottom: 130 }}>
             <form onSubmit={handleSend} style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
                 <input
                     value={newMessage}

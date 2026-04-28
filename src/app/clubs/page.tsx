@@ -19,7 +19,7 @@ export default async function ClubsPage({ searchParams }: { searchParams: { q?: 
         <SearchInput />
       </div>
 
-      <div style={{ padding: '16px 16px 100px', maxWidth: 480, margin: '0 auto' }}>
+      <div style={{ padding: '16px 16px 130px', maxWidth: 480, margin: '0 auto' }}>
         {error && <p style={{ color: '#EF4444', fontSize: 14 }}>Erreur lors de la récupération des clubs.</p>}
         {clubs && clubs.length === 0 && (
           <p style={{ textAlign: 'center', color: 'var(--muted-foreground)', marginTop: 40 }}>Aucun club ne correspond à votre recherche.</p>

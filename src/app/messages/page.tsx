@@ -32,7 +32,7 @@ export default async function InboxPage() {
   chatList.sort((a, b) => { if (!a.lastMessageTime) return 1; if (!b.lastMessageTime) return -1; return b.lastMessageTime.getTime() - a.lastMessageTime.getTime() })
 
   return (
-    <div style={{ backgroundColor: 'var(--background)', minHeight: '100vh', padding: '16px 16px 100px', fontFamily: 'var(--font-sans)' }}>
+    <div style={{ backgroundColor: 'var(--background)', minHeight: '100vh', padding: '16px 16px 130px', fontFamily: 'var(--font-sans)' }}>
       <h1 style={{ margin: '16px 0 24px', fontSize: 30, fontWeight: 800, color: 'var(--foreground)' }}>Messages</h1>
 
       {queryError && <div style={{ background: 'rgba(239,68,68,0.1)', color: '#EF4444', padding: 16, borderRadius: 16, marginBottom: 16, fontSize: 12, fontFamily: 'monospace' }}>Erreur DB: {JSON.stringify(queryError)}</div>}

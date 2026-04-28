@@ -25,7 +25,7 @@ export default async function ProfilePage() {
   const initials = `${userProfile.prenom?.[0] || ''}${userProfile.nom?.[0] || ''}`.toUpperCase()
 
   return (
-    <div style={{ backgroundColor: 'var(--background)', minHeight: '100vh', padding: '16px 16px 100px', fontFamily: 'var(--font-sans)' }}>
+    <div style={{ backgroundColor: 'var(--background)', minHeight: '100vh', padding: '16px 16px 130px', fontFamily: 'var(--font-sans)' }}>
       <div style={{ maxWidth: 420, margin: '0 auto' }}>
         {/* Header */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>

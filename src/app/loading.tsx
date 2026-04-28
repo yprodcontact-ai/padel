@@ -2,7 +2,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 
 export default function Loading() {
   return (
-    <div style={{ backgroundColor: 'var(--background)', minHeight: '100vh', paddingBottom: 100 }}>
+    <div style={{ backgroundColor: 'var(--background)', minHeight: '100vh', paddingBottom: 130 }}>
       {/* ═══ HERO HEADER ═══ */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '79px 20px 24px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>

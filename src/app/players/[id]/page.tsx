@@ -16,7 +16,7 @@ export default async function PlayerProfilePage({ params }: { params: { id: stri
   const isMe = user.id === player.id
 
   return (
-    <div style={{ backgroundColor: 'var(--background)', minHeight: '100vh', padding: '16px 16px 100px', fontFamily: 'var(--font-sans)' }}>
+    <div style={{ backgroundColor: 'var(--background)', minHeight: '100vh', padding: '16px 16px 130px', fontFamily: 'var(--font-sans)' }}>
       <div style={{ paddingTop: 8 }}>
         <BackButton variant="pill" />
       </div>

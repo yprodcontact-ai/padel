@@ -336,10 +336,10 @@ export async function updatePartyStatus(partyId: string, action: 'confirm' | 'ca
 
   const newStatus = action === 'confirm' ? 'confirmee' : 'annulee'
 
-  const { error: updateError } = await supabase
-    .from('parties')
-    .update({ statut: newStatus })
-    .eq('id', partyId)
+  const { error: updateError } = await supabase.rpc('system_update_party_status', {
+    p_party_id: partyId,
+    p_status: newStatus
+  })
 
   if (updateError) {
     return { error: 'Erreur lors de la mise à jour du statut' }

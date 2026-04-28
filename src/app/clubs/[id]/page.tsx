@@ -20,7 +20,7 @@ export default async function ClubDetailPage({ params }: { params: { id: string 
   const setMainClubWithId = setMainClub.bind(null, club.id)
 
   return (
-    <div style={{ backgroundColor: 'var(--background)', minHeight: '100vh', fontFamily: 'var(--font-sans)', paddingBottom: 100 }}>
+    <div style={{ backgroundColor: 'var(--background)', minHeight: '100vh', fontFamily: 'var(--font-sans)', paddingBottom: 130 }}>
       {/* Header Image */}
       <div style={{ position: 'relative', height: 200, backgroundColor: 'var(--card)', width: '100%' }}>
         <div style={{ position: 'absolute', top: 16, left: 16, zIndex: 10 }}>

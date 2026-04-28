@@ -230,7 +230,7 @@ export default async function Home() {
   }).slice(0, 6)
 
   return (
-    <div style={{ backgroundColor: 'var(--background)', minHeight: '100vh', paddingBottom: 100 }}>
+    <div style={{ backgroundColor: 'var(--background)', minHeight: '100vh', paddingBottom: 130 }}>
       <RefreshOnMount />
 
       {/* ═══ HERO HEADER ═══ */}

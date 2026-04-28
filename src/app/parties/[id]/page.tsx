@@ -74,7 +74,7 @@ export default async function PartyDetailsPage({ params }: { params: { id: strin
   const isBelowLevel = userLevel !== null && party.niveau_min !== null && userLevel < party.niveau_min
 
   return (
-    <div style={{ backgroundColor: 'var(--background)', minHeight: '100vh', paddingBottom: 100, fontFamily: 'var(--font-sans)' }}>
+    <div style={{ backgroundColor: 'var(--background)', minHeight: '100vh', paddingBottom: 130, fontFamily: 'var(--font-sans)' }}>
       <div style={{ maxWidth: 480, margin: '0 auto', padding: '16px 16px 0' }}>
         
         {/* Back link */}
