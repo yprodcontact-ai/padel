@@ -149,7 +149,7 @@ export function BottomNav({ userId }: { userId?: string }) {
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
-            padding: "10px 8px",
+            padding: "14px 8px",
           }}
         >
           {/* Left tabs */}
@@ -201,9 +201,9 @@ export function BottomNav({ userId }: { userId?: string }) {
             position: "absolute",
             left: "50%",
             transform: "translateX(-50%)",
-            top: -18,
-            width: 76,
-            height: 76,
+            top: -22,
+            width: 86,
+            height: 86,
             borderRadius: "50%",
             background: "linear-gradient(135deg, #fcd34d, #f59e0b, #d97706)",
             border: "4px solid white",
@@ -275,7 +275,7 @@ function NavItem({
           alignItems: "center",
           justifyContent: "center",
           gap: 2,
-          padding: "6px 4px",
+          padding: "8px 6px",
         }}
       >
         {/* Icon */}
@@ -286,8 +286,8 @@ function NavItem({
               isActive && "scale-110"
             )}
             style={{
-              width: 22,
-              height: 22,
+              width: 26,
+              height: 26,
               color: isActive ? "#f59e0b" : "#a8a29e",
             }}
             strokeWidth={isActive ? 2.25 : 1.75}
@@ -323,7 +323,7 @@ function NavItem({
         {/* Label */}
         <span
           style={{
-            fontSize: 10,
+            fontSize: 11,
             fontWeight: 500,
             letterSpacing: "0.02em",
             color: isActive ? "#d97706" : "#a8a29e",
