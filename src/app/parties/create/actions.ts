@@ -42,7 +42,7 @@ export async function createParty(formData: FormData) {
   const { checkUserActiveParty } = await import('@/lib/party-utils')
   const isActive = await checkUserActiveParty(authData.user.id)
   if (isActive) {
-    return { error: "Vous êtes déjà inscrit à une partie à venir. Vous pourrez en rejoindre une autre 5 minutes après le début de celle-ci." }
+    return { error: "Vous êtes déjà inscrit à 2 parties à venir. Vous pourrez en rejoindre une autre 5 minutes après le début de l'une d'elles." }
   }
 
 

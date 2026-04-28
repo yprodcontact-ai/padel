@@ -17,7 +17,7 @@ export async function joinParty(partyId: string) {
   const { checkUserActiveParty } = await import('@/lib/party-utils')
   const isActive = await checkUserActiveParty(userId)
   if (isActive) {
-    return { error: "Vous êtes déjà inscrit à une partie à venir. Vous pourrez en rejoindre une autre 5 minutes après le début de celle-ci." }
+    return { error: "Vous êtes déjà inscrit à 2 parties à venir. Vous pourrez en rejoindre une autre 5 minutes après le début de l'une d'elles." }
   }
 
   // Fetch party level requirements
@@ -155,7 +155,7 @@ export async function handleJoinRequest(partyId: string, requesterId: string, ac
     const { checkUserActiveParty } = await import('@/lib/party-utils')
     const isActive = await checkUserActiveParty(requesterId)
     if (isActive) {
-      return { error: 'Ce joueur a déjà rejoint une autre partie.' }
+      return { error: "Ce joueur est déjà inscrit à 2 parties à venir." }
     }
 
     // Update player status to 'inscrit'
@@ -346,22 +346,35 @@ export async function updatePartyStatus(partyId: string, action: 'confirm' | 'ca
   }
 
   // Notifications
-  const { data: players } = await supabase.from('party_players').select('user_id').eq('party_id', partyId)
+  const { data: players } = await supabase.from('party_players').select('user_id, users(notify_party_updates)').eq('party_id', partyId)
   if (players && players.length > 0) {
       const notifications: { user_id: string; type: string; payload: Record<string, string> }[] = []
+      const { sendPushNotification } = await import('@/lib/push')
       
       for (const player of players) {
           if (player.user_id !== userId) {
+              const isConfirm = action === 'confirm'
               notifications.push({
                   user_id: player.user_id,
-                  type: action === 'confirm' ? 'party_confirmed' : 'party_cancelled',
+                  type: isConfirm ? 'party_confirmed' : 'party_cancelled',
                   payload: { 
-                      message: action === 'confirm' 
+                      message: isConfirm 
                         ? 'Le terrain a bien été réservé. Préparez-vous à jouer !' 
                         : 'Malheureusement, le créneau était indisponible et la partie a été annulée.',
                       party_id: partyId
                   }
               })
+
+              // Push Notification
+              if ((player.users as unknown as Record<string, unknown>)?.notify_party_updates !== false) {
+                  await sendPushNotification(player.user_id, {
+                      title: isConfirm ? 'Terrain réservé ! 🎾' : 'Partie annulée ❌',
+                      message: isConfirm 
+                        ? 'Le terrain a été réservé. Préparez-vous à jouer !' 
+                        : 'Le créneau était indisponible, la partie a été annulée.',
+                      url: `/parties/${partyId}`
+                  }).catch(() => {})
+              }
           }
       }
 
