@@ -8,7 +8,7 @@ const vapidPrivateKey = process.env.VAPID_PRIVATE_KEY || ''
 if (vapidPublicKey && vapidPrivateKey) {
   try {
       webpush.setVapidDetails(
-        'mailto:contact@padelconnect.com',
+        'mailto:contact@wizzpadel.com',
         vapidPublicKey,
         vapidPrivateKey
       )

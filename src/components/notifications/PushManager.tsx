@@ -120,7 +120,7 @@ export function PushManager() {
                  </div>
                  <div className="flex-1 pr-6">
                      <h4 className="font-bold text-sm">Application Native</h4>
-                     <p className="text-xs text-muted-foreground mt-1">Pour recevoir les notifications et améliorer l&apos;expérience, ajoutez PadelConnect à votre <b>Écran d&apos;accueil</b> depuis le bouton de Partage.</p>
+                     <p className="text-xs text-muted-foreground mt-1">Pour recevoir les notifications et améliorer l&apos;expérience, ajoutez WizzPadel à votre <b>Écran d&apos;accueil</b> depuis le bouton de Partage.</p>
                  </div>
              </div>
           </div>

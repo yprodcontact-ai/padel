@@ -45,7 +45,7 @@ export function Sidebar() {
           <Trophy style={{ width: 16, height: 16, color: '#000' }} />
         </div>
         <h1 style={{ fontSize: 20, fontWeight: 700, color: '#fff', letterSpacing: '-0.01em', fontFamily: 'var(--font-sans)' }}>
-          PadelConnect
+          WizzPadel
         </h1>
       </div>
 

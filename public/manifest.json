@@ -1,6 +1,6 @@
 {
-  "name": "PadelConnect",
-  "short_name": "PadelConnect",
+  "name": "WizzPadel",
+  "short_name": "WizzPadel",
   "description": "L'application ultime de Padel pour organiser, jouer et connecter.",
   "start_url": "/",
   "display": "standalone",

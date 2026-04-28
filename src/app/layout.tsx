@@ -8,13 +8,13 @@ import { RouteTransition } from "@/components/route-transition";
 import { createClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = {
-  title: "PadelConnect",
+  title: "WizzPadel",
   description: "L'application ultime de Padel pour organiser, jouer et connecter.",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "PadelConnect",
+    title: "WizzPadel",
   },
   icons: {
     icon: '/icons/icon-192x192.png',
