@@ -17,12 +17,12 @@ const urlBase64ToUint8Array = (base64String: string) => {
 
 export function PushManager() {
   const [showPrompt, setShowPrompt] = useState(false)
-  const [isIOSInfo, setIsIOSInfo] = useState({ isIos: false, isStandalone: false })
+  const [deviceInfo, setDeviceInfo] = useState({ isMobile: false, isStandalone: true })
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
     // Évite les erreurs SSR
-    if (typeof window === 'undefined' || !('serviceWorker' in navigator) || !('PushManager' in window)) {
+    if (typeof window === 'undefined') {
         return;
     }
 
@@ -30,33 +30,27 @@ export function PushManager() {
     if (!VAPID_KEY) return;
 
     const checkState = () => {
-        // Detect iOS
-        const isIosDevice = /iPad|iPhone|iPod/.test(navigator.userAgent) || 
+        // Detect Mobile
+        const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || 
             (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
         
         // Detect Standalone
         const isStandaloneMode = window.matchMedia('(display-mode: standalone)').matches || 
             (window.navigator as unknown as { standalone?: boolean }).standalone === true;
 
-        setIsIOSInfo({ isIos: isIosDevice, isStandalone: isStandaloneMode })
+        setDeviceInfo({ isMobile: isMobileDevice, isStandalone: isStandaloneMode })
 
-        // Vérifie si on a l'API Notification (Safari sur iOS vieux l'a pas, Safari récent l'a si standalone)
-        if (!('Notification' in window)) {
-            // Sur iOS sans Notification API, c'est mort de toute façon
-            if (isIosDevice && !isStandaloneMode) {
-               setTimeout(() => setShowPrompt(true), 2500)
-            }
-            return;
+        // Si on est sur mobile et pas standalone, on veut FORCER la popup d'install
+        if (isMobileDevice && !isStandaloneMode) {
+            setTimeout(() => setShowPrompt(true), 2500)
         }
 
-        // Si permission accordée, on rafraichit l'abonnement en silence
-        if (Notification.permission === 'granted') {
-            registerPushSilent(VAPID_KEY)
-        } 
-        // Sinon s'il y a un refus permanent, on ne dit rien
-        else if (Notification.permission === 'default') {
-            // Un bref délai pour ne pas agresser dès la première milliseconde
-            setTimeout(() => setShowPrompt(true), 1500)
+        if ('Notification' in window && 'serviceWorker' in navigator && 'PushManager' in window) {
+            if (Notification.permission === 'granted') {
+                registerPushSilent(VAPID_KEY)
+            } else if (Notification.permission === 'default' && (!isMobileDevice || isStandaloneMode)) {
+                setTimeout(() => setShowPrompt(true), 1500)
+            }
         }
     }
     
@@ -108,8 +102,8 @@ export function PushManager() {
 
   if (!showPrompt) return null;
 
-  // Cas spécial : iOS mais pas installé sur l'écran d'accueil
-  if (isIOSInfo.isIos && !isIOSInfo.isStandalone) {
+  // Cas spécial : Mobile mais pas installé sur l'écran d'accueil
+  if (deviceInfo.isMobile && !deviceInfo.isStandalone) {
       return (
           <div style={{ position: 'fixed', bottom: 100, left: 16, right: 16, backgroundColor: 'var(--card)', border: '1px solid var(--border)', padding: 16, borderRadius: 20, boxShadow: '0 8px 32px rgba(0,0,0,0.12)', display: 'flex', flexDirection: 'column', gap: 12, zIndex: 50 }}>
              <button onClick={() => setShowPrompt(false)} style={{ position: 'absolute', top: 8, right: 8, padding: 8, borderRadius: '50%', border: 'none', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
