@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { sendMessage, markConversationAsRead } from '../actions'
+import { formatTime } from '@/lib/date-utils'
 
 export type Message = { id: string; contenu: string; created_at: string; sender_id: string; senderData?: { prenom: string, photo_url: string } | null }
 
@@ -52,7 +53,7 @@ export function ChatInterface({ conversationId, initialMessages, currentUserId }
             ) : (
                 messages.map((m, i) => {
                     const isMe = m.sender_id === currentUserId
-                    const time = new Date(m.created_at).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
+                    const time = formatTime(m.created_at)
                     return (
                         <div key={m.id || i} style={{ display: 'flex', width: '100%', justifyContent: isMe ? 'flex-end' : 'flex-start' }}>
                             <div style={{ display: 'flex', flexDirection: 'column', maxWidth: '80%', alignItems: isMe ? 'flex-end' : 'flex-start' }}>

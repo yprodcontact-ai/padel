@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { PartyActionButtons } from './party-buttons'
 import { BackButton } from '@/components/back-button'
 import { PendingRequests } from './pending-requests'
+import { formatDatetime } from '@/lib/date-utils'
 
 type Player = {
   user_id: string;
@@ -67,10 +68,7 @@ export default async function PartyDetailsPage({ params }: { params: { id: strin
   const isPending = pendingPlayers.some((p: Player) => p.user_id === currentUserId)
   const playerCount = confirmedPlayers.length
 
-  const dateMatch = new Date(party.date_heure).toLocaleString('fr-FR', {
-    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
-    hour: '2-digit', minute: '2-digit'
-  })
+  const dateMatch = formatDatetime(party.date_heure)
 
   // Determine if user level is below the party range
   const isBelowLevel = userLevel !== null && party.niveau_min !== null && userLevel < party.niveau_min

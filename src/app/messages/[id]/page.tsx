@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { ChatInterface } from '@/app/messages/[id]/chat-interface'
 import { BackButtonSquare } from '@/components/back-button'
+import { formatDateShort, formatTime } from '@/lib/date-utils'
 
 export const metadata = { title: 'Discussion | Padel' }
 
@@ -21,9 +22,8 @@ export default async function MessagePage({ params }: { params: { id: string } }
   if (convInfo?.party_id) {
     const { data: partyData } = await supabase.from('parties').select('date_heure').eq('id', convInfo.party_id).single()
     if (partyData?.date_heure) {
-      const d = new Date(partyData.date_heure)
-      const dateStr = d.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' })
-      const timeStr = d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
+      const dateStr = formatDateShort(partyData.date_heure)
+      const timeStr = formatTime(partyData.date_heure)
       chatTitle = `Match : ${dateStr} - ${timeStr}`
     }
   }

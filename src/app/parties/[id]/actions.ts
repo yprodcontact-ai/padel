@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
+import { formatDateShort, formatTime } from '@/lib/date-utils'
 
 export async function joinParty(partyId: string) {
   const supabase = createClient()
@@ -112,11 +113,10 @@ export async function joinParty(partyId: string) {
             const { sendPushNotification } = await import('@/lib/push')
             let dateStr = ''
             let timeStr = ''
-            if (party?.date_heure) {
-                const d = new Date(party.date_heure)
-                dateStr = d.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' })
-                timeStr = d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
-            }
+                if (party?.date_heure) {
+                    dateStr = formatDateShort(party.date_heure)
+                    timeStr = formatTime(party.date_heure)
+                }
             for (const pl of players) {
                 if ((pl.users as unknown as Record<string, unknown>)?.notify_party_updates !== false) {
                     await sendPushNotification(pl.user_id, {
@@ -208,9 +208,8 @@ export async function handleJoinRequest(partyId: string, requesterId: string, ac
           let dateStr = ''
           let timeStr = ''
           if (party?.date_heure) {
-            const d = new Date(party.date_heure)
-            dateStr = d.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' })
-            timeStr = d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
+            dateStr = formatDateShort(party.date_heure)
+            timeStr = formatTime(party.date_heure)
           }
           for (const pl of players) {
             if ((pl.users as unknown as Record<string, unknown>)?.notify_party_updates !== false) {
@@ -289,8 +288,7 @@ export async function leaveParty(partyId: string) {
           const { sendPushNotification } = await import('@/lib/push')
           let dateStr = ''
           if (party.date_heure) {
-             const d = new Date(party.date_heure)
-             dateStr = d.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' })
+             dateStr = formatDateShort(party.date_heure)
           }
 
           const notifications = remainingPlayers.map(p => ({

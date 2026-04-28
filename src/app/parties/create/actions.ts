@@ -3,6 +3,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
+import { formatDateShort, formatTime } from '@/lib/date-utils'
 
 export async function getUserClubId(): Promise<string | null> {
   const supabase = createClient()
@@ -114,9 +115,8 @@ export async function createParty(formData: FormData) {
         const usersToNotify = matchingUsers.filter(u => !excludedIds.includes(u.id))
         
         if (usersToNotify.length > 0) {
-          const d = new Date(date_heure)
-          const dateStr = d.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' })
-          const timeStr = d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
+          const dateStr = formatDateShort(date_heure)
+          const timeStr = formatTime(date_heure)
           
           const notifications = usersToNotify.map(u => ({
             user_id: u.id,

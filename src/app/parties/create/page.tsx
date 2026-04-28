@@ -5,6 +5,7 @@ import { Slider } from '@/components/ui/slider'
 import { createParty, searchClubPlayers, getUserClubId } from './actions'
 import { getClubs } from '@/app/onboarding/actions'
 import Link from 'next/link'
+import { todayParis } from '@/lib/date-utils'
 
 const inputStyle: React.CSSProperties = { width: '100%', height: 50, borderRadius: 14, border: 'none', backgroundColor: 'var(--muted)', color: 'var(--foreground)', fontSize: 15, padding: '0 16px', outline: 'none', fontFamily: 'var(--font-sans)', boxSizing: 'border-box' as const, WebkitAppearance: 'none' }
 const labelStyle: React.CSSProperties = { display: 'block', fontSize: 13, fontWeight: 500, color: 'var(--muted-foreground)', marginBottom: 8 }
@@ -222,7 +223,7 @@ export default function CreatePartyPage() {
                   type="date"
                   value={selectedDate}
                   onChange={(e) => setSelectedDate(e.target.value)}
-                  min={new Date().toISOString().split('T')[0]}
+                  min={todayParis()}
                   required={step === 3}
                   style={{ ...inputStyle, height: 54, marginBottom: 20 }}
                 />

@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
+import { formatDateShort, formatTime } from '@/lib/date-utils'
 
 export const metadata = { title: 'Mes Messages | Padel' }
 
@@ -22,7 +23,7 @@ export default async function InboxPage() {
   const chatList = (participants || []).map(p => {
     const conv = p.conversations; if (!conv) return null
     let chatTitle = 'Chat'; let chatAvatar = null
-    if (conv.type === 'groupe') { if (conv.parties?.date_heure) { const d = new Date(conv.parties.date_heure); const dateStr = d.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' }); const timeStr = d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }); chatTitle = `Match : ${dateStr} - ${timeStr}` } else { chatTitle = 'Match' } }
+    if (conv.type === 'groupe') { if (conv.parties?.date_heure) { const dateStr = formatDateShort(conv.parties.date_heure); const timeStr = formatTime(conv.parties.date_heure); chatTitle = `Match : ${dateStr} - ${timeStr}` } else { chatTitle = 'Match' } }
     else if (conv.type === 'prive') { const otherUser = conv.conversation_participants?.find(cp => cp.user_id !== user.id)?.users; chatTitle = otherUser?.prenom || 'Utilisateur'; chatAvatar = otherUser?.photo_url || null }
     const msgs = conv.messages || []; msgs.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()); const lastMessage = msgs[0]
     const unreadCount = msgs.filter(m => !m.lu && m.sender_id !== user.id).length
@@ -66,7 +67,7 @@ export default async function InboxPage() {
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 4 }}>
                     <h3 style={{ margin: 0, fontSize: 14, fontWeight: chat.unreadCount > 0 ? 800 : 600, color: 'var(--foreground)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', paddingRight: 12 }}>{chat.title}</h3>
                     <span style={{ fontSize: 10, color: 'var(--muted-foreground)', flexShrink: 0, fontWeight: 500 }}>
-                      {chat.lastMessageTime ? chat.lastMessageTime.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) : ''}
+                      {chat.lastMessageTime ? formatTime(chat.lastMessageTime.toISOString()) : ''}
                     </span>
                   </div>
                   <p style={{ margin: 0, fontSize: 12, color: chat.unreadCount > 0 ? 'var(--foreground)' : 'var(--muted-foreground)', fontWeight: chat.unreadCount > 0 ? 600 : 400, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>

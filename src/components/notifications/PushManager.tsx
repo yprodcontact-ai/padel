@@ -110,17 +110,17 @@ export function PushManager() {
   // Cas spécial : iOS mais pas installé sur l'écran d'accueil
   if (isIOSInfo.isIos && !isIOSInfo.isStandalone) {
       return (
-          <div className="fixed bottom-[90px] left-4 right-4 bg-black border border-zinc-800 p-4 rounded-[16px] shadow-2xl flex flex-col gap-3 z-50 animate-in slide-in-from-bottom-10 fade-in duration-500">
-             <button onClick={() => setShowPrompt(false)} className="absolute top-2 right-2 p-2 hover:bg-muted rounded-full">
-                 <XIcon className="w-4 h-4 text-muted-foreground" />
+          <div style={{ position: 'fixed', bottom: 100, left: 16, right: 16, backgroundColor: 'var(--card)', border: '1px solid var(--border)', padding: 16, borderRadius: 20, boxShadow: '0 8px 32px rgba(0,0,0,0.12)', display: 'flex', flexDirection: 'column', gap: 12, zIndex: 50 }}>
+             <button onClick={() => setShowPrompt(false)} style={{ position: 'absolute', top: 8, right: 8, padding: 8, borderRadius: '50%', border: 'none', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                 <XIcon style={{ width: 16, height: 16, color: 'var(--muted-foreground)' }} />
              </button>
-             <div className="flex items-start gap-3">
-                 <div className="bg-primary/10 p-2 rounded-full shrink-0">
-                     <DownloadIcon className="w-6 h-6 text-primary" />
+             <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
+                 <div style={{ background: 'rgba(242,201,145,0.2)', padding: 8, borderRadius: '50%', flexShrink: 0, display: 'flex' }}>
+                     <DownloadIcon style={{ width: 24, height: 24, color: '#f2c991' }} />
                  </div>
-                 <div className="flex-1 pr-6">
-                     <h4 className="font-bold text-sm">Application Native</h4>
-                     <p className="text-xs text-muted-foreground mt-1">Pour recevoir les notifications et améliorer l&apos;expérience, ajoutez WizzPadel à votre <b>Écran d&apos;accueil</b> depuis le bouton de Partage.</p>
+                 <div style={{ flex: 1, paddingRight: 24 }}>
+                     <h4 style={{ margin: 0, fontWeight: 700, fontSize: 14, color: 'var(--foreground)' }}>Application Native</h4>
+                     <p style={{ margin: '4px 0 0', fontSize: 12, color: 'var(--muted-foreground)', lineHeight: 1.5 }}>Pour recevoir les notifications, ajoutez WizzPadel à votre <b>Écran d&apos;accueil</b> depuis le bouton de Partage.</p>
                  </div>
              </div>
           </div>
@@ -128,25 +128,25 @@ export function PushManager() {
   }
 
   return (
-      <div className="fixed bottom-[90px] left-4 right-4 bg-zinc-900 border border-zinc-800 p-4 rounded-[16px] shadow-2xl flex flex-col gap-3 z-50 animate-in slide-in-from-bottom-10 fade-in duration-500">
-         <button onClick={() => setShowPrompt(false)} className="absolute top-2 right-2 p-2 hover:bg-zinc-800 rounded-full transition-colors">
-             <XIcon className="w-4 h-4 text-zinc-400" />
+      <div style={{ position: 'fixed', bottom: 100, left: 16, right: 16, backgroundColor: 'var(--card)', border: '1px solid var(--border)', padding: 16, borderRadius: 20, boxShadow: '0 8px 32px rgba(0,0,0,0.12)', display: 'flex', flexDirection: 'column', gap: 12, zIndex: 50 }}>
+         <button onClick={() => setShowPrompt(false)} style={{ position: 'absolute', top: 8, right: 8, padding: 8, borderRadius: '50%', border: 'none', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+             <XIcon style={{ width: 16, height: 16, color: 'var(--muted-foreground)' }} />
          </button>
-         <div className="flex items-start gap-3">
-             <div className="bg-primary p-2 rounded-full shrink-0 animate-pulse">
-                 <BellIcon className="w-6 h-6 text-white" />
+         <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
+             <div style={{ background: 'rgba(242,201,145,0.2)', padding: 8, borderRadius: '50%', flexShrink: 0, display: 'flex' }}>
+                 <BellIcon style={{ width: 24, height: 24, color: '#f2c991' }} />
              </div>
-             <div className="flex-1 pr-6">
-                 <h4 className="font-bold text-sm text-zinc-100">Restez informé</h4>
-                 <p className="text-xs text-zinc-400 mt-1">Soyez alerté au centième de seconde dès lors qu&apos;une de vos parties est complète !</p>
+             <div style={{ flex: 1, paddingRight: 24 }}>
+                 <h4 style={{ margin: 0, fontWeight: 700, fontSize: 14, color: 'var(--foreground)' }}>Restez informé</h4>
+                 <p style={{ margin: '4px 0 0', fontSize: 12, color: 'var(--muted-foreground)', lineHeight: 1.5 }}>Soyez alerté dès qu&apos;une de vos parties est complète !</p>
              </div>
          </div>
-         <button 
-            onClick={handleRequestPush} 
+         <button
+            onClick={handleRequestPush}
             disabled={loading}
-            className="w-full mt-2 bg-primary text-white font-bold py-2.5 rounded-lg active:scale-95 transition-all flex items-center justify-center gap-2"
+            style={{ width: '100%', marginTop: 4, background: '#f2c991', border: '1px solid #cf9619', color: 'var(--foreground)', fontWeight: 700, fontSize: 14, padding: '10px 0', borderRadius: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, opacity: loading ? 0.6 : 1, fontFamily: 'var(--font-sans)', transition: 'opacity 0.2s' }}
          >
-             {loading ? 'Activation...' : 'Activer les notifications'}
+             {loading ? 'Activation...' : 'Activer les notifications 🔔'}
          </button>
       </div>
   )

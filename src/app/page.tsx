@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
 import { getDistanceFromLatLonInKm } from '@/lib/utils'
 import { RefreshOnMount, RefreshButton } from '@/components/RefreshOnMount'
+import { formatDate, formatTime } from '@/lib/date-utils'
 
 export const dynamic = 'force-dynamic'
 
@@ -121,23 +122,6 @@ function AddPlayerCircle({ size = 46, style }: { size?: number, style?: React.CS
 }
 
 /* ─── Helpers ─── */
-function formatDate(iso: string): string {
-  const d = new Date(iso)
-  const now = new Date()
-  const isToday = d.getDate() === now.getDate() && d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear()
-
-  const tomorrow = new Date(now)
-  tomorrow.setDate(tomorrow.getDate() + 1)
-  const isTomorrow = d.getDate() === tomorrow.getDate() && d.getMonth() === tomorrow.getMonth() && d.getFullYear() === tomorrow.getFullYear()
-
-  if (isToday) return 'Aujourd\u2019hui'
-  if (isTomorrow) return 'Demain'
-  return d.toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' })
-}
-
-function formatTime(iso: string): string {
-  return new Date(iso).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
-}
 
 function mapPlayer(pp: FetchedPartyPlayer): HomePlayerInfo {
   const u = pp.users

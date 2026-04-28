@@ -37,9 +37,6 @@ export default async function ProfilePage() {
 
         {/* Profile Card */}
         <div style={{ backgroundColor: 'var(--card)', borderRadius: 28, padding: '32px 24px', textAlign: 'center', position: 'relative', overflow: 'hidden' }}>
-          {/* Gradient decoration */}
-          <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 90, background: 'linear-gradient(to bottom, rgba(232,112,58,0.15), transparent)' }} />
-
           {/* Avatar */}
           {userProfile.photo_url ? (
             <div style={{ width: 96, height: 96, borderRadius: '50%', overflow: 'hidden', margin: '0 auto 16px', border: '3px solid var(--card)', position: 'relative', zIndex: 1 }}>

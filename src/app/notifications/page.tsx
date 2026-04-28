@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
+import { formatDatetime } from '@/lib/date-utils'
 
 export const metadata = { title: 'Notifications | Padel' }
 
@@ -60,7 +61,7 @@ export default async function NotificationsPage() {
                   </h3>
                   <p style={{ margin: '0 0 6px', fontSize: 13, color: 'var(--muted-foreground)' }}>{notif.payload?.message || ''}</p>
                   <span style={{ fontSize: 10, color: 'var(--muted-foreground)', opacity: 0.6, fontWeight: 500 }}>
-                    {new Date(notif.created_at).toLocaleString('fr-FR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}
+                    {formatDatetime(notif.created_at)}
                   </span>
                 </div>
                 {notifHref !== '#' && (

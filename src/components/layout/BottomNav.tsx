@@ -135,12 +135,11 @@ export function BottomNav({ userId }: { userId?: string }) {
         aria-label="Navigation principale"
         style={{
           position: "relative",
-          background: "rgba(255,255,255,0.82)",
-          backdropFilter: "blur(20px)",
-          WebkitBackdropFilter: "blur(20px)",
+          background: "rgba(255,255,255,0.45)",
+          backdropFilter: "blur(10px) saturate(180%)",
+          WebkitBackdropFilter: "blur(10px) saturate(180%)",
           borderRadius: 9999,
-          border: "1px solid rgba(168,162,158,0.28)",
-          boxShadow: "0 8px 32px rgba(0,0,0,0.07)",
+          boxShadow: "0 8px 32px rgba(0,0,0,0.10)",
           pointerEvents: "auto",
         }}
       >
