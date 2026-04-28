@@ -5,6 +5,7 @@ import { BottomNav } from "@/components/layout/BottomNav";
 import { TopHeader } from "@/components/layout/TopHeader";
 import { PushManager } from "@/components/notifications/PushManager";
 import { RouteTransition } from "@/components/route-transition";
+import { SplashScreen } from "@/components/layout/SplashScreen";
 import { createClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = {
@@ -57,6 +58,7 @@ export default async function RootLayout({
           </div>
           <BottomNav userId={user?.id} />
         </div>
+        <SplashScreen />
         <PushManager />
       </body>
     </html>
