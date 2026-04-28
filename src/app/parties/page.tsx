@@ -163,8 +163,10 @@ export default async function PartiesSearchPage({
 
           {formattedParties.length > 0 ? (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-              {formattedParties.map(party => (
-                 <PartyCard key={party.id} party={party} />
+              {formattedParties.map((party, idx) => (
+                 <div key={party.id} className="animate-in-stagger" style={{ animationDelay: `${idx * 0.05}s` }}>
+                   <PartyCard party={party} />
+                 </div>
               ))}
             </div>
           ) : (

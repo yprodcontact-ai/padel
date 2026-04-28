@@ -40,7 +40,7 @@ export default async function NotificationsPage() {
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-          {notifications.map((notif: AppNotification) => {
+          {notifications.map((notif: AppNotification, idx: number) => {
             const notifHref = notif.payload?.party_id ? `/parties/${notif.payload.party_id}` : '#'
             const notifTitle = notif.type === 'party_complete' ? 'Partie complète ! 💪'
               : notif.type === 'party_confirmed' ? 'Partie confirmée ✅'
@@ -51,7 +51,7 @@ export default async function NotificationsPage() {
               : 'Nouvelle notification'
             return (
             <Link key={notif.id} href={notifHref} style={{ textDecoration: 'none' }}>
-              <div style={{ backgroundColor: 'var(--card)', padding: '14px 16px', borderRadius: 20, display: 'flex', alignItems: 'flex-start', gap: 14, position: 'relative', overflow: 'hidden', border: !notif.lu ? '1px solid rgba(232,112,58,0.3)' : '1px solid transparent' }}>
+              <div className="animate-in-stagger" style={{ backgroundColor: 'var(--card)', padding: '14px 16px', borderRadius: 20, display: 'flex', alignItems: 'flex-start', gap: 14, position: 'relative', overflow: 'hidden', border: !notif.lu ? '1px solid rgba(232,112,58,0.3)' : '1px solid transparent', animationDelay: `${idx * 0.05}s` }}>
                 <div style={{ flexShrink: 0, marginTop: 2 }}>
                   <div style={{ width: 40, height: 40, borderRadius: '50%', backgroundColor: 'var(--muted)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     <svg width={18} height={18} viewBox="0 0 24 24" fill="none" stroke="#f2c991" strokeWidth={2}><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9" /><path d="M13.73 21a2 2 0 01-3.46 0" /></svg>

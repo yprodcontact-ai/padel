@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { BellIcon, XIcon, DownloadIcon } from 'lucide-react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 
 const urlBase64ToUint8Array = (base64String: string) => {
   const padding = '='.repeat((4 - base64String.length % 4) % 4)
@@ -19,11 +20,24 @@ export function PushManager() {
   const [showPrompt, setShowPrompt] = useState(false)
   const [deviceInfo, setDeviceInfo] = useState({ isMobile: false, isStandalone: true })
   const [loading, setLoading] = useState(false)
+  const router = useRouter()
 
   useEffect(() => {
     // Évite les erreurs SSR
     if (typeof window === 'undefined') {
         return;
+    }
+
+    // Force la page d'accueil au lancement de la PWA (utile pour iOS)
+    const isStandaloneMode = window.matchMedia('(display-mode: standalone)').matches || 
+        (window.navigator as unknown as { standalone?: boolean }).standalone === true;
+
+    if (isStandaloneMode && !sessionStorage.getItem('pwa_launched')) {
+        sessionStorage.setItem('pwa_launched', '1');
+        if (window.location.pathname !== '/') {
+            router.replace('/');
+            return; // On arrête là pour laisser le redirect se faire
+        }
     }
 
     const VAPID_KEY = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;

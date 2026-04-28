@@ -47,9 +47,9 @@ export default async function InboxPage() {
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-          {chatList.map(chat => (
+          {chatList.map((chat, idx) => (
             <Link key={chat.id} href={`/messages/${chat.id}`} style={{ textDecoration: 'none' }}>
-              <div style={{ backgroundColor: 'var(--card)', padding: '14px 16px', borderRadius: 20, display: 'flex', alignItems: 'center', gap: 14, position: 'relative', overflow: 'hidden' }}>
+              <div className="animate-in-stagger" style={{ backgroundColor: 'var(--card)', padding: '14px 16px', borderRadius: 20, display: 'flex', alignItems: 'center', gap: 14, position: 'relative', overflow: 'hidden', animationDelay: `${idx * 0.05}s` }}>
                 {chat.unreadCount > 0 && <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: 3, background: '#EF4444', borderRadius: '0 4px 4px 0' }} />}
 
                 <div style={{ flexShrink: 0 }}>

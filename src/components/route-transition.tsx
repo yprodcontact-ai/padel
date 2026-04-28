@@ -54,7 +54,7 @@ export function RouteTransition({ children }: { children: React.ReactNode }) {
       <div
         key={pathname}
         style={{
-          animation: 'pageEnter 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+          animation: 'pageEnter 0.6s cubic-bezier(0.1, 1, 0, 1) forwards',
           willChange: 'opacity, transform',
           height: '100%',
           paddingTop: pathname !== '/' ? 15 : 0,

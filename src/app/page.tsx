@@ -276,7 +276,7 @@ export default async function Home() {
       {myNextParty ? (
         <div style={{ padding: '0 16px', marginBottom: 36 }}>
           <Link href={`/parties/${myNextParty.id}`} style={{ display: 'block', textDecoration: 'none', color: 'inherit' }}>
-            <div style={{ backgroundColor: 'var(--card)', borderRadius: 28, padding: '24px', border: '1px solid var(--border)', boxShadow: '0 4px 24px rgba(0,0,0,0.04)' }}>
+            <div className="animate-in-stagger" style={{ backgroundColor: 'var(--card)', borderRadius: 28, padding: '24px', border: '1px solid var(--border)', boxShadow: '0 4px 24px rgba(0,0,0,0.04)', animationDelay: '0.1s' }}>
               
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 }}>
                 <div>
