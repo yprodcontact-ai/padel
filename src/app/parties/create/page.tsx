@@ -102,7 +102,7 @@ export default function CreatePartyPage() {
   }
 
   return (
-    <div style={{ backgroundColor: 'var(--background)', height: '100%', overflowY: 'auto', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 16, fontFamily: 'var(--font-sans)' }}>
+    <div className="animate-in-fade" style={{ backgroundColor: 'var(--background)', minHeight: '100vh', overflowY: 'auto', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-start', padding: '32px 16px 130px', fontFamily: 'var(--font-sans)' }}>
       <div style={{ width: '100%', maxWidth: 440 }}>
         <div style={{ textAlign: 'center', marginBottom: 24 }}>
           <h1 style={{ margin: 0, fontSize: 24, fontWeight: 700, color: 'var(--foreground)' }}>Organiser un match</h1>
