@@ -41,12 +41,10 @@ export function LevelStrip({
     <div
       style={{
         display: "flex",
-        flexWrap: scrollable ? "nowrap" : "wrap",
-        gap,
-        overflowX: scrollable ? "auto" : "visible",
-        // Masque la scrollbar sur mobile sans affecter le scroll
-        scrollbarWidth: "none",
-        WebkitOverflowScrolling: "touch",
+        flexWrap: "nowrap",
+        width: "100%",
+        gap: 3,
+        overflow: "hidden",
       }}
     >
       {LEVEL_VALUES.map((level) => {
@@ -80,7 +78,8 @@ export function LevelStrip({
             key={level}
             title={`Niveau ${level}`}
             style={{
-              width: chipSize,
+              flex: 1,
+              minWidth: 0,
               height: chipSize,
               borderRadius: "var(--radius-chip, 6px)",
               background: bg,
@@ -89,10 +88,8 @@ export function LevelStrip({
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              flexShrink: 0,
               fontWeight: isPlayer ? 700 : inRange ? 600 : 400,
-              // Police légèrement plus petite pour les décimaux (chips étroites)
-              fontSize: isDecimal ? Math.round(chipSize * 0.31) : Math.round(chipSize * 0.37),
+              fontSize: isDecimal ? 10 : 12,
               letterSpacing: -0.2,
               transition: "background 0.15s, border 0.15s, color 0.15s",
             }}
