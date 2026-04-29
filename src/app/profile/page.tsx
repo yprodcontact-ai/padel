@@ -28,7 +28,7 @@ export default async function ProfilePage() {
   const starsTotal = 8
 
   return (
-    <div style={{ backgroundColor: 'var(--bg)', minHeight: '100vh', padding: '0 16px 130px' }}>
+    <div style={{ backgroundColor: 'var(--bg)', minHeight: '100vh', padding: '0 16px 20px' }}>
       <div style={{ maxWidth: 420, margin: '0 auto' }}>
 
         {/* ── Top bar ── */}
@@ -116,6 +116,9 @@ export default async function ProfilePage() {
             Déconnexion
           </button>
         </form>
+
+        {/* Spacer explicite pour éviter le bug Safari du padding-bottom ignoré */}
+        <div style={{ height: 120, flexShrink: 0 }} />
 
       </div>
     </div>

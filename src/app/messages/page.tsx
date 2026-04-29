@@ -37,7 +37,7 @@ export default async function InboxPage() {
   chatList.sort((a, b) => { if (!a.lastMessageTime) return 1; if (!b.lastMessageTime) return -1; return b.lastMessageTime.getTime() - a.lastMessageTime.getTime() })
 
   return (
-    <div style={{ backgroundColor: 'var(--bg)', minHeight: '100vh', padding: '0 16px 130px' }}>
+    <div style={{ backgroundColor: 'var(--bg)', minHeight: '100vh', padding: '0 16px 20px' }}>
       <RefreshOnMount />
 
       {/* ── Hero header ── */}
@@ -115,6 +115,9 @@ export default async function InboxPage() {
           ))}
         </div>
       )}
+
+      {/* Spacer explicite pour éviter le bug Safari du padding-bottom ignoré */}
+      <div style={{ height: 120, flexShrink: 0 }} />
     </div>
   )
 }

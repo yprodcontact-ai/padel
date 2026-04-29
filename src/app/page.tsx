@@ -52,7 +52,8 @@ function PartyCard({ party, variant = 'hero' }: { party: HomePartyInfo; variant?
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 6 }}>
         <div>
           <h3 style={{ margin: '0 0 3px', fontSize: 26, fontWeight: 500, color: 'var(--ink)', letterSpacing: '-0.7px', lineHeight: 1.1 }}>{formatDate(party.date_heure)}</h3>
-          <p style={{ margin: 0, fontSize: 15, fontStyle: 'italic', color: 'var(--muted)' }}>{party.club_nom}</p>
+          <p style={{ margin: '0 0 4px', fontSize: 15, fontStyle: 'italic', color: 'var(--muted)' }}>{party.club_nom}</p>
+          <p style={{ margin: 0, fontSize: 13, color: 'var(--ink)', fontWeight: 500 }}>Niveaux : <strong style={{ fontWeight: 700 }}>{party.niveau_min} à {party.niveau_max}</strong></p>
         </div>
         <div style={{ height: 38, padding: '0 16px', borderRadius: 999, border: '1px solid var(--card-border)', background: '#fff', display: 'flex', alignItems: 'center', fontSize: 16, fontWeight: 500, color: 'var(--ink)', flexShrink: 0 }}>
           {formatTime(party.date_heure)}

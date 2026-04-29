@@ -44,7 +44,7 @@ export default async function PartyDetailsPage({ params }: { params: { id: strin
   const dateFullStr = formatDatetime(party.date_heure)
 
   return (
-    <div style={{ backgroundColor: 'var(--bg)', minHeight: '100vh', paddingBottom: 130 }}>
+    <div style={{ backgroundColor: 'var(--bg)', minHeight: '100vh', paddingBottom: 20 }}>
       <div style={{ maxWidth: 480, margin: '0 auto', padding: '0 16px' }}>
 
         {/* ── Top bar : back + partager ── */}
@@ -177,6 +177,9 @@ export default async function PartyDetailsPage({ params }: { params: { id: strin
             playerCount={playerCount}
           />
         )}
+
+        {/* Spacer explicite pour éviter le bug Safari du padding-bottom ignoré */}
+        <div style={{ height: 120, flexShrink: 0 }} />
 
       </div>
     </div>

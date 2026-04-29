@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Trophy, MessageCircle, User } from "lucide-react";
+import { Search, MessageCircle, User } from "lucide-react";
 import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
 
@@ -16,7 +16,7 @@ import { createClient } from "@/lib/supabase/client";
 
 const LEFT_ITEMS = [
   { name: "Accueil",  href: "/",       icon: HomeCustomIcon },
-  { name: "Parties",  href: "/parties", icon: Trophy },
+  { name: "Parties",  href: "/parties", icon: Search },
 ];
 
 const RIGHT_ITEMS = [
