@@ -17,8 +17,6 @@ interface LevelStripProps {
   chipSize?: number
   /** Gap entre chips */
   gap?: number
-  /** Si true, le scroll horizontal est activé automatiquement */
-  scrollable?: boolean
 }
 
 /**
@@ -35,7 +33,6 @@ export function LevelStrip({
   maxLevel,
   chipSize = 34,
   gap = 6,
-  scrollable = false,
 }: LevelStripProps) {
   return (
     <div
@@ -43,7 +40,7 @@ export function LevelStrip({
         display: "flex",
         flexWrap: "nowrap",
         width: "100%",
-        gap: 3,
+        gap,
         overflow: "hidden",
       }}
     >
