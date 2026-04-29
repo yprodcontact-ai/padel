@@ -5,69 +5,118 @@ import { BackButton } from '@/components/back-button'
 
 export const metadata = { title: 'Profil Joueur | Padel' }
 
+function getAge(dateString: string | null) {
+  if (!dateString) return null
+  const today = new Date(); const birthDate = new Date(dateString)
+  let age = today.getFullYear() - birthDate.getFullYear()
+  const m = today.getMonth() - birthDate.getMonth()
+  if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) age--
+  return age
+}
+
 export default async function PlayerProfilePage({ params }: { params: { id: string } }) {
   const supabase = createClient()
   const { data: authData } = await supabase.auth.getUser()
   const user = authData.user
   if (!user) redirect('/login')
 
-  const { data: player, error } = await supabase.from('users').select('*').eq('id', params.id).single()
+  const { data: player, error } = await supabase.from('users').select(`*, clubs:club_id ( nom, ville )`).eq('id', params.id).single()
   if (error || !player) notFound()
   const isMe = user.id === player.id
 
+  const age = getAge(player.date_naissance)
+  const initials = `${player.prenom?.[0] || ''}${player.nom?.[0] || ''}`.toUpperCase()
+  const niveau = player.niveau ?? 0
+  const starsTotal = 8
+
   return (
-    <div style={{ backgroundColor: 'var(--background)', minHeight: '100vh', padding: '16px 16px 130px', fontFamily: 'var(--font-sans)' }}>
-      <div style={{ paddingTop: 8 }}>
-        <BackButton variant="pill" />
-      </div>
+    <div style={{ backgroundColor: 'var(--bg)', minHeight: '100vh', padding: '0 16px 20px' }}>
+      <div style={{ maxWidth: 420, margin: '0 auto' }}>
 
-      <div style={{ backgroundColor: 'var(--card)', borderRadius: 28, padding: '32px 24px', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', maxWidth: 400, margin: '0 auto', position: 'relative', overflow: 'hidden' }}>
-        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 90, background: 'linear-gradient(to bottom, rgba(232,112,58,0.15), transparent)' }} />
+        {/* ── Top bar ── */}
+        <div style={{ display: 'flex', alignItems: 'center', padding: '64px 0 24px' }}>
+          <BackButton />
+        </div>
 
-        {player.photo_url ? (
-          <div style={{ width: 112, height: 112, borderRadius: '50%', overflow: 'hidden', marginBottom: 16, border: '3px solid var(--card)', position: 'relative', zIndex: 1, boxShadow: '0 8px 24px rgba(0,0,0,0.08)' }}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={player.photo_url} alt={player.prenom} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+        {/* ── Identité centrée ── */}
+        <div style={{ textAlign: 'center', marginBottom: 22 }}>
+          {player.photo_url ? (
+            <div style={{ width: 104, height: 104, borderRadius: '50%', overflow: 'hidden', margin: '0 auto 14px', boxShadow: '0 0 0 3px #fff, 0 0 0 4px var(--card-border)' }}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={player.photo_url} alt={player.prenom} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            </div>
+          ) : (
+            <div style={{ width: 104, height: 104, borderRadius: '50%', background: 'linear-gradient(135deg, oklch(0.62 0.14 220), oklch(0.42 0.13 250))', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 36, fontWeight: 700, color: '#fff', margin: '0 auto 14px', boxShadow: '0 0 0 3px #fff, 0 0 0 4px var(--card-border)' }}>
+              {initials}
+            </div>
+          )}
+          <h1 style={{ margin: '0 0 4px', fontSize: 28, fontWeight: 600, color: 'var(--ink)', letterSpacing: '-0.8px' }}>
+            {player.prenom} {player.nom}
+          </h1>
+          <p style={{ margin: 0, fontSize: 15, fontStyle: 'italic', color: 'var(--muted)' }}>
+            {player.ville || 'Ville non renseignée'}
+          </p>
+        </div>
+
+        {/* ── 2 cards côte à côte : Niveau + Position ── */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, marginBottom: 14 }}>
+          {/* Card Niveau */}
+          <div style={{ backgroundColor: 'var(--card)', borderRadius: 'var(--radius-card)', padding: '18px 16px', border: '1px solid var(--card-border)' }}>
+            <p style={{ margin: '0 0 8px', fontSize: 13, fontWeight: 500, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.2px' }}>Niveau</p>
+            <p style={{ margin: '0 0 10px', fontSize: 32, fontWeight: 600, color: 'var(--ink)', letterSpacing: '-1px', lineHeight: 1 }}>
+              {niveau} <span style={{ fontSize: 16, color: 'var(--muted)', fontWeight: 400 }}>/ {starsTotal}</span>
+            </p>
+            <div style={{ display: 'flex', gap: 3 }}>
+              {Array.from({ length: starsTotal }).map((_, i) => (
+                <svg key={i} width={13} height={13} viewBox="0 0 24 24" fill={i < niveau ? 'var(--ink)' : 'none'} stroke="var(--ink)" strokeWidth={1.5} strokeLinejoin="round">
+                  <path d="M12 3l2.6 5.8L21 9.5l-4.5 4.4L17.8 21 12 17.8 6.2 21l1.3-7.1L3 9.5l6.4-.7L12 3z" />
+                </svg>
+              ))}
+            </div>
           </div>
-        ) : (
-          <div style={{ width: 112, height: 112, borderRadius: '50%', backgroundColor: 'var(--muted)', marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 40, fontWeight: 800, color: 'var(--muted-foreground)', border: '3px solid var(--card)', position: 'relative', zIndex: 1 }}>
-            {player.prenom?.charAt(0) || 'J'}
+
+          {/* Card Position */}
+          <div style={{ backgroundColor: 'var(--card)', borderRadius: 'var(--radius-card)', padding: '18px 16px', border: '1px solid var(--card-border)' }}>
+            <p style={{ margin: '0 0 8px', fontSize: 13, fontWeight: 500, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.2px' }}>Position</p>
+            <p style={{ margin: '0 0 4px', fontSize: 20, fontWeight: 600, color: 'var(--ink)', letterSpacing: '-0.5px', lineHeight: 1.2 }}>
+              {player.poste || '—'}
+            </p>
+            <p style={{ margin: 0, fontSize: 13, color: 'var(--muted)' }}>Main : {player.main || '—'}</p>
           </div>
-        )}
+        </div>
 
-        <h1 style={{ margin: '0 0 6px', fontSize: 24, fontWeight: 800, color: 'var(--foreground)', zIndex: 1, position: 'relative' }}>{player.prenom} {player.nom}</h1>
-        <p style={{ margin: '0 0 28px', fontSize: 11, fontWeight: 600, color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6, zIndex: 1, position: 'relative' }}>
-          <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#22C55E', display: 'inline-block', boxShadow: '0 0 8px rgba(34,197,94,0.6)' }} />
-          Joueur vérifié
-        </p>
-
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, width: '100%', marginBottom: 28, zIndex: 1, position: 'relative' }}>
+        {/* ── Card Bio / Infos ── */}
+        <div style={{ backgroundColor: 'var(--card)', borderRadius: 'var(--radius-card)', border: '1px solid var(--card-border)', marginBottom: 14, overflow: 'hidden' }}>
           {[
-            { label: 'Niveau Padel', value: player.niveau || 'N/A', isAccent: true },
-            { label: 'Côté Préféré', value: player.poste || 'Mixte' },
-            { label: 'Main Forte', value: player.main || 'Non défini' },
-            { label: 'Localisation', value: player.ville || 'Aucune ville' },
-          ].map(stat => (
-            <div key={stat.label} style={{ backgroundColor: 'var(--muted)', padding: '16px 12px', borderRadius: 18 }}>
-              <span style={{ display: 'block', fontSize: 10, fontWeight: 600, color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 8 }}>{stat.label}</span>
-              <span style={{ fontSize: stat.isAccent ? 22 : 15, fontWeight: 700, color: stat.isAccent ? 'var(--ink)' : 'var(--foreground)', textTransform: 'capitalize' }}>{stat.value}</span>
+            { label: 'Club principal', value: player.clubs?.nom ? `${player.clubs.nom}${player.clubs.ville ? ` · ${player.clubs.ville}` : ''}` : 'Aucun club' },
+            { label: 'Fiabilité', value: `${player.fiabilite_score || 10} / 10` },
+            { label: 'Âge', value: age ? `${age} ans` : '—' },
+            { label: 'Classement FFT', value: player.classement_fft || 'Non renseigné' },
+          ].map((item, idx) => (
+            <div key={item.label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 18px', borderTop: idx === 0 ? 'none' : '1px solid var(--divider)' }}>
+              <span style={{ fontSize: 14, fontWeight: 500, color: 'var(--ink-2)' }}>{item.label}</span>
+              <span style={{ fontSize: 14, color: 'var(--muted)', textAlign: 'right', maxWidth: '55%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.value}</span>
             </div>
           ))}
         </div>
 
-        {!isMe && (
-          <form action={async () => { 'use server'; await startPrivateChat(player.id) }} style={{ width: '100%', zIndex: 1, position: 'relative' }}>
-            <button type="submit" style={{ width: '100%', height: 52, borderRadius: 100, border: '1px solid var(--ink)', background: 'var(--ink)', color: '#fff', fontSize: 15, fontWeight: 600, fontFamily: 'var(--font-sans)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
-              <svg width={18} height={18} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" /></svg>
-              Envoyer un message privé
+        {/* ── CTA Envoyer message ── */}
+        {!isMe ? (
+          <form action={async () => { 'use server'; await startPrivateChat(player.id) }} style={{ width: '100%', marginBottom: 14 }}>
+            <button type="submit" style={{ width: '100%', height: 52, borderRadius: 'var(--radius-card)', border: 'none', background: 'var(--ink)', color: '#fff', fontSize: 16, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, letterSpacing: '-0.3px' }}>
+              <svg width={18} height={18} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" /></svg>
+              Envoyer un message
             </button>
           </form>
-        )}
-        {isMe && (
-          <div style={{ width: '100%', padding: '12px 16px', borderRadius: 16, border: '1.5px dashed var(--border)', textAlign: 'center', fontSize: 12, fontWeight: 600, color: 'var(--muted-foreground)', zIndex: 1, position: 'relative' }}>
+        ) : (
+          <div style={{ width: '100%', padding: '14px 18px', borderRadius: 'var(--radius-card)', border: '1px solid var(--card-border)', textAlign: 'center', fontSize: 14, fontWeight: 500, color: 'var(--muted)' }}>
             C&apos;est votre profil public
           </div>
         )}
+
+        {/* Spacer explicite pour éviter le bug Safari du padding-bottom ignoré */}
+        <div style={{ height: 120, flexShrink: 0 }} />
+
       </div>
     </div>
   )
