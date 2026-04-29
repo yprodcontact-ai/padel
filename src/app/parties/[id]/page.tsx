@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { PartyActionButtons } from './party-buttons'
 import { BackButton } from '@/components/back-button'
+import { SharePartyButton } from './share-button'
 import { PendingRequests } from './pending-requests'
 import { formatDatetime, formatTime, formatDate } from '@/lib/date-utils'
 import { LevelStrip } from '@/components/ui/level-strip'
@@ -50,7 +51,14 @@ export default async function PartyDetailsPage({ params }: { params: { id: strin
         {/* ── Top bar : back + partager ── */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '64px 0 20px' }}>
           <BackButton />
-          <span style={{ fontSize: 15, fontWeight: 500, color: 'var(--muted)' }}>Partager</span>
+          <SharePartyButton 
+            dateStr={dateStr}
+            timeStr={timeStr}
+            niveauMin={party.niveau_min}
+            niveauMax={party.niveau_max}
+            placesRestantes={Math.max(0, 4 - playerCount)}
+            partyId={party.id}
+          />
         </div>
 
         {/* ── Hero : date + heure + sous-titre ── */}

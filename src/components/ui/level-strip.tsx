@@ -41,6 +41,7 @@ export function LevelStrip({
     <div
       style={{
         display: "flex",
+        flexWrap: scrollable ? "nowrap" : "wrap",
         gap,
         overflowX: scrollable ? "auto" : "visible",
         // Masque la scrollbar sur mobile sans affecter le scroll

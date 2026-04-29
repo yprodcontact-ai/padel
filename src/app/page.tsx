@@ -32,7 +32,7 @@ function PlayerAvatar({ player, size = 40, style }: { player: HomePlayerInfo; si
           {player.initials}
         </div>
       )}
-      <span style={{ position: 'absolute', bottom: -2, left: '50%', transform: 'translateX(-50%)', background: '#000', color: '#fff', borderRadius: 999, fontSize: 9, fontWeight: 600, padding: '1px 5px', border: '1.5px solid #fff', whiteSpace: 'nowrap', lineHeight: 1.4 }}>
+      <span style={{ position: 'absolute', bottom: -5, left: '50%', transform: 'translateX(-50%)', background: '#000', color: '#fff', borderRadius: 999, fontSize: 9, fontWeight: 600, padding: '1px 5px', border: '1.5px solid #fff', whiteSpace: 'nowrap', lineHeight: 1.4 }}>
         {player.niveau}
       </span>
     </div>

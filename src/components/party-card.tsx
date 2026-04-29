@@ -30,66 +30,27 @@ export type PartyInfo = {
 
 /* ─── Sub-components matching homepage design ─── */
 
-function PlayerAvatar({ player, size = 46, style }: { player: PlayerInfo; size?: number; style?: React.CSSProperties }) {
-  const hasPhoto = !!player.photo_url
+function PlayerAvatar({ player, size = 40, style }: { player: PlayerInfo; size?: number; style?: React.CSSProperties }) {
   return (
-    <div style={{ position: 'relative', width: size, height: size, flexShrink: 0, ...style }}>
-      {hasPhoto ? (
-        <div
-          className="rounded-full overflow-hidden"
-          style={{ width: size, height: size, border: '2.5px solid var(--card)' }}
-        >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={player.photo_url!} alt={player.prenom} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-        </div>
+    <div style={{ position: 'relative', width: size, height: size, flexShrink: 0, borderRadius: '50%', boxShadow: '0 0 0 2px #fff', ...style }}>
+      {player.photo_url ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={player.photo_url} alt={player.prenom} style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
       ) : (
-        <div
-          className="rounded-full flex items-center justify-center"
-          style={{
-            width: size, height: size,
-            backgroundColor: 'var(--border)',
-            border: '2.5px solid var(--card)',
-            color: 'var(--foreground)',
-            fontSize: Math.round(size * 0.35),
-            fontWeight: 600,
-            letterSpacing: '0.02em',
-          }}
-        >
+        <div style={{ width: '100%', height: '100%', borderRadius: '50%', background: `linear-gradient(135deg, oklch(0.62 0.14 220), oklch(0.42 0.13 250))`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 600, fontSize: Math.round(size * 0.36) }}>
           {player.initials}
         </div>
       )}
-      <span
-        className="absolute left-1/2 flex items-center justify-center whitespace-nowrap"
-        style={{
-          bottom: -4,
-          transform: 'translateX(-50%)',
-          backgroundColor: 'var(--foreground)',
-          color: 'var(--card)',
-          fontSize: 9,
-          fontWeight: 700,
-          padding: '2px 6px',
-          borderRadius: 100,
-          border: '1.5px solid var(--card)',
-          letterSpacing: '0.02em',
-        }}
-      >
-        niv. {player.niveau}
+      <span style={{ position: 'absolute', bottom: -5, left: '50%', transform: 'translateX(-50%)', background: '#000', color: '#fff', borderRadius: 999, fontSize: 9, fontWeight: 600, padding: '1px 5px', border: '1.5px solid #fff', whiteSpace: 'nowrap', lineHeight: 1.4 }}>
+        {player.niveau}
       </span>
     </div>
   )
 }
 
-function AddPlayerCircle({ size = 46, style }: { size?: number, style?: React.CSSProperties }) {
+function AddPlayerCircle({ size = 40, style }: { size?: number, style?: React.CSSProperties }) {
   return (
-    <div
-      className="rounded-full flex items-center justify-center cursor-pointer"
-      style={{ width: size, height: size, border: '1px dashed var(--muted-foreground)', backgroundColor: 'transparent', flexShrink: 0, ...style }}
-    >
-      <svg width={18} height={18} viewBox="0 0 18 18" fill="none" stroke='var(--muted-foreground)' strokeWidth={1.5}>
-        <line x1="9" y1="4" x2="9" y2="14" />
-        <line x1="4" y1="9" x2="14" y2="9" />
-      </svg>
-    </div>
+    <div style={{ width: size, height: size, borderRadius: '50%', border: '1.5px dashed #B5B5BA', background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#8E8E93', fontSize: Math.round(size * 0.45), fontWeight: 300, flexShrink: 0, ...style }}>+</div>
   )
 }
 
@@ -100,21 +61,20 @@ export function PartyCard({ party }: { party: PartyInfo }) {
         
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 }}>
           <div>
-            <h3 style={{ margin: '0 0 4px', fontSize: 26, fontWeight: 500, color: 'var(--foreground)', letterSpacing: '-0.01em' }}>
+            <h3 style={{ margin: '0 0 3px', fontSize: 26, fontWeight: 500, color: 'var(--ink)', letterSpacing: '-0.7px', lineHeight: 1.1 }}>
               {formatDate(party.date_heure)}
             </h3>
-            <p style={{ margin: 0, fontSize: 15, fontStyle: 'italic', color: 'var(--muted-foreground)' }}>
+            <p style={{ margin: '0 0 4px', fontSize: 15, fontStyle: 'italic', color: 'var(--muted)' }}>
               {party.club_nom}
             </p>
+            <p style={{ margin: 0, fontSize: 13, color: 'var(--ink)', fontWeight: 500 }}>
+              Niveaux : <strong style={{ fontWeight: 700 }}>{party.niveau_min} à {party.niveau_max}</strong>
+            </p>
           </div>
-          <div style={{ height: 40, padding: '0 16px', borderRadius: 100, border: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, fontWeight: 500, color: 'var(--foreground)' }}>
+          <div style={{ height: 38, padding: '0 16px', borderRadius: 999, border: '1px solid var(--card-border)', background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, fontWeight: 500, color: 'var(--ink)' }}>
             {formatTime(party.date_heure)}
           </div>
         </div>
-
-        <p style={{ margin: '0 0 28px', fontSize: 13, color: 'var(--foreground)', fontWeight: 500 }}>
-          Niveaux acceptés : <strong style={{ fontWeight: 700 }}>{party.niveau_min} à {party.niveau_max}</strong>
-        </p>
 
         {/* Players row */}
         <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: 20 }}>
@@ -123,18 +83,19 @@ export function PartyCard({ party }: { party: PartyInfo }) {
               <PlayerAvatar
                 key={player.user_id}
                 player={player}
-                size={50}
-                style={{ marginLeft: idx === 0 ? 0 : -14 }}
+                size={40}
+                style={{ marginLeft: idx === 0 ? 0 : -10 }}
               />
             ))}
             {Array.from({ length: Math.max(0, 4 - party.players.length) }).map((_, i) => (
-              <AddPlayerCircle key={`empty-${i}`} size={50} style={{ marginLeft: party.players.length === 0 && i === 0 ? 0 : -14 }} />
+              <AddPlayerCircle key={`empty-${i}`} size={40} style={{ marginLeft: party.players.length === 0 && i === 0 ? 0 : -10 }} />
             ))}
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-            <span style={{ fontSize: 13, fontWeight: 600, color: party.player_count >= 4 ? '#FF3B30' : 'var(--muted-foreground)' }}>
-              {party.player_count}/4
-            </span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, height: 40, padding: '0 6px 0 14px', borderRadius: 999, backgroundColor: 'var(--bg)', border: '1px solid var(--card-border)' }}>
+            <span style={{ fontSize: 14, fontWeight: 500, color: 'var(--ink)' }}>Détails</span>
+            <div style={{ width: 28, height: 28, borderRadius: '50%', backgroundColor: 'var(--ink)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <svg width={13} height={13} viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round"><path d="M7 17L17 7M9 7h8v8" /></svg>
+            </div>
           </div>
         </div>
       </Link>
