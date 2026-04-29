@@ -140,65 +140,66 @@ export function BottomNav({ userId }: { userId?: string }) {
         aria-label="Navigation principale"
         style={{
           position: "relative",
-          height: 64,
+          height: 76,
           borderRadius: 999,
           background: "#000",
           display: "flex",
           alignItems: "center",
-          padding: 6,
+          padding: "0 8px",
           pointerEvents: "auto",
         }}
       >
-        {/* Onglets gauche */}
-        <div style={{ display: "flex", flex: 1, alignItems: "center", justifyContent: "center" }}>
-          {LEFT_ITEMS.map((item) => (
-            <NavTab
-              key={item.name}
-              item={item}
-              isActive={pathname === item.href}
-            />
-          ))}
-        </div>
+        {LEFT_ITEMS.map((item) => (
+          <NavTab
+            key={item.name}
+            item={item}
+            isActive={pathname === item.href}
+          />
+        ))}
 
         {/* Bouton + central creux */}
         <Link
           href="/parties/create"
           aria-label="Créer une partie"
-          className="bottom-nav-plus"
           style={{
-            width: 52,
-            height: 52,
-            borderRadius: "50%",
-            background: "transparent",
-            border: "1.5px solid rgba(255,255,255,0.35)",
+            flex: 1,
             display: "flex",
-            alignItems: "center",
             justifyContent: "center",
-            flexShrink: 0,
-            margin: "0 4px",
             textDecoration: "none",
           }}
         >
-          <PlusIcon color="#fff" size={22} />
+          <div
+            className="bottom-nav-plus"
+            style={{
+              width: 60,
+              height: 60,
+              borderRadius: "50%",
+              background: "transparent",
+              border: "1.5px solid rgba(255,255,255,0.35)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              flexShrink: 0,
+            }}
+          >
+            <PlusIcon color="#fff" size={28} />
+          </div>
         </Link>
 
-        {/* Onglets droite */}
-        <div style={{ display: "flex", flex: 1, alignItems: "center", justifyContent: "center" }}>
-          {RIGHT_ITEMS.map((item) => {
-            const isActive =
-              pathname === item.href ||
-              (item.href === "/messages" && pathname.startsWith("/messages"));
-            const isMessages = item.href === "/messages";
-            return (
-              <NavTab
-                key={item.name}
-                item={item}
-                isActive={isActive}
-                unreadBadge={isMessages ? unreadMessages : 0}
-              />
-            );
-          })}
-        </div>
+        {RIGHT_ITEMS.map((item) => {
+          const isActive =
+            pathname === item.href ||
+            (item.href === "/messages" && pathname.startsWith("/messages"));
+          const isMessages = item.href === "/messages";
+          return (
+            <NavTab
+              key={item.name}
+              item={item}
+              isActive={isActive}
+              unreadBadge={isMessages ? unreadMessages : 0}
+            />
+          );
+        })}
       </nav>
 
       <style>{`
@@ -229,21 +230,22 @@ function NavTab({
     <Link href={item.href} style={{ textDecoration: "none", flex: 1, display: "flex", justifyContent: "center" }}>
       <div
         style={{
-          width: 44,
-          height: 44,
+          width: 60,
+          height: 60,
           borderRadius: "50%",
           background: isActive ? "#fff" : "transparent",
+          border: isActive ? "1.5px solid transparent" : "1.5px solid rgba(255,255,255,0.35)",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
           position: "relative",
-          transition: "background 0.2s ease",
+          transition: "all 0.2s ease",
         }}
       >
         <Icon
           style={{
-            width: 22,
-            height: 22,
+            width: 28,
+            height: 28,
             color: isActive ? "#000" : "rgba(255,255,255,0.65)",
             strokeWidth: isActive ? 2.2 : 1.75,
             transition: "color 0.2s ease",
