@@ -135,7 +135,7 @@ export default async function Home() {
   const photoUrl = userProfile?.photo_url as string | null
 
   return (
-    <div style={{ backgroundColor: 'var(--bg)', minHeight: '100vh', paddingBottom: 130 }}>
+    <div style={{ backgroundColor: 'var(--bg)', minHeight: '100vh' }}>
       <RefreshOnMount />
 
       {/* ═══ HEADER ═══ */}
@@ -210,6 +210,8 @@ export default async function Home() {
           </div>
         )}
       </div>
+      {/* Spacer pour contourner le bug Safari du padding-bottom */}
+      <div style={{ height: 160, flexShrink: 0 }} />
     </div>
   )
 }

@@ -156,7 +156,7 @@ export function PushManager() {
          <button
             onClick={handleRequestPush}
             disabled={loading}
-            style={{ width: '100%', marginTop: 4, background: 'var(--ink)', border: '1px solid var(--ink)', color: 'var(--foreground)', fontWeight: 700, fontSize: 14, padding: '10px 0', borderRadius: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, opacity: loading ? 0.6 : 1, fontFamily: 'var(--font-sans)', transition: 'opacity 0.2s' }}
+            style={{ width: '100%', marginTop: 4, background: 'var(--ink)', border: '1px solid var(--ink)', color: '#fff', fontWeight: 700, fontSize: 14, padding: '10px 0', borderRadius: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, opacity: loading ? 0.6 : 1, fontFamily: 'var(--font-sans)', transition: 'opacity 0.2s' }}
          >
              {loading ? 'Activation...' : 'Activer les notifications 🔔'}
          </button>

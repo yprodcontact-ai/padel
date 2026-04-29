@@ -6,7 +6,7 @@ import { getClubs } from '@/app/onboarding/actions'
 
 export const metadata = { title: 'Modifier le Profil' }
 
-const inputStyle: React.CSSProperties = { width: '100%', height: 50, borderRadius: 14, border: 'none', backgroundColor: 'var(--muted)', color: 'var(--foreground)', fontSize: 15, padding: '0 16px', outline: 'none', fontFamily: 'var(--font-sans)', boxSizing: 'border-box' as const, WebkitAppearance: 'none' }
+const inputStyle: React.CSSProperties = { width: '100%', height: 50, borderRadius: 14, border: '1px solid var(--border)', backgroundColor: 'var(--bg)', color: 'var(--foreground)', fontSize: 15, padding: '0 16px', outline: 'none', fontFamily: 'var(--font-sans)', boxSizing: 'border-box' as const, WebkitAppearance: 'none' }
 const labelStyle: React.CSSProperties = { display: 'block', fontSize: 13, fontWeight: 500, color: 'var(--muted-foreground)', marginBottom: 8 }
 
 export default async function ProfileEditPage() {
@@ -108,7 +108,7 @@ export default async function ProfileEditPage() {
               </label>
             </div>
 
-            <button type="submit" style={{ width: '100%', height: 50, borderRadius: 100, border: '1px solid var(--ink)', background: 'var(--ink)', color: 'var(--foreground)', fontSize: 15, fontWeight: 600, fontFamily: 'var(--font-sans)', cursor: 'pointer', marginTop: 16 }}>
+            <button type="submit" style={{ width: '100%', height: 50, borderRadius: 100, border: '1px solid var(--ink)', background: 'var(--ink)', color: '#fff', fontSize: 15, fontWeight: 600, fontFamily: 'var(--font-sans)', cursor: 'pointer', marginTop: 16 }}>
               Enregistrer les modifications
             </button>
           </form>

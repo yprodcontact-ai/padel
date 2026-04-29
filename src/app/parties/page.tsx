@@ -134,7 +134,7 @@ export default async function PartiesSearchPage({
   }
 
   return (
-    <div style={{ backgroundColor: 'var(--bg)', minHeight: '100vh', paddingBottom: 130 }}>
+    <div style={{ backgroundColor: 'var(--bg)', minHeight: '100vh' }}>
 
       {/* ── Hero header ── */}
       <div style={{ padding: '64px 22px 20px', display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between' }}>
@@ -183,6 +183,8 @@ export default async function PartiesSearchPage({
           )}
         </div>
       </div>
+      {/* Spacer pour contourner le bug Safari du padding-bottom */}
+      <div style={{ height: 160, flexShrink: 0 }} />
     </div>
   )
 }
