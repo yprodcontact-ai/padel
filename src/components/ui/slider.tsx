@@ -124,7 +124,7 @@ function Slider({ value, min = 0, max = 100, step = 1, onValueChange, className 
             left: `${leftPercent}%`,
             width: `${rightPercent - leftPercent}%`,
             borderRadius: 100,
-            background: '#f2c991',
+            background: 'var(--ink)',
           }}
         />
       </div>
@@ -147,7 +147,7 @@ function Slider({ value, min = 0, max = 100, step = 1, onValueChange, className 
           cursor: 'grab',
           zIndex: draggingIndex === 0 ? 3 : 2,
           transition: draggingIndex === 0 ? 'none' : 'box-shadow 0.15s',
-          border: '2px solid #f2c991',
+          border: '2px solid var(--ink)',
         }}
       />
 
@@ -169,7 +169,7 @@ function Slider({ value, min = 0, max = 100, step = 1, onValueChange, className 
           cursor: 'grab',
           zIndex: draggingIndex === 1 ? 3 : 2,
           transition: draggingIndex === 1 ? 'none' : 'box-shadow 0.15s',
-          border: '2px solid #f2c991',
+          border: '2px solid var(--ink)',
         }}
       />
 

@@ -95,7 +95,7 @@ function AddPlayerCircle({ size = 46, style }: { size?: number, style?: React.CS
 
 export function PartyCard({ party }: { party: PartyInfo }) {
   return (
-    <div style={{ backgroundColor: 'var(--card)', borderRadius: 28, padding: '24px', border: '1px solid var(--border)', boxShadow: '0 4px 24px rgba(0,0,0,0.04)', display: 'flex', flexDirection: 'column' }}>
+    <div style={{ backgroundColor: 'var(--card)', borderRadius: 'var(--radius-card)', padding: '22px', border: '1px solid var(--card-border)', boxShadow: 'none', display: 'flex', flexDirection: 'column' }}>
       <Link href={`/parties/${party.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
         
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 }}>
@@ -119,7 +119,7 @@ export function PartyCard({ party }: { party: PartyInfo }) {
         {/* Players row */}
         <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: 20 }}>
           <div style={{ display: 'flex', alignItems: 'center' }}>
-            {party.players.slice(0, 3).map((player, idx) => (
+            {party.players.slice(0, 4).map((player, idx) => (
               <PlayerAvatar
                 key={player.user_id}
                 player={player}
@@ -127,10 +127,9 @@ export function PartyCard({ party }: { party: PartyInfo }) {
                 style={{ marginLeft: idx === 0 ? 0 : -14 }}
               />
             ))}
-            {party.players.length === 0 && (
-              <span style={{ fontSize: 13, color: 'var(--muted-foreground)', fontStyle: 'italic', marginRight: 12 }}>Aucun joueur</span>
-            )}
-            {party.players.length < 4 && <AddPlayerCircle size={50} style={{ marginLeft: party.players.length > 0 ? -14 : 0 }} />}
+            {Array.from({ length: Math.max(0, 4 - party.players.length) }).map((_, i) => (
+              <AddPlayerCircle key={`empty-${i}`} size={50} style={{ marginLeft: party.players.length === 0 && i === 0 ? 0 : -14 }} />
+            ))}
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
             <span style={{ fontSize: 13, fontWeight: 600, color: party.player_count >= 4 ? '#FF3B30' : 'var(--muted-foreground)' }}>

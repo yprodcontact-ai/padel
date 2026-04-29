@@ -4,6 +4,12 @@ import { useTransition, useState } from 'react'
 import { joinParty } from '@/app/parties/[id]/actions'
 import { useRouter } from 'next/navigation'
 
+/**
+ * CardJoinButton — bouton Rejoindre sur les PartyCards de la liste et du carousel.
+ * Design handoff v2 : fond noir / blanc bordé / gris désactivé.
+ * Logique métier inchangée.
+ */
+
 interface CardJoinButtonProps {
   partyId: string
   hasJoined: boolean
@@ -17,27 +23,29 @@ export function CardJoinButton({ partyId, hasJoined, isPending: isPendingProp, i
   const [requestSent, setRequestSent] = useState(false)
   const router = useRouter()
 
+  const base: React.CSSProperties = {
+    width: '100%',
+    height: 44,
+    borderRadius: 999,
+    fontSize: 14,
+    fontWeight: 600,
+    cursor: 'pointer',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    border: 'none',
+    transition: 'opacity 0.15s ease',
+    marginTop: 16,
+  }
+
+  /* ── Déjà inscrit → bouton blanc "Inscrit ✓" ── */
   if (hasJoined) {
     return (
       <button
         type="button"
         onClick={(e) => { e.preventDefault(); router.push(`/parties/${partyId}`) }}
-        style={{
-          width: '100%',
-          height: 42,
-          borderRadius: 100,
-          border: '1.5px solid #22C55E',
-          background: 'transparent',
-          color: '#22C55E',
-          fontSize: 13,
-          fontWeight: 600,
-          fontFamily: 'var(--font-sans)',
-          cursor: 'pointer',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: 6,
-        }}
+        style={{ ...base, backgroundColor: 'var(--card)', border: '1px solid var(--accent)', color: 'var(--accent)' }}
       >
         <svg width={14} height={14} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
         Inscrit
@@ -45,59 +53,26 @@ export function CardJoinButton({ partyId, hasJoined, isPending: isPendingProp, i
     )
   }
 
+  /* ── Demande envoyée ── */
   if (isPendingProp || requestSent) {
     return (
-      <button
-        type="button"
-        disabled
-        style={{
-          width: '100%',
-          height: 42,
-          borderRadius: 100,
-          border: '1.5px solid rgba(232,112,58,0.3)',
-          background: 'transparent',
-          color: '#f2c991',
-          fontSize: 13,
-          fontWeight: 600,
-          fontFamily: 'var(--font-sans)',
-          cursor: 'default',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: 6,
-        }}
-      >
-        <svg width={14} height={14} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-          <circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" />
-        </svg>
+      <button type="button" disabled style={{ ...base, backgroundColor: 'var(--divider)', color: 'var(--muted)', cursor: 'default' }}>
+        <svg width={14} height={14} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>
         Demande envoyée
       </button>
     )
   }
 
+  /* ── Complet ── */
   if (isFull) {
     return (
-      <button
-        type="button"
-        disabled
-        style={{
-          width: '100%',
-          height: 42,
-          borderRadius: 100,
-          border: 'none',
-          background: '#E5E5EA',
-          color: 'var(--muted-foreground)',
-          fontSize: 13,
-          fontWeight: 600,
-          fontFamily: 'var(--font-sans)',
-          cursor: 'not-allowed',
-        }}
-      >
+      <button type="button" disabled style={{ ...base, backgroundColor: 'var(--divider)', color: 'var(--muted)', cursor: 'not-allowed' }}>
         Complet
       </button>
     )
   }
 
+  /* ── Niveau insuffisant → demander ── */
   if (isBelowLevel) {
     return (
       <button
@@ -111,29 +86,14 @@ export function CardJoinButton({ partyId, hasJoined, isPending: isPendingProp, i
             else router.push(`/parties/${partyId}`)
           })
         }}
-        style={{
-          width: '100%',
-          height: 42,
-          borderRadius: 100,
-          border: '1.5px solid #f2c991',
-          background: 'transparent',
-          color: '#f2c991',
-          fontSize: 13,
-          fontWeight: 600,
-          fontFamily: 'var(--font-sans)',
-          cursor: 'pointer',
-          opacity: isPending ? 0.6 : 1,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: 6,
-        }}
+        style={{ ...base, backgroundColor: 'transparent', border: '1.5px solid var(--ink)', color: 'var(--ink)', opacity: isPending ? 0.6 : 1 }}
       >
         Demander à rejoindre
       </button>
     )
   }
 
+  /* ── Rejoindre ── */
   return (
     <button
       type="button"
@@ -145,19 +105,9 @@ export function CardJoinButton({ partyId, hasJoined, isPending: isPendingProp, i
           router.push(`/parties/${partyId}`)
         })
       }}
-      style={{
-        width: '100%',
-        height: 42,
-        borderRadius: 100,
-        border: '1px solid #cf9619', background: '#f2c991', color: 'var(--foreground)',
-        fontSize: 13,
-        fontWeight: 600,
-        fontFamily: 'var(--font-sans)',
-        cursor: 'pointer',
-        opacity: isPending ? 0.6 : 1,
-      }}
+      style={{ ...base, backgroundColor: 'var(--ink)', color: '#fff', opacity: isPending ? 0.6 : 1 }}
     >
-      {isPending ? 'Chargement...' : 'Rejoindre'}
+      {isPending ? 'Chargement…' : 'Rejoindre'}
     </button>
   )
 }

@@ -19,44 +19,75 @@ const config = {
     },
     extend: {
       colors: {
-        border: "hsl(var(--border))",
-        input: "hsl(var(--input))",
-        ring: "hsl(var(--ring))",
-        background: "hsl(var(--background))",
-        foreground: "hsl(var(--foreground))",
+        // ── Tokens design handoff v2 ──
+        bg:          "var(--bg)",
+        ink:         "var(--ink)",
+        "ink-2":     "var(--ink-2)",
+        muted:       "var(--muted)",
+        "muted-2":   "var(--muted-2)",
+        divider:     "var(--divider)",
+        "stroke-soft": "var(--stroke-soft)",
+        accent:      "var(--accent)",
+
+        // ── Mapping shadcn ──
+        border:      "var(--border)",
+        input:       "var(--input)",
+        ring:        "var(--ring)",
+        background:  "var(--background)",
+        foreground:  "var(--foreground)",
         primary: {
-          DEFAULT: "hsl(var(--primary))",
-          foreground: "hsl(var(--primary-foreground))",
+          DEFAULT:    "var(--primary)",
+          foreground: "var(--primary-foreground)",
         },
         secondary: {
-          DEFAULT: "hsl(var(--secondary))",
-          foreground: "hsl(var(--secondary-foreground))",
+          DEFAULT:    "var(--secondary)",
+          foreground: "var(--secondary-foreground)",
         },
         destructive: {
-          DEFAULT: "hsl(var(--destructive))",
-          foreground: "hsl(var(--destructive-foreground))",
-        },
-        muted: {
-          DEFAULT: "hsl(var(--muted))",
-          foreground: "hsl(var(--muted-foreground))",
-        },
-        accent: {
-          DEFAULT: "hsl(var(--accent))",
-          foreground: "hsl(var(--accent-foreground))",
-        },
-        popover: {
-          DEFAULT: "hsl(var(--popover))",
-          foreground: "hsl(var(--popover-foreground))",
+          DEFAULT:    "var(--destructive)",
+          foreground: "var(--destructive-foreground)",
         },
         card: {
-          DEFAULT: "hsl(var(--card))",
-          foreground: "hsl(var(--card-foreground))",
+          DEFAULT:    "var(--card)",
+          foreground: "var(--card-foreground)",
+          border:     "var(--card-border)",
+        },
+        popover: {
+          DEFAULT:    "var(--popover)",
+          foreground: "var(--popover-foreground)",
         },
       },
       borderRadius: {
-        lg: "var(--radius)",
-        md: "calc(var(--radius) - 2px)",
-        sm: "calc(var(--radius) - 4px)",
+        // ── Radius design handoff v2 ──
+        card:  "var(--radius-card)",   // 28px
+        pill:  "var(--radius-pill)",   // 999px
+        tile:  "var(--radius-tile)",   // 14px
+        chip:  "var(--radius-chip)",   // 6px
+
+        // ── Valeurs legacy shadcn (conservées) ──
+        lg: "var(--radius-card)",
+        md: "calc(var(--radius-card) - 4px)",
+        sm: "calc(var(--radius-card) - 8px)",
+      },
+      spacing: {
+        // ── Spacing design handoff v2 ──
+        "screen-x":      "22px",
+        "screen-top":    "64px",
+        "screen-bottom": "130px",
+        "card-gap":      "14px",
+      },
+      boxShadow: {
+        cta: "0 12px 30px rgba(0,0,0,0.12)",
+      },
+      fontFamily: {
+        sans: [
+          "-apple-system",
+          "BlinkMacSystemFont",
+          "SF Pro Display",
+          "SF Pro Text",
+          "system-ui",
+          "sans-serif",
+        ],
       },
       keyframes: {
         "accordion-down": {

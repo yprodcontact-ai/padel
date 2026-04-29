@@ -72,7 +72,7 @@ export default function OnboardingPage() {
                 flex: 1,
                 height: 6,
                 borderRadius: 100,
-                background: step >= i ? '#f2c991' : 'var(--muted)',
+                background: step >= i ? 'var(--ink)' : 'var(--muted)',
                 transition: 'background 0.3s',
               }}
             />
@@ -103,7 +103,7 @@ export default function OnboardingPage() {
                 <div style={{ display: 'flex', gap: 16 }}>
                   {[{ v: 'homme', l: 'Homme' }, { v: 'femme', l: 'Femme' }].map((opt) => (
                     <label key={opt.v} style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', color: 'var(--foreground)', fontSize: 14 }}>
-                      <input type="radio" name="sexe" value={opt.v} defaultChecked={opt.v === 'homme'} style={{ accentColor: '#f2c991' }} />
+                      <input type="radio" name="sexe" value={opt.v} defaultChecked={opt.v === 'homme'} style={{ accentColor: 'var(--ink)' }} />
                       {opt.l}
                     </label>
                   ))}
@@ -121,7 +121,7 @@ export default function OnboardingPage() {
                 <label style={labelStyle}>Niveau (1.0 à 8.0)</label>
                 <input type="hidden" name="niveau" value={level[0]} />
                 <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginBottom: 16 }}>
-                  <span style={{ fontSize: 24, fontWeight: 700, color: '#f2c991' }}>{level[0].toFixed(1)}</span>
+                  <span style={{ fontSize: 24, fontWeight: 700, color: 'var(--ink)' }}>{level[0].toFixed(1)}</span>
                 </div>
                 <Slider value={level} min={1} max={8} step={0.5} onValueChange={(v) => setLevel(v as number[])} className="py-4" />
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: 'var(--muted-foreground)', marginTop: 8 }}>
@@ -156,7 +156,7 @@ export default function OnboardingPage() {
                 <div style={{ display: 'flex', gap: 16 }}>
                   {[{ v: 'droite', l: 'Droite' }, { v: 'gauche', l: 'Gauche' }].map((opt) => (
                     <label key={opt.v} style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', color: 'var(--foreground)', fontSize: 14 }}>
-                      <input type="radio" name="main" value={opt.v} defaultChecked={opt.v === 'droite'} style={{ accentColor: '#f2c991' }} />
+                      <input type="radio" name="main" value={opt.v} defaultChecked={opt.v === 'droite'} style={{ accentColor: 'var(--ink)' }} />
                       {opt.l}
                     </label>
                   ))}
@@ -167,7 +167,7 @@ export default function OnboardingPage() {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                   {[{ v: 'droite', l: 'Joueur de Droite' }, { v: 'gauche', l: 'Joueur de Gauche' }, { v: 'indifférent', l: 'Indifférent (Je m\'adapte)' }].map((opt) => (
                     <label key={opt.v} style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', color: 'var(--foreground)', fontSize: 14 }}>
-                      <input type="radio" name="poste" value={opt.v} defaultChecked={opt.v === 'indifférent'} style={{ accentColor: '#f2c991' }} />
+                      <input type="radio" name="poste" value={opt.v} defaultChecked={opt.v === 'indifférent'} style={{ accentColor: 'var(--ink)' }} />
                       {opt.l}
                     </label>
                   ))}
@@ -185,11 +185,11 @@ export default function OnboardingPage() {
                 <div />
               )}
               {step < 3 ? (
-                <button type="button" onClick={nextStep} style={{ height: 48, padding: '0 32px', borderRadius: 100, border: '1px solid #cf9619', background: '#f2c991', color: 'var(--foreground)', fontSize: 14, fontWeight: 600, fontFamily: 'var(--font-sans)', cursor: 'pointer' }}>
+                <button type="button" onClick={nextStep} style={{ height: 48, padding: '0 32px', borderRadius: 100, border: '1px solid var(--ink)', background: 'var(--ink)', color: '#fff', fontSize: 14, fontWeight: 600, fontFamily: 'var(--font-sans)', cursor: 'pointer' }}>
                   Suivant
                 </button>
               ) : (
-                <button type="button" onClick={submitForm} disabled={isLoading} style={{ height: 48, padding: '0 32px', borderRadius: 100, border: '1px solid #cf9619', background: '#f2c991', color: 'var(--foreground)', fontSize: 14, fontWeight: 600, fontFamily: 'var(--font-sans)', cursor: 'pointer', opacity: isLoading ? 0.6 : 1 }}>
+                <button type="button" onClick={submitForm} disabled={isLoading} style={{ height: 48, padding: '0 32px', borderRadius: 100, border: '1px solid var(--ink)', background: 'var(--ink)', color: '#fff', fontSize: 14, fontWeight: 600, fontFamily: 'var(--font-sans)', cursor: 'pointer', opacity: isLoading ? 0.6 : 1 }}>
                   {isLoading ? 'Enregistrement...' : 'Valider'}
                 </button>
               )}

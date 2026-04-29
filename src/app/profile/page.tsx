@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { logout } from '@/app/auth/actions'
 
-export const metadata = { title: 'Mon Profil' }
+export const metadata = { title: 'Mon Profil — WizzPadel' }
 
 function getAge(dateString: string | null) {
   if (!dateString) return null
@@ -21,83 +21,102 @@ export default async function ProfilePage() {
 
   const { data: userProfile, error } = await supabase.from('users').select(`*, clubs:club_id ( nom, ville )`).eq('id', authData.user.id).single()
   if (error || !userProfile) redirect('/onboarding')
+
   const age = getAge(userProfile.date_naissance)
   const initials = `${userProfile.prenom?.[0] || ''}${userProfile.nom?.[0] || ''}`.toUpperCase()
+  const niveau = userProfile.niveau ?? 0
+  const starsTotal = 8
 
   return (
-    <div style={{ backgroundColor: 'var(--background)', minHeight: '100vh', padding: '16px 16px 130px', fontFamily: 'var(--font-sans)' }}>
+    <div style={{ backgroundColor: 'var(--bg)', minHeight: '100vh', padding: '0 16px 130px' }}>
       <div style={{ maxWidth: 420, margin: '0 auto' }}>
-        {/* Header */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
-          <h1 style={{ margin: 0, fontSize: 24, fontWeight: 700, color: 'var(--foreground)' }}>Profil</h1>
-          <Link href="/profile/edit" style={{ textDecoration: 'none' }}>
-            <button type="button" style={{ height: 36, padding: '0 18px', borderRadius: 100, border: '1px solid var(--border)', background: 'transparent', color: 'var(--foreground)', fontSize: 13, fontWeight: 500, fontFamily: 'var(--font-sans)', cursor: 'pointer' }}>Modifier</button>
+
+        {/* ── Top bar ── */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '64px 0 24px' }}>
+          <Link href="/notifications" style={{ width: 40, height: 40, borderRadius: '50%', backgroundColor: 'var(--card)', border: '1px solid var(--card-border)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--ink)', textDecoration: 'none' }}>
+            <svg width={18} height={18} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8}><circle cx="12" cy="12" r="3" /><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 0 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 0 1 0-4h.1A1.7 1.7 0 0 0 4.6 9a1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 0 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 0 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z" /></svg>
           </Link>
+          <Link href="/profile/edit" style={{ fontSize: 15, fontWeight: 500, color: 'var(--ink)', textDecoration: 'none' }}>Modifier</Link>
         </div>
 
-        {/* Profile Card */}
-        <div style={{ backgroundColor: 'var(--card)', borderRadius: 28, padding: '32px 24px', textAlign: 'center', position: 'relative', overflow: 'hidden' }}>
-          {/* Avatar */}
+        {/* ── Identité centrée ── */}
+        <div style={{ textAlign: 'center', marginBottom: 22 }}>
           {userProfile.photo_url ? (
-            <div style={{ width: 96, height: 96, borderRadius: '50%', overflow: 'hidden', margin: '0 auto 16px', border: '3px solid var(--card)', position: 'relative', zIndex: 1 }}>
+            <div style={{ width: 104, height: 104, borderRadius: '50%', overflow: 'hidden', margin: '0 auto 14px', boxShadow: '0 0 0 3px #fff, 0 0 0 4px var(--card-border)' }}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={userProfile.photo_url} alt={userProfile.prenom} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
             </div>
           ) : (
-            <div style={{ width: 96, height: 96, borderRadius: '50%', backgroundColor: 'var(--muted)', margin: '0 auto 16px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 32, fontWeight: 700, color: 'var(--muted-foreground)', border: '3px solid var(--card)', position: 'relative', zIndex: 1 }}>
+            <div style={{ width: 104, height: 104, borderRadius: '50%', background: 'linear-gradient(135deg, oklch(0.62 0.14 220), oklch(0.42 0.13 250))', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 36, fontWeight: 700, color: '#fff', margin: '0 auto 14px', boxShadow: '0 0 0 3px #fff, 0 0 0 4px var(--card-border)' }}>
               {initials}
             </div>
           )}
-
-          <h2 style={{ margin: '0 0 4px', fontSize: 22, fontWeight: 700, color: 'var(--foreground)', position: 'relative', zIndex: 1 }}>
+          <h1 style={{ margin: '0 0 4px', fontSize: 28, fontWeight: 600, color: 'var(--ink)', letterSpacing: '-0.8px' }}>
             {userProfile.prenom} {userProfile.nom}
-          </h2>
-          <p style={{ margin: '0 0 24px', fontSize: 13, color: 'var(--muted-foreground)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, position: 'relative', zIndex: 1 }}>
-            <svg width={14} height={14} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" /><circle cx="12" cy="10" r="3" /></svg>
+          </h1>
+          <p style={{ margin: 0, fontSize: 15, fontStyle: 'italic', color: 'var(--muted)' }}>
             {userProfile.ville || 'Ville non renseignée'}
           </p>
+        </div>
 
-          {/* Stats grid */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10, marginBottom: 24 }}>
-            {[
-              { label: 'Niveau', value: userProfile.niveau || '-' },
-              { label: 'Fiabilité', value: `${userProfile.fiabilite_score || '10'}/10` },
-              { label: 'Âge', value: age ? `${age} ans` : '-' },
-            ].map((stat) => (
-              <div key={stat.label} style={{ backgroundColor: 'var(--muted)', borderRadius: 16, padding: '14px 8px' }}>
-                <span style={{ display: 'block', fontSize: 10, fontWeight: 600, color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 6 }}>{stat.label}</span>
-                <span style={{ fontSize: 18, fontWeight: 700, color: '#f2c991' }}>{stat.value}</span>
-              </div>
-            ))}
+        {/* ── 2 cards côte à côte : Niveau + Position ── */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, marginBottom: 14 }}>
+          {/* Card Niveau */}
+          <div style={{ backgroundColor: 'var(--card)', borderRadius: 'var(--radius-card)', padding: '18px 16px', border: '1px solid var(--card-border)' }}>
+            <p style={{ margin: '0 0 8px', fontSize: 13, fontWeight: 500, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.2px' }}>Niveau</p>
+            <p style={{ margin: '0 0 10px', fontSize: 32, fontWeight: 600, color: 'var(--ink)', letterSpacing: '-1px', lineHeight: 1 }}>
+              {niveau} <span style={{ fontSize: 16, color: 'var(--muted)', fontWeight: 400 }}>/ {starsTotal}</span>
+            </p>
+            <div style={{ display: 'flex', gap: 3 }}>
+              {Array.from({ length: starsTotal }).map((_, i) => (
+                <svg key={i} width={13} height={13} viewBox="0 0 24 24" fill={i < niveau ? 'var(--ink)' : 'none'} stroke="var(--ink)" strokeWidth={1.5} strokeLinejoin="round">
+                  <path d="M12 3l2.6 5.8L21 9.5l-4.5 4.4L17.8 21 12 17.8 6.2 21l1.3-7.1L3 9.5l6.4-.7L12 3z" />
+                </svg>
+              ))}
+            </div>
           </div>
 
-          {/* Details */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 14, textAlign: 'left' }}>
-            {[
-              { icon: '🏆', label: 'Club principal', value: userProfile.clubs?.nom ? `${userProfile.clubs.nom} (${userProfile.clubs.ville})` : 'Aucun club' },
-              { icon: '🎾', label: 'Préférences', value: `Main: ${userProfile.main || '?'} • Poste: ${userProfile.poste || '?'}` },
-              { icon: '#', label: 'Licence FFT', value: userProfile.licence_fft || 'Non renseigné' },
-              { icon: '⭐', label: 'Classement FFT', value: userProfile.classement_fft || 'Non renseigné' },
-            ].map((item) => (
-              <div key={item.label} style={{ display: 'flex', alignItems: 'flex-start', gap: 12, padding: '10px 0', borderTop: '1px solid var(--border)' }}>
-                <span style={{ fontSize: 18, lineHeight: 1, marginTop: 2 }}>{item.icon}</span>
-                <div>
-                  <p style={{ margin: 0, fontSize: 13, fontWeight: 500, color: 'var(--foreground)' }}>{item.label}</p>
-                  <p style={{ margin: '4px 0 0', fontSize: 13, color: 'var(--muted-foreground)' }}>{item.value}</p>
-                </div>
-              </div>
-            ))}
+          {/* Card Position */}
+          <div style={{ backgroundColor: 'var(--card)', borderRadius: 'var(--radius-card)', padding: '18px 16px', border: '1px solid var(--card-border)' }}>
+            <p style={{ margin: '0 0 8px', fontSize: 13, fontWeight: 500, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.2px' }}>Position</p>
+            <p style={{ margin: '0 0 4px', fontSize: 20, fontWeight: 600, color: 'var(--ink)', letterSpacing: '-0.5px', lineHeight: 1.2 }}>
+              {userProfile.poste || '—'}
+            </p>
+            <p style={{ margin: 0, fontSize: 13, color: 'var(--muted)' }}>Main : {userProfile.main || '—'}</p>
           </div>
         </div>
 
-        <div style={{ marginTop: 32, display: 'flex', justifyContent: 'center' }}>
-          <form action={logout} style={{ width: '100%' }}>
-            <button type="submit" style={{ width: '100%', height: 48, borderRadius: 16, border: '1px solid #ef4444', backgroundColor: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', fontSize: 15, fontWeight: 600, fontFamily: 'var(--font-sans)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
-              <svg width={18} height={18} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" /></svg>
-              Déconnexion
-            </button>
-          </form>
+        {/* ── Card Bio / Infos ── */}
+        <div style={{ backgroundColor: 'var(--card)', borderRadius: 'var(--radius-card)', border: '1px solid var(--card-border)', marginBottom: 14, overflow: 'hidden' }}>
+          {[
+            { label: 'Club principal', value: userProfile.clubs?.nom ? `${userProfile.clubs.nom}${userProfile.clubs.ville ? ` · ${userProfile.clubs.ville}` : ''}` : 'Aucun club' },
+            { label: 'Fiabilité', value: `${userProfile.fiabilite_score || 10} / 10` },
+            { label: 'Âge', value: age ? `${age} ans` : '—' },
+            { label: 'Licence FFT', value: userProfile.licence_fft || 'Non renseigné' },
+            { label: 'Classement FFT', value: userProfile.classement_fft || 'Non renseigné' },
+          ].map((item, idx) => (
+            <div key={item.label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 18px', borderTop: idx === 0 ? 'none' : '1px solid var(--divider)' }}>
+              <span style={{ fontSize: 14, fontWeight: 500, color: 'var(--ink-2)' }}>{item.label}</span>
+              <span style={{ fontSize: 14, color: 'var(--muted)', textAlign: 'right', maxWidth: '55%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.value}</span>
+            </div>
+          ))}
         </div>
+
+        {/* ── CTA Modifier profil ── */}
+        <Link href="/profile/edit" style={{ display: 'block', textDecoration: 'none', marginBottom: 14 }}>
+          <div style={{ width: '100%', height: 52, borderRadius: 'var(--radius-card)', backgroundColor: 'var(--ink)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, fontWeight: 600, color: '#fff', letterSpacing: '-0.3px' }}>
+            Modifier mon profil
+          </div>
+        </Link>
+
+        {/* ── Déconnexion ── */}
+        <form action={logout} style={{ width: '100%' }}>
+          <button type="submit" style={{ width: '100%', height: 48, borderRadius: 'var(--radius-card)', border: '1px solid var(--card-border)', background: 'transparent', color: 'var(--muted)', fontSize: 15, fontWeight: 500, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+            <svg width={16} height={16} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" /></svg>
+            Déconnexion
+          </button>
+        </form>
+
       </div>
     </div>
   )

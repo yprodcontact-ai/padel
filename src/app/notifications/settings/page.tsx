@@ -45,7 +45,7 @@ export default async function NotificationSettingsPage() {
                 
                 {/* Match Parfait */}
                 <label style={{ display: 'flex', alignItems: 'flex-start', gap: 12, cursor: 'pointer' }}>
-                  <input type="checkbox" name="notify_new_parties" value="true" defaultChecked={notify_new_parties} style={{ accentColor: '#f2c991', width: 22, height: 22, flexShrink: 0, marginTop: 2 }} />
+                  <input type="checkbox" name="notify_new_parties" value="true" defaultChecked={notify_new_parties} style={{ accentColor: 'var(--ink)', width: 22, height: 22, flexShrink: 0, marginTop: 2 }} />
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
                     <span style={{ fontSize: 15, fontWeight: 600, color: 'var(--foreground)' }}>Match Parfait</span>
                     <span style={{ fontSize: 13, color: 'var(--muted-foreground)', lineHeight: 1.4 }}>M&apos;avertir quand un match de mon niveau est créé dans mon club.</span>
@@ -54,7 +54,7 @@ export default async function NotificationSettingsPage() {
 
                 {/* Messages */}
                 <label style={{ display: 'flex', alignItems: 'flex-start', gap: 12, cursor: 'pointer' }}>
-                  <input type="checkbox" name="notify_messages" value="true" defaultChecked={notify_messages} style={{ accentColor: '#f2c991', width: 22, height: 22, flexShrink: 0, marginTop: 2 }} />
+                  <input type="checkbox" name="notify_messages" value="true" defaultChecked={notify_messages} style={{ accentColor: 'var(--ink)', width: 22, height: 22, flexShrink: 0, marginTop: 2 }} />
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
                     <span style={{ fontSize: 15, fontWeight: 600, color: 'var(--foreground)' }}>Messages</span>
                     <span style={{ fontSize: 13, color: 'var(--muted-foreground)', lineHeight: 1.4 }}>Me prévenir quand je reçois un nouveau message dans le chat d&apos;une partie.</span>
@@ -63,7 +63,7 @@ export default async function NotificationSettingsPage() {
 
                 {/* Activité des parties */}
                 <label style={{ display: 'flex', alignItems: 'flex-start', gap: 12, cursor: 'pointer' }}>
-                  <input type="checkbox" name="notify_party_updates" value="true" defaultChecked={notify_party_updates} style={{ accentColor: '#f2c991', width: 22, height: 22, flexShrink: 0, marginTop: 2 }} />
+                  <input type="checkbox" name="notify_party_updates" value="true" defaultChecked={notify_party_updates} style={{ accentColor: 'var(--ink)', width: 22, height: 22, flexShrink: 0, marginTop: 2 }} />
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
                     <span style={{ fontSize: 15, fontWeight: 600, color: 'var(--foreground)' }}>Activité de mes parties</span>
                     <span style={{ fontSize: 13, color: 'var(--muted-foreground)', lineHeight: 1.4 }}>Alertes pour les demandes de participation, les confirmations ou annulations.</span>
@@ -73,7 +73,7 @@ export default async function NotificationSettingsPage() {
               </div>
             </div>
 
-            <button type="submit" style={{ width: '100%', height: 50, borderRadius: 100, border: '1px solid #cf9619', background: '#f2c991', color: 'var(--foreground)', fontSize: 15, fontWeight: 600, fontFamily: 'var(--font-sans)', cursor: 'pointer', marginTop: 8 }}>
+            <button type="submit" style={{ width: '100%', height: 50, borderRadius: 100, border: '1px solid var(--ink)', background: 'var(--ink)', color: '#fff', fontSize: 15, fontWeight: 600, fontFamily: 'var(--font-sans)', cursor: 'pointer', marginTop: 8 }}>
               Enregistrer les modifications
             </button>
           </form>

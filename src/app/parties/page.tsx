@@ -1,7 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { PartyCard, PartyInfo, PlayerInfo } from '@/components/party-card'
 import { SearchFilters } from '@/app/parties/search-filters'
-import { BackButtonSquare } from '@/components/back-button'
 
 export const dynamic = 'force-dynamic'
 
@@ -135,45 +134,51 @@ export default async function PartiesSearchPage({
   }
 
   return (
-    <div style={{ backgroundColor: 'var(--background)', minHeight: '100vh', paddingBottom: 130, fontFamily: 'var(--font-sans)' }}>
-      
-      {/* Header */}
-      <div style={{ position: 'sticky', top: 0, zIndex: 20, backgroundColor: 'var(--background)', borderBottom: '1px solid #1C1C1E', padding: '16px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <BackButtonSquare />
-          <h1 style={{ margin: 0, fontSize: 20, fontWeight: 700, color: 'var(--foreground)' }}>Trouver un match</h1>
+    <div style={{ backgroundColor: 'var(--bg)', minHeight: '100vh', paddingBottom: 130 }}>
+
+      {/* ── Hero header ── */}
+      <div style={{ padding: '64px 22px 20px', display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between' }}>
+        <h1 style={{ margin: 0, fontSize: 36, fontWeight: 600, color: 'var(--ink)', letterSpacing: '-1.4px', lineHeight: 1.05 }}>
+          Trouver<br />
+          <span style={{ color: 'var(--muted)', fontWeight: 400 }}>une partie</span>
+        </h1>
+        {/* Bouton search rond */}
+        <div style={{ width: 44, height: 44, borderRadius: '50%', backgroundColor: 'var(--card)', border: '1px solid var(--card-border)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+          <svg width={18} height={18} viewBox="0 0 24 24" fill="none" stroke="var(--ink)" strokeWidth={1.8}><circle cx="11" cy="11" r="7" /><path d="M16.5 16.5L21 21" strokeLinecap="round" /></svg>
         </div>
       </div>
 
-      <div style={{ padding: '20px 16px' }}>
-        
-        {/* FILTERS COMPONENT */}
-        <SearchFilters 
-            initialClub={searchClub || ''} 
-            initialType={searchType} 
-            initialNiveau={searchNiveauStr || 'tous'}
-            initialDispo={searchDispo}
+      <div style={{ padding: '0 16px' }}>
+
+        {/* ── Filtres ── */}
+        <SearchFilters
+          initialClub={searchClub || ''}
+          initialType={searchType}
+          initialNiveau={searchNiveauStr || 'tous'}
+          initialDispo={searchDispo}
         />
 
-        {/* RESULTS */}
-        <div style={{ marginTop: 28 }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-            <h2 style={{ margin: 0, fontSize: 18, fontWeight: 600, color: 'var(--foreground)' }}>Résultats ({formattedParties.length})</h2>
+        {/* ── Résultats ── */}
+        <div style={{ marginTop: 24 }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+            <h2 style={{ margin: 0, fontSize: 15, fontWeight: 500, color: 'var(--ink)', letterSpacing: '-0.3px' }}>
+              {formattedParties.length} partie{formattedParties.length !== 1 ? 's' : ''} trouvée{formattedParties.length !== 1 ? 's' : ''}
+            </h2>
           </div>
 
           {formattedParties.length > 0 ? (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
               {formattedParties.map((party, idx) => (
-                 <div key={party.id} className="animate-in-stagger" style={{ animationDelay: `${idx * 0.05}s` }}>
-                   <PartyCard party={party} />
-                 </div>
+                <div key={party.id} className="animate-in-stagger" style={{ animationDelay: `${idx * 0.04}s` }}>
+                  <PartyCard party={party} />
+                </div>
               ))}
             </div>
           ) : (
-            <div style={{ backgroundColor: 'var(--card)', borderRadius: 28, padding: '40px 24px', textAlign: 'center' }}>
-              <p style={{ margin: 0, fontSize: 32, marginBottom: 12 }}>🏜️</p>
-              <h3 style={{ margin: 0, fontSize: 16, fontWeight: 600, color: 'var(--foreground)' }}>Aucun match trouvé</h3>
-              <p style={{ margin: '8px 0 0', fontSize: 14, color: 'var(--muted-foreground)' }}>Essayez d&apos;élargir vos filtres (ville, niveau, ou décochez les places dispo).</p>
+            <div style={{ backgroundColor: 'var(--card)', borderRadius: 'var(--radius-card)', padding: '40px 22px', textAlign: 'center', border: '1px solid var(--card-border)' }}>
+              <p style={{ margin: '0 0 8px', fontSize: 28 }}>🏜️</p>
+              <h3 style={{ margin: '0 0 8px', fontSize: 16, fontWeight: 600, color: 'var(--ink)' }}>Aucune partie trouvée</h3>
+              <p style={{ margin: 0, fontSize: 14, color: 'var(--muted)' }}>Élargissez vos filtres (niveau, club) pour voir plus de résultats.</p>
             </div>
           )}
         </div>

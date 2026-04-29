@@ -52,7 +52,7 @@ export default async function ProfileEditPage() {
               <div style={{ display: 'flex', gap: 16 }}>
                 {[{ v: 'homme', l: 'Homme' }, { v: 'femme', l: 'Femme' }].map(o => (
                   <label key={o.v} style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', color: 'var(--foreground)', fontSize: 14 }}>
-                    <input type="radio" name="sexe" value={o.v} defaultChecked={o.v === 'homme' ? userProfile.sexe !== 'femme' : userProfile.sexe === o.v} style={{ accentColor: '#f2c991' }} />{o.l}
+                    <input type="radio" name="sexe" value={o.v} defaultChecked={o.v === 'homme' ? userProfile.sexe !== 'femme' : userProfile.sexe === o.v} style={{ accentColor: 'var(--ink)' }} />{o.l}
                   </label>
                 ))}
               </div>
@@ -81,7 +81,7 @@ export default async function ProfileEditPage() {
               <div style={{ display: 'flex', gap: 16 }}>
                 {[{ v: 'droite', l: 'Droite' }, { v: 'gauche', l: 'Gauche' }].map(o => (
                   <label key={o.v} style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', color: 'var(--foreground)', fontSize: 14 }}>
-                    <input type="radio" name="main" value={o.v} defaultChecked={o.v === 'droite' ? userProfile.main !== 'gauche' : userProfile.main === o.v} style={{ accentColor: '#f2c991' }} />{o.l}
+                    <input type="radio" name="main" value={o.v} defaultChecked={o.v === 'droite' ? userProfile.main !== 'gauche' : userProfile.main === o.v} style={{ accentColor: 'var(--ink)' }} />{o.l}
                   </label>
                 ))}
               </div>
@@ -92,7 +92,7 @@ export default async function ProfileEditPage() {
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                 {[{ v: 'droite', l: 'Droite' }, { v: 'gauche', l: 'Gauche' }, { v: 'indifférent', l: 'Indifférent' }].map(o => (
                   <label key={o.v} style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', color: 'var(--foreground)', fontSize: 14 }}>
-                    <input type="radio" name="poste" value={o.v} defaultChecked={o.v === 'indifférent' ? userProfile.poste !== 'droite' && userProfile.poste !== 'gauche' : userProfile.poste === o.v} style={{ accentColor: '#f2c991' }} />{o.l}
+                    <input type="radio" name="poste" value={o.v} defaultChecked={o.v === 'indifférent' ? userProfile.poste !== 'droite' && userProfile.poste !== 'gauche' : userProfile.poste === o.v} style={{ accentColor: 'var(--ink)' }} />{o.l}
                   </label>
                 ))}
               </div>
@@ -103,12 +103,12 @@ export default async function ProfileEditPage() {
 
             <div>
               <label style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }}>
-                <input type="checkbox" name="notify_new_parties" value="true" defaultChecked={userProfile.notify_new_parties ?? true} style={{ accentColor: '#f2c991', width: 20, height: 20, flexShrink: 0 }} />
+                <input type="checkbox" name="notify_new_parties" value="true" defaultChecked={userProfile.notify_new_parties ?? true} style={{ accentColor: 'var(--ink)', width: 20, height: 20, flexShrink: 0 }} />
                 <span style={{ fontSize: 14, color: 'var(--foreground)', lineHeight: 1.4 }}>M&apos;avertir des nouveaux matchs de mon niveau dans mon club (Match Parfait)</span>
               </label>
             </div>
 
-            <button type="submit" style={{ width: '100%', height: 50, borderRadius: 100, border: '1px solid #cf9619', background: '#f2c991', color: 'var(--foreground)', fontSize: 15, fontWeight: 600, fontFamily: 'var(--font-sans)', cursor: 'pointer', marginTop: 16 }}>
+            <button type="submit" style={{ width: '100%', height: 50, borderRadius: 100, border: '1px solid var(--ink)', background: 'var(--ink)', color: 'var(--foreground)', fontSize: 15, fontWeight: 600, fontFamily: 'var(--font-sans)', cursor: 'pointer', marginTop: 16 }}>
               Enregistrer les modifications
             </button>
           </form>

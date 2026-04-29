@@ -70,7 +70,7 @@ export function PushManager() {
     
     checkState()
 
-  }, [])
+  }, [router])
 
   const registerPushSilent = async (vapidKey: string) => {
        try {
@@ -125,7 +125,7 @@ export function PushManager() {
              </button>
              <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
                  <div style={{ background: 'rgba(242,201,145,0.2)', padding: 8, borderRadius: '50%', flexShrink: 0, display: 'flex' }}>
-                     <DownloadIcon style={{ width: 24, height: 24, color: '#f2c991' }} />
+                     <DownloadIcon style={{ width: 24, height: 24, color: 'var(--ink)' }} />
                  </div>
                  <div style={{ flex: 1, paddingRight: 24 }}>
                      <h4 style={{ margin: 0, fontWeight: 700, fontSize: 14, color: 'var(--foreground)' }}>Installer l&apos;application</h4>
@@ -146,7 +146,7 @@ export function PushManager() {
          </button>
          <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
              <div style={{ background: 'rgba(242,201,145,0.2)', padding: 8, borderRadius: '50%', flexShrink: 0, display: 'flex' }}>
-                 <BellIcon style={{ width: 24, height: 24, color: '#f2c991' }} />
+                 <BellIcon style={{ width: 24, height: 24, color: 'var(--ink)' }} />
              </div>
              <div style={{ flex: 1, paddingRight: 24 }}>
                  <h4 style={{ margin: 0, fontWeight: 700, fontSize: 14, color: 'var(--foreground)' }}>Restez informé</h4>
@@ -156,7 +156,7 @@ export function PushManager() {
          <button
             onClick={handleRequestPush}
             disabled={loading}
-            style={{ width: '100%', marginTop: 4, background: '#f2c991', border: '1px solid #cf9619', color: 'var(--foreground)', fontWeight: 700, fontSize: 14, padding: '10px 0', borderRadius: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, opacity: loading ? 0.6 : 1, fontFamily: 'var(--font-sans)', transition: 'opacity 0.2s' }}
+            style={{ width: '100%', marginTop: 4, background: 'var(--ink)', border: '1px solid var(--ink)', color: 'var(--foreground)', fontWeight: 700, fontSize: 14, padding: '10px 0', borderRadius: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, opacity: loading ? 0.6 : 1, fontFamily: 'var(--font-sans)', transition: 'opacity 0.2s' }}
          >
              {loading ? 'Activation...' : 'Activer les notifications 🔔'}
          </button>

@@ -27,7 +27,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#F2F2F7",
+  themeColor: "#F2F2F2",
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
@@ -44,15 +44,15 @@ export default async function RootLayout({
   const { data: authData } = await supabase.auth.getUser()
   const user = authData?.user ?? null;
   return (
-    <html lang="fr" className="antialiased" style={{ backgroundColor: '#F2F2F7' }}>
+    <html lang="fr" className="antialiased" style={{ backgroundColor: '#F2F2F2' }}>
       <body
-        style={{ margin: 0, overflow: 'hidden', height: '100vh', backgroundColor: '#F2F2F7' }}
+        style={{ margin: 0, overflow: 'hidden', height: '100vh', backgroundColor: '#F2F2F2' }}
       >
-        <div className="flex h-screen overflow-hidden" style={{ backgroundColor: '#F2F2F7' }}>
+        <div className="flex h-screen overflow-hidden" style={{ backgroundColor: '#F2F2F2' }}>
           <Sidebar />
           <div className="flex-1 flex flex-col overflow-hidden">
              <TopHeader />
-             <main className="flex-1 overflow-y-auto overflow-x-hidden">
+             <main className="flex-1 flex flex-col overflow-y-auto overflow-x-hidden">
                <RouteTransition>{children}</RouteTransition>
              </main>
           </div>

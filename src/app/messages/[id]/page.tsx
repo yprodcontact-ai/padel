@@ -34,9 +34,9 @@ export default async function MessagePage({ params }: { params: { id: string } }
   }))
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', backgroundColor: 'var(--background)', position: 'relative' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0, backgroundColor: 'var(--background)', position: 'relative' }}>
       {/* HEADER */}
-      <div style={{ backgroundColor: 'var(--card)', borderBottom: '1px solid #2C2C2E', padding: '14px 16px', zIndex: 20, display: 'flex', alignItems: 'center', flexShrink: 0 }}>
+      <div style={{ backgroundColor: 'var(--card)', borderBottom: '1px solid #2C2C2E', padding: '64px 16px 14px', zIndex: 20, display: 'flex', alignItems: 'center', flexShrink: 0 }}>
         <div style={{ marginRight: 12 }}>
           <BackButtonSquare />
         </div>

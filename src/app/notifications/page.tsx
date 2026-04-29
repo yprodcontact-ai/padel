@@ -4,9 +4,77 @@ import Link from 'next/link'
 import { formatDatetime } from '@/lib/date-utils'
 import { RefreshOnMount } from '@/components/RefreshOnMount'
 
-export const metadata = { title: 'Notifications | Padel' }
+export const metadata = { title: 'Notifications — WizzPadel' }
 
-type AppNotification = { id: string; lu: boolean; type: string; payload: { message?: string; party_id?: string }; created_at: string }
+type AppNotification = {
+  id: string
+  lu: boolean
+  type: string
+  payload: { message?: string; party_id?: string }
+  created_at: string
+}
+
+function notifIcon(type: string) {
+  if (type === 'party_cancelled') {
+    return (
+      <div style={{ width: 44, height: 44, borderRadius: '50%', border: '1px solid var(--card-border)', background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <svg width={18} height={18} viewBox="0 0 24 24" fill="none" stroke="var(--ink)" strokeWidth={2} strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+      </div>
+    )
+  }
+  if (type === 'join_request' || type === 'party_complete') {
+    return (
+      <div style={{ width: 44, height: 44, borderRadius: '50%', background: '#000', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <svg width={18} height={18} viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round"><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2H4.5L6 16z" /><path d="M10 20a2 2 0 0 0 4 0" /></svg>
+      </div>
+    )
+  }
+  // Défaut : cercle gris avec initiales
+  return (
+    <div style={{ width: 44, height: 44, borderRadius: '50%', background: 'var(--divider)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <svg width={18} height={18} viewBox="0 0 24 24" fill="none" stroke="var(--muted)" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round"><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2H4.5L6 16z" /><path d="M10 20a2 2 0 0 0 4 0" /></svg>
+    </div>
+  )
+}
+
+function notifTitle(type: string) {
+  const map: Record<string, string> = {
+    party_complete:   'Partie complète 💪',
+    party_confirmed:  'Partie confirmée ✅',
+    party_cancelled:  'Partie annulée',
+    join_request:     'Demande de participation',
+    join_accepted:    'Demande acceptée 🎉',
+    join_rejected:    'Demande refusée',
+  }
+  return map[type] ?? 'Nouvelle notification'
+}
+
+function relativeTime(dateStr: string) {
+  const diff = Date.now() - new Date(dateStr).getTime()
+  const minutes = Math.floor(diff / 60000)
+  if (minutes < 60) return `${minutes}min`
+  const hours = Math.floor(minutes / 60)
+  if (hours < 24) return `${hours}h`
+  return `${Math.floor(hours / 24)}j`
+}
+
+/** Groupement des notifs par période */
+function groupNotifs(notifs: AppNotification[]) {
+  const today = new Date(); today.setHours(0, 0, 0, 0)
+  const weekAgo = new Date(today); weekAgo.setDate(weekAgo.getDate() - 7)
+  const groups: { label: string; items: AppNotification[] }[] = [
+    { label: "Aujourd'hui", items: [] },
+    { label: 'Cette semaine', items: [] },
+    { label: 'Plus ancien', items: [] },
+  ]
+  notifs.forEach(n => {
+    const d = new Date(n.created_at)
+    if (d >= today) groups[0].items.push(n)
+    else if (d >= weekAgo) groups[1].items.push(n)
+    else groups[2].items.push(n)
+  })
+  return groups.filter(g => g.items.length > 0)
+}
 
 export default async function NotificationsPage() {
   const supabase = createClient()
@@ -14,67 +82,66 @@ export default async function NotificationsPage() {
   const user = authData?.user
   if (!user) redirect('/login')
 
+  // Marquer toutes comme lues
   await supabase.from('notifications').update({ lu: true }).eq('user_id', user.id).eq('lu', false)
-  const { data: notifications } = await supabase.from('notifications').select('*').eq('user_id', user.id).order('created_at', { ascending: false }).limit(50)
+  const { data: notifications } = await supabase
+    .from('notifications').select('*').eq('user_id', user.id)
+    .order('created_at', { ascending: false }).limit(50)
+
+  const groups = groupNotifs((notifications || []) as AppNotification[])
 
   return (
-    <div style={{ backgroundColor: 'var(--background)', minHeight: '100vh', padding: '16px 16px 130px', fontFamily: 'var(--font-sans)' }}>
+    <div style={{ backgroundColor: 'var(--bg)', minHeight: '100vh', padding: '0 16px 130px' }}>
       <RefreshOnMount />
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
-        <h1 style={{ margin: 0, fontSize: 28, fontWeight: 800, color: 'var(--foreground)', display: 'flex', alignItems: 'center', gap: 10 }}>
-          <svg width={28} height={28} viewBox="0 0 24 24" fill="none" stroke="#f2c991" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9" /><path d="M13.73 21a2 2 0 01-3.46 0" /></svg>
-          Notifications
-        </h1>
-        <Link href="/notifications/settings" style={{ textDecoration: 'none' }}>
-          <button type="button" style={{ display: 'flex', alignItems: 'center', gap: 6, height: 36, padding: '0 16px', borderRadius: 100, border: '1px solid #3A3A3C', backgroundColor: 'var(--card)', color: 'var(--foreground)', fontSize: 13, fontWeight: 500, fontFamily: 'var(--font-sans)', cursor: 'pointer' }}>
-            <svg width={16} height={16} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
-            Gérer
-          </button>
-        </Link>
+
+      {/* ── Hero header ── */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', padding: '64px 0 24px' }}>
+        <h1 style={{ margin: 0, fontSize: 36, fontWeight: 600, color: 'var(--ink)', letterSpacing: '-1.4px', lineHeight: 1.05 }}>Notifications</h1>
+        <Link href="/notifications" style={{ fontSize: 15, fontWeight: 500, color: 'var(--muted)', textDecoration: 'none' }}>Gérer</Link>
       </div>
 
+      {/* ── Contenu ── */}
       {!notifications || notifications.length === 0 ? (
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', marginTop: 80, opacity: 0.5 }}>
-          <svg width={64} height={64} viewBox="0 0 24 24" fill="none" stroke='var(--muted-foreground)' strokeWidth={1.5} style={{ marginBottom: 16 }}><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9" /><path d="M13.73 21a2 2 0 01-3.46 0" /></svg>
-          <p style={{ color: 'var(--muted-foreground)', margin: 0 }}>Vous n&apos;avez aucune notification.</p>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', marginTop: 80, opacity: 0.45 }}>
+          <svg width={56} height={56} viewBox="0 0 24 24" fill="none" stroke="var(--muted)" strokeWidth={1.4} style={{ marginBottom: 14 }}><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2H4.5L6 16z" /><path d="M10 20a2 2 0 0 0 4 0" /></svg>
+          <p style={{ color: 'var(--muted)', margin: 0, fontSize: 15 }}>Aucune notification.</p>
         </div>
       ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-          {notifications.map((notif: AppNotification, idx: number) => {
-            const notifHref = notif.payload?.party_id ? `/parties/${notif.payload.party_id}` : '#'
-            const notifTitle = notif.type === 'party_complete' ? 'Partie complète ! 💪'
-              : notif.type === 'party_confirmed' ? 'Partie confirmée ✅'
-              : notif.type === 'party_cancelled' ? 'Partie annulée ❌'
-              : notif.type === 'join_request' ? 'Demande de participation 🙋'
-              : notif.type === 'join_accepted' ? 'Demande acceptée ! 🎉'
-              : notif.type === 'join_rejected' ? 'Demande refusée'
-              : 'Nouvelle notification'
-            return (
-            <Link key={notif.id} href={notifHref} style={{ textDecoration: 'none' }}>
-              <div className="animate-in-stagger" style={{ backgroundColor: 'var(--card)', padding: '14px 16px', borderRadius: 20, display: 'flex', alignItems: 'flex-start', gap: 14, position: 'relative', overflow: 'hidden', border: !notif.lu ? '1px solid rgba(232,112,58,0.3)' : '1px solid transparent', animationDelay: `${idx * 0.05}s` }}>
-                <div style={{ flexShrink: 0, marginTop: 2 }}>
-                  <div style={{ width: 40, height: 40, borderRadius: '50%', backgroundColor: 'var(--muted)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <svg width={18} height={18} viewBox="0 0 24 24" fill="none" stroke="#f2c991" strokeWidth={2}><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9" /><path d="M13.73 21a2 2 0 01-3.46 0" /></svg>
-                  </div>
-                </div>
-                <div style={{ flex: 1 }}>
-                  <h3 style={{ margin: '0 0 4px', fontSize: 14, fontWeight: !notif.lu ? 700 : 600, color: !notif.lu ? '#f2c991' : 'var(--foreground)' }}>
-                    {notifTitle}
-                  </h3>
-                  <p style={{ margin: '0 0 6px', fontSize: 13, color: 'var(--muted-foreground)' }}>{notif.payload?.message || ''}</p>
-                  <span style={{ fontSize: 10, color: 'var(--muted-foreground)', opacity: 0.6, fontWeight: 500 }}>
-                    {formatDatetime(notif.created_at)}
-                  </span>
-                </div>
-                {notifHref !== '#' && (
-                  <div style={{ flexShrink: 0, display: 'flex', alignItems: 'center', alignSelf: 'center' }}>
-                    <svg width={16} height={16} viewBox="0 0 24 24" fill="none" stroke='var(--muted-foreground)' strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6" /></svg>
-                  </div>
-                )}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+          {groups.map(group => (
+            <div key={group.label}>
+              {/* Label de groupe uppercase */}
+              <p style={{ margin: '0 0 10px', fontSize: 13, fontWeight: 500, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.2px' }}>
+                {group.label}
+              </p>
+
+              {/* Card avec padding 0 */}
+              <div style={{ backgroundColor: 'var(--card)', borderRadius: 'var(--radius-card)', border: '1px solid var(--card-border)', overflow: 'hidden' }}>
+                {group.items.map((notif, idx) => {
+                  const href = notif.payload?.party_id ? `/parties/${notif.payload.party_id}` : '#'
+                  return (
+                    <Link key={notif.id} href={href} style={{ display: 'block', textDecoration: 'none' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 18px', borderTop: idx === 0 ? 'none' : '1px solid var(--divider)', position: 'relative' }}>
+                        {/* Dot non-lu */}
+                        {!notif.lu && (
+                          <div style={{ position: 'absolute', left: 6, top: '50%', transform: 'translateY(-50%)', width: 6, height: 6, borderRadius: '50%', backgroundColor: '#FF9500' }} />
+                        )}
+                        {/* Icône */}
+                        <div style={{ flexShrink: 0 }}>{notifIcon(notif.type)}</div>
+                        {/* Texte */}
+                        <div style={{ flex: 1 }}>
+                          <p style={{ margin: '0 0 2px', fontSize: 14, fontWeight: !notif.lu ? 600 : 500, color: 'var(--ink)' }}>{notifTitle(notif.type)}</p>
+                          <p style={{ margin: 0, fontSize: 13, fontStyle: 'italic', color: 'var(--muted)' }}>{notif.payload?.message || formatDatetime(notif.created_at)}</p>
+                        </div>
+                        {/* Heure relative */}
+                        <span style={{ fontSize: 12, color: 'var(--muted)', flexShrink: 0 }}>{relativeTime(notif.created_at)}</span>
+                      </div>
+                    </Link>
+                  )
+                })}
               </div>
-            </Link>
-            )
-          })}
+            </div>
+          ))}
         </div>
       )}
     </div>

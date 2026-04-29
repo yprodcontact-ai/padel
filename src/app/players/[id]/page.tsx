@@ -50,14 +50,14 @@ export default async function PlayerProfilePage({ params }: { params: { id: stri
           ].map(stat => (
             <div key={stat.label} style={{ backgroundColor: 'var(--muted)', padding: '16px 12px', borderRadius: 18 }}>
               <span style={{ display: 'block', fontSize: 10, fontWeight: 600, color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 8 }}>{stat.label}</span>
-              <span style={{ fontSize: stat.isAccent ? 22 : 15, fontWeight: 700, color: stat.isAccent ? '#f2c991' : 'var(--foreground)', textTransform: 'capitalize' }}>{stat.value}</span>
+              <span style={{ fontSize: stat.isAccent ? 22 : 15, fontWeight: 700, color: stat.isAccent ? 'var(--ink)' : 'var(--foreground)', textTransform: 'capitalize' }}>{stat.value}</span>
             </div>
           ))}
         </div>
 
         {!isMe && (
           <form action={async () => { 'use server'; await startPrivateChat(player.id) }} style={{ width: '100%', zIndex: 1, position: 'relative' }}>
-            <button type="submit" style={{ width: '100%', height: 52, borderRadius: 100, border: '1px solid #cf9619', background: '#f2c991', color: 'var(--foreground)', fontSize: 15, fontWeight: 600, fontFamily: 'var(--font-sans)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+            <button type="submit" style={{ width: '100%', height: 52, borderRadius: 100, border: '1px solid var(--ink)', background: 'var(--ink)', color: '#fff', fontSize: 15, fontWeight: 600, fontFamily: 'var(--font-sans)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
               <svg width={18} height={18} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" /></svg>
               Envoyer un message privé
             </button>

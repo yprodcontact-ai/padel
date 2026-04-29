@@ -2,19 +2,26 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Trophy, Plus, MessageCircle, User } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { Trophy, MessageCircle, User } from "lucide-react";
 import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
 
+/* ─────────────────────────────────────────
+   Design handoff v2 — TabBar
+   Barre noire pill (radius 999) en bas.
+   4 onglets + bouton « + » central creux.
+   Indicateur actif = cercle blanc 44px.
+   Logique métier (unread badge) inchangée.
+───────────────────────────────────────── */
+
 const LEFT_ITEMS = [
-  { name: "Accueil", href: "/", icon: HomeCustomIcon },
-  { name: "Parties", href: "/parties", icon: Trophy },
+  { name: "Accueil",  href: "/",       icon: HomeCustomIcon },
+  { name: "Parties",  href: "/parties", icon: Trophy },
 ];
 
 const RIGHT_ITEMS = [
   { name: "Messages", href: "/messages", icon: MessageCircle },
-  { name: "Profil", href: "/profile", icon: User },
+  { name: "Profil",   href: "/profile",  icon: User },
 ];
 
 export function BottomNav({ userId }: { userId?: string }) {
@@ -22,6 +29,7 @@ export function BottomNav({ userId }: { userId?: string }) {
   const [unreadMessages, setUnreadMessages] = useState(0);
   const supabase = createClient();
 
+  /* ── Logique métier : badge messages non-lus ── */
   useEffect(() => {
     if (!userId) return;
 
@@ -81,6 +89,7 @@ export function BottomNav({ userId }: { userId?: string }) {
     };
   }, [userId, supabase]);
 
+  /* ── Reset badge quand on est sur /messages ── */
   useEffect(() => {
     if (pathname === "/messages" || pathname.startsWith("/messages/")) {
       const timeout = setTimeout(async () => {
@@ -109,12 +118,8 @@ export function BottomNav({ userId }: { userId?: string }) {
     }
   }, [pathname, userId, supabase]);
 
-  const hiddenPaths = [
-    "/login",
-    "/register",
-    "/forgot-password",
-    "/onboarding",
-  ];
+  /* ── Masquer sur les pages auth / onboarding ── */
+  const hiddenPaths = ["/login", "/register", "/forgot-password", "/onboarding"];
   if (!userId || hiddenPaths.includes(pathname)) return null;
 
   return (
@@ -126,260 +131,187 @@ export function BottomNav({ userId }: { userId?: string }) {
         left: 0,
         right: 0,
         zIndex: 50,
-        padding: "0 16px 20px",
-        background: "linear-gradient(to top, white 55%, transparent)",
+        padding: "0 14px 26px",
         pointerEvents: "none",
       }}
     >
+      {/* ── Barre noire pill ── */}
       <nav
         aria-label="Navigation principale"
         style={{
           position: "relative",
-          background: "rgba(255,255,255,0.45)",
-          backdropFilter: "blur(10px) saturate(180%)",
-          WebkitBackdropFilter: "blur(10px) saturate(180%)",
-          borderRadius: 9999,
-          boxShadow: "0 8px 32px rgba(0,0,0,0.10)",
+          height: 64,
+          borderRadius: 999,
+          background: "#000",
+          display: "flex",
+          alignItems: "center",
+          padding: 6,
           pointerEvents: "auto",
         }}
       >
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            padding: "14px 8px",
-          }}
-        >
-          {/* Left tabs */}
-          <div
-            style={{ display: "flex", flex: 1, justifyContent: "center", gap: 8 }}
-          >
-            {LEFT_ITEMS.map((item, i) => (
-              <NavItem
-                key={item.name}
-                item={item}
-                isActive={pathname === item.href}
-                offset={i === 0 ? -3 : 4}
-              />
-            ))}
-          </div>
-
-          {/* FAB spacer */}
-          <div style={{ width: 80, flexShrink: 0 }} aria-hidden="true" />
-
-          {/* Right tabs */}
-          <div
-            style={{ display: "flex", flex: 1, justifyContent: "center", gap: 8 }}
-          >
-            {RIGHT_ITEMS.map((item) => {
-              const isActive =
-                pathname === item.href ||
-                (item.href === "/messages" &&
-                  pathname.startsWith("/messages"));
-              const isMessages = item.href === "/messages";
-              return (
-                <NavItem
-                  key={item.name}
-                  item={item}
-                  isActive={isActive}
-                  unreadBadge={isMessages ? unreadMessages : 0}
-                  offset={item.name === "Profil" ? 3 : item.name === "Messages" ? -4 : 0}
-                />
-              );
-            })}
-          </div>
+        {/* Onglets gauche */}
+        <div style={{ display: "flex", flex: 1, alignItems: "center", justifyContent: "center" }}>
+          {LEFT_ITEMS.map((item) => (
+            <NavTab
+              key={item.name}
+              item={item}
+              isActive={pathname === item.href}
+            />
+          ))}
         </div>
 
-        {/* Floating Action Button */}
+        {/* Bouton + central creux */}
         <Link
           href="/parties/create"
           aria-label="Créer une partie"
-          className="bottom-nav-fab"
+          className="bottom-nav-plus"
           style={{
-            position: "absolute",
-            left: "50%",
-            transform: "translateX(-50%)",
-            top: -22,
-            width: 86,
-            height: 86,
+            width: 52,
+            height: 52,
             borderRadius: "50%",
-            background: "linear-gradient(135deg, #fcd34d, #f59e0b, #d97706)",
-            border: "4px solid white",
-            boxShadow: "0 8px 24px rgba(245,158,11,0.35)",
+            background: "transparent",
+            border: "1.5px solid rgba(255,255,255,0.35)",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
+            flexShrink: 0,
+            margin: "0 4px",
             textDecoration: "none",
-            transition: "transform 0.3s ease, box-shadow 0.3s ease",
           }}
         >
-          <span
-            style={{
-              position: "absolute",
-              inset: 4,
-              borderRadius: "50%",
-              border: "1px solid rgba(255,255,255,0.40)",
-              pointerEvents: "none",
-            }}
-          />
-          <Plus
-            className="bottom-nav-fab-icon"
-            style={{
-              width: 32,
-              height: 32,
-              color: "white",
-              transition: "transform 0.3s ease",
-            }}
-            strokeWidth={2.5}
-          />
+          <PlusIcon color="#fff" size={22} />
         </Link>
+
+        {/* Onglets droite */}
+        <div style={{ display: "flex", flex: 1, alignItems: "center", justifyContent: "center" }}>
+          {RIGHT_ITEMS.map((item) => {
+            const isActive =
+              pathname === item.href ||
+              (item.href === "/messages" && pathname.startsWith("/messages"));
+            const isMessages = item.href === "/messages";
+            return (
+              <NavTab
+                key={item.name}
+                item={item}
+                isActive={isActive}
+                unreadBadge={isMessages ? unreadMessages : 0}
+              />
+            );
+          })}
+        </div>
       </nav>
 
       <style>{`
-        .bottom-nav-fab:hover {
-          transform: translateX(-50%) translateY(-2px) !important;
-          box-shadow: 0 12px 32px rgba(245,158,11,0.45) !important;
+        .bottom-nav-plus:active {
+          transform: scale(0.90) !important;
+          opacity: 0.8;
         }
-        .bottom-nav-fab:active {
-          transform: translateX(-50%) scale(0.90) !important;
-        }
-        .bottom-nav-fab:hover .bottom-nav-fab-icon {
-          transform: rotate(90deg);
+        .bottom-nav-plus:hover {
+          border-color: rgba(255,255,255,0.6) !important;
         }
       `}</style>
     </div>
   );
 }
 
-function NavItem({
+/* ── NavTab : icône dans un cercle blanc si actif ── */
+function NavTab({
   item,
   isActive,
   unreadBadge = 0,
-  offset = 0,
 }: {
   item: { name: string; href: string; icon: React.ElementType };
   isActive: boolean;
   unreadBadge?: number;
-  offset?: number;
 }) {
   const Icon = item.icon;
   return (
-    <Link href={item.href} style={{ textDecoration: "none", marginLeft: offset }}>
+    <Link href={item.href} style={{ textDecoration: "none", flex: 1, display: "flex", justifyContent: "center" }}>
       <div
         style={{
-          position: "relative",
+          width: 44,
+          height: 44,
+          borderRadius: "50%",
+          background: isActive ? "#fff" : "transparent",
           display: "flex",
-          flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
-          gap: 2,
-          padding: "8px 6px",
+          position: "relative",
+          transition: "background 0.2s ease",
         }}
       >
-        {/* Icon */}
-        <div style={{ position: "relative" }}>
-          <Icon
-            className={cn(
-              "transition-all duration-300",
-              isActive && "scale-110"
-            )}
-            style={{
-              width: 26,
-              height: 26,
-              color: isActive ? "#f59e0b" : "#a8a29e",
-            }}
-            strokeWidth={isActive ? 2.25 : 1.75}
-          />
-
-          {/* Unread badge */}
-          {unreadBadge > 0 && (
-            <span
-              style={{
-                position: "absolute",
-                top: -6,
-                right: -8,
-                minWidth: 16,
-                height: 16,
-                borderRadius: "50%",
-                background: "#FF3B30",
-                border: "2px solid white",
-                color: "#fff",
-                fontSize: 9,
-                fontWeight: 700,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                padding: "0 3px",
-                pointerEvents: "none",
-              }}
-            >
-              {unreadBadge > 9 ? "9+" : unreadBadge}
-            </span>
-          )}
-        </div>
-
-        {/* Label */}
-        <span
+        <Icon
           style={{
-            fontSize: 11,
-            fontWeight: 500,
-            letterSpacing: "0.02em",
-            color: isActive ? "#d97706" : "#a8a29e",
-            opacity: isActive ? 1 : 0.8,
-            transition: "all 0.3s ease",
-          }}
-        >
-          {item.name}
-        </span>
-
-        {/* Active dot */}
-        <span
-          style={{
-            position: "absolute",
-            bottom: -2,
-            width: 4,
-            height: 4,
-            borderRadius: "50%",
-            background: "#f59e0b",
-            opacity: isActive ? 1 : 0,
-            transform: isActive ? "scale(1)" : "scale(0)",
-            transition: "all 0.3s ease",
+            width: 22,
+            height: 22,
+            color: isActive ? "#000" : "rgba(255,255,255,0.65)",
+            strokeWidth: isActive ? 2.2 : 1.75,
+            transition: "color 0.2s ease",
           }}
         />
+
+        {/* Badge messages non-lus */}
+        {unreadBadge > 0 && (
+          <span
+            style={{
+              position: "absolute",
+              top: 4,
+              right: 4,
+              minWidth: 16,
+              height: 16,
+              borderRadius: "50%",
+              background: "#FF9500",
+              border: "none",
+              color: "#000",
+              fontSize: 9,
+              fontWeight: 700,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              padding: "0 3px",
+              pointerEvents: "none",
+            }}
+          >
+            {unreadBadge > 9 ? "9+" : unreadBadge}
+          </span>
+        )}
       </div>
     </Link>
   );
 }
 
+/* ── Icônes inline ── */
+
 function HomeCustomIcon({
-  className,
   style,
-  strokeWidth,
 }: {
   className?: string;
   style?: React.CSSProperties;
   strokeWidth?: number;
 }) {
+  const color = (style?.color as string) ?? "#fff";
+  const sw = 1.8;
   return (
     <svg
       viewBox="0 0 24 24"
       fill="none"
-      stroke="currentColor"
-      strokeWidth={strokeWidth ?? 1.75}
+      width={22}
+      height={22}
+      stroke={color}
+      strokeWidth={sw}
       strokeLinecap="round"
       strokeLinejoin="round"
-      className={className}
       style={style}
     >
-      {/* Roof */}
-      <polyline points="3,11 12,2.5 21,11" />
-      {/* Left wall + bottom-left rounded corner + left floor segment */}
-      <path d="M4.5 10.5 L4.5 20 Q4.5 21.5 6 21.5 L9.5 21.5" />
-      {/* Arched door (semicircle opening) */}
-      <path d="M9.5 21.5 A2.5,2.5 0 0,1 14.5,21.5" />
-      {/* Right floor segment + bottom-right rounded corner + right wall */}
-      <path d="M14.5 21.5 L18 21.5 Q19.5 21.5 19.5 20 L19.5 10.5" />
+      <path d="M3 11l9-8 9 8v9a2 2 0 0 1-2 2h-4v-7h-6v7H5a2 2 0 0 1-2-2v-9z" />
+    </svg>
+  );
+}
+
+function PlusIcon({ color = "#fff", size = 22 }: { color?: string; size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      <path d="M12 5v14M5 12h14" stroke={color} strokeWidth={2} strokeLinecap="round" />
     </svg>
   );
 }

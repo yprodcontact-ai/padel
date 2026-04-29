@@ -14,7 +14,7 @@
   .pb-safe {
     padding-bottom: max(env(safe-area-inset-bottom), 0.75rem);
   }
-  
+
   /* Staggered animation utility */
   .animate-in-stagger {
     opacity: 0;
@@ -45,74 +45,128 @@
   to { opacity: 1; }
 }
 
+  .animate-in-stagger-horizontal {
+    opacity: 0;
+    transform: translateX(30px);
+    animation: fadeLeftStagger 0.8s cubic-bezier(0.1, 1, 0, 1) forwards;
+    will-change: transform, opacity;
+  }
+
+@keyframes fadeLeftStagger {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
 @layer base {
-  .theme {
-    --font-heading: var(--font-sans);
-    --font-sans: var(--font-sans);
-  }
   :root {
-    --font-family-sans: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    --background: #F2F2F7;
-    --foreground: #000000;
-    --card: #FFFFFF;
-    --card-foreground: #000000;
-    --popover: #FFFFFF;
-    --popover-foreground: #000000;
-    --primary: #000000;
-    --primary-foreground: #FFFFFF;
-    --secondary: #F2F2F7;
-    --secondary-foreground: #000000;
-    --muted: #F2F2F7;
-    --muted-foreground: #8E8E93;
-    --accent: #F2F2F7;
-    --accent-foreground: #000000;
-    --destructive: #FF3B30;
+    /* ── Typographie ── */
+    --font-family-sans: -apple-system, BlinkMacSystemFont, "SF Pro Display",
+      "SF Pro Text", system-ui, sans-serif;
+
+    /* ── Palette design handoff v2 ── */
+    --bg:           #F2F2F2;
+    --card:         #FFFFFF;
+    --card-border:  #ECECEE;
+    --ink:          #000000;
+    --ink-2:        #3C3C43;
+    --muted:        #8E8E93;
+    --muted-2:      #C7C7CC;
+    --divider:      #F2F2F2;
+    --stroke-soft:  #D8D8DC;
+    --accent:       #19A66B;
+
+    /* ── Radius ── */
+    --radius-card:  28px;
+    --radius-pill:  999px;
+    --radius-tile:  14px;
+    --radius-chip:  6px;
+
+    /* ── Spacing ── */
+    --screen-x:      22px;
+    --screen-top:    64px;
+    --screen-bottom: 130px;
+    --gap:           14px;
+
+    /* ── Elevation ── */
+    --shadow-cta: 0 12px 30px rgba(0, 0, 0, 0.12);
+
+    /* ── Mapping shadcn/Tailwind ── */
+    --background:           var(--bg);
+    --foreground:           var(--ink);
+    --card-foreground:      var(--ink);
+    --popover:              var(--card);
+    --popover-foreground:   var(--ink);
+    --primary:              var(--ink);
+    --primary-foreground:   #FFFFFF;
+    --secondary:            var(--bg);
+    --secondary-foreground: var(--ink);
+    --muted-foreground:     var(--muted);
+    --accent-foreground:    #FFFFFF;
+    --destructive:          #FF3B30;
     --destructive-foreground: #FFFFFF;
-    --border: #E5E5EA;
-    --input: #E5E5EA;
-    --ring: #000000;
-    --radius: 1rem;
+    --border:               var(--card-border);
+    --input:                var(--card-border);
+    --ring:                 var(--ink);
+    --radius:               var(--radius-card);
   }
+
+  /* Dark mode : on garde le mode light forcé pour l'instant */
   .dark {
-    /* Since we're moving to a light-mode forced design, we will just use the same variables for dark mode temporarily, 
-       or users can later implement a true dark mode version of the new design. */
-    --font-family-sans: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    --background: #F2F2F7;
-    --foreground: #000000;
-    --card: #FFFFFF;
-    --card-foreground: #000000;
-    --popover: #FFFFFF;
-    --popover-foreground: #000000;
-    --primary: #000000;
-    --primary-foreground: #FFFFFF;
-    --secondary: #F2F2F7;
-    --secondary-foreground: #000000;
-    --muted: #F2F2F7;
-    --muted-foreground: #8E8E93;
-    --accent: #F2F2F7;
-    --accent-foreground: #000000;
-    --destructive: #FF3B30;
+    --bg:           #F2F2F2;
+    --card:         #FFFFFF;
+    --card-border:  #ECECEE;
+    --ink:          #000000;
+    --ink-2:        #3C3C43;
+    --muted:        #8E8E93;
+    --muted-2:      #C7C7CC;
+    --divider:      #F2F2F2;
+    --stroke-soft:  #D8D8DC;
+    --accent:       #19A66B;
+
+    --background:           var(--bg);
+    --foreground:           var(--ink);
+    --card-foreground:      var(--ink);
+    --popover:              var(--card);
+    --popover-foreground:   var(--ink);
+    --primary:              var(--ink);
+    --primary-foreground:   #FFFFFF;
+    --secondary:            var(--bg);
+    --secondary-foreground: var(--ink);
+    --muted-foreground:     var(--muted);
+    --accent-foreground:    #FFFFFF;
+    --destructive:          #FF3B30;
     --destructive-foreground: #FFFFFF;
-    --border: #E5E5EA;
-    --input: #E5E5EA;
-    --ring: #000000;
+    --border:               var(--card-border);
+    --input:                var(--card-border);
+    --ring:                 var(--ink);
+    --radius:               var(--radius-card);
   }
+
   * {
-    @apply border-border outline-ring/50;
+    @apply border-border;
   }
+
   body {
-    @apply bg-background text-foreground;
+    background-color: var(--bg);
+    color: var(--ink);
     font-family: var(--font-family-sans);
     letter-spacing: -0.01em;
   }
+
   html {
     font-family: var(--font-family-sans);
+    background-color: var(--bg);
   }
 }
 
 /* ── App-feel transitions ── */
 
-/* Page enter animation */
 @keyframes pageEnter {
   from {
     opacity: 0;
@@ -124,14 +178,12 @@
   }
 }
 
-/* Progress bar animation */
 @keyframes progressBar {
   0% { width: 0; }
   50% { width: 70%; }
   100% { width: 100%; }
 }
 
-/* Spinner */
 @keyframes spin {
   to { transform: translateY(-50%) rotate(360deg); }
 }
@@ -143,7 +195,6 @@
   touch-action: manipulation;
 }
 
-/* Eviter la selection de texte sur les elements interactifs */
 button, a, .no-select {
   user-select: none;
   -webkit-user-select: none;
@@ -154,13 +205,11 @@ html {
   -webkit-overflow-scrolling: touch;
 }
 
-/* Smooth scroll containers */
 main {
   scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
 }
 
-/* Links and buttons — subtle press feedback */
 a, button {
   transition: opacity 0.15s ease, transform 0.15s ease;
   will-change: transform, opacity;

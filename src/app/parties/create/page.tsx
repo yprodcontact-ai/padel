@@ -7,7 +7,7 @@ import { getClubs } from '@/app/onboarding/actions'
 import Link from 'next/link'
 import { todayParis } from '@/lib/date-utils'
 
-const inputStyle: React.CSSProperties = { width: '100%', height: 50, borderRadius: 14, border: 'none', backgroundColor: 'var(--muted)', color: 'var(--foreground)', fontSize: 15, padding: '0 16px', outline: 'none', fontFamily: 'var(--font-sans)', boxSizing: 'border-box' as const, WebkitAppearance: 'none' }
+const inputStyle: React.CSSProperties = { width: '100%', height: 50, borderRadius: 14, border: 'none', backgroundColor: '#F4F4F5', color: 'var(--foreground)', fontSize: 15, padding: '0 16px', outline: 'none', fontFamily: 'var(--font-sans)', boxSizing: 'border-box' as const, WebkitAppearance: 'none' }
 const labelStyle: React.CSSProperties = { display: 'block', fontSize: 13, fontWeight: 500, color: 'var(--muted-foreground)', marginBottom: 8 }
 
 type SearchPlayer = { id: string; prenom: string; nom: string; photo_url: string | null; niveau: number | null }
@@ -109,7 +109,7 @@ export default function CreatePartyPage() {
           <p style={{ margin: '6px 0 0', fontSize: 14, color: 'var(--muted-foreground)' }}>Étape {step} sur {TOTAL_STEPS}</p>
         </div>
         <div style={{ display: 'flex', gap: 6, marginBottom: 24 }}>
-          {Array.from({ length: TOTAL_STEPS }, (_, i) => i + 1).map(i => <div key={i} style={{ flex: 1, height: 5, borderRadius: 100, background: step >= i ? '#f2c991' : 'var(--muted)', transition: 'background 0.3s' }} />)}
+          {Array.from({ length: TOTAL_STEPS }, (_, i) => i + 1).map(i => <div key={i} style={{ flex: 1, height: 5, borderRadius: 100, background: step >= i ? 'var(--ink)' : 'var(--muted)', transition: 'background 0.3s' }} />)}
         </div>
         <div style={{ backgroundColor: 'var(--card)', borderRadius: 28, padding: '28px 24px' }}>
           <form ref={formRef} style={{ display: 'flex', flexDirection: 'column', minHeight: 280 }}>
@@ -145,7 +145,7 @@ export default function CreatePartyPage() {
                           )}
                           <div>
                             <span style={{ display: 'block', fontSize: 14, fontWeight: 600, color: 'var(--foreground)' }}>{p.prenom} {p.nom}</span>
-                            {p.niveau && <span style={{ fontSize: 11, color: '#f2c991', fontWeight: 600 }}>Niv. {p.niveau}</span>}
+                            {p.niveau && <span style={{ fontSize: 11, color: 'var(--ink)', fontWeight: 600 }}>Niv. {p.niveau}</span>}
                           </div>
                         </div>
                         <button type="button" onClick={() => removePlayer(p.id)} style={{ width: 28, height: 28, borderRadius: '50%', background: 'rgba(239,68,68,0.15)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -171,7 +171,7 @@ export default function CreatePartyPage() {
                         style={{ ...inputStyle, paddingLeft: 40 }}
                       />
                       {isSearching && (
-                        <div style={{ position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)', width: 16, height: 16, border: '2px solid #3A3A3C', borderTopColor: '#f2c991', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+                        <div style={{ position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)', width: 16, height: 16, border: '2px solid #3A3A3C', borderTopColor: 'var(--ink)', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
                       )}
                     </div>
 
@@ -197,7 +197,7 @@ export default function CreatePartyPage() {
                               <span style={{ display: 'block', fontSize: 14, fontWeight: 500, color: 'var(--foreground)' }}>{player.prenom} {player.nom}</span>
                               {player.niveau && <span style={{ fontSize: 11, color: 'var(--muted-foreground)' }}>Niveau {player.niveau}</span>}
                             </div>
-                            <svg width={18} height={18} viewBox="0 0 24 24" fill="none" stroke="#f2c991" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
+                            <svg width={18} height={18} viewBox="0 0 24 24" fill="none" stroke="var(--ink)" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
                           </button>
                         ))}
                       </div>
@@ -237,9 +237,9 @@ export default function CreatePartyPage() {
                       style={{
                         height: 42,
                         borderRadius: 12,
-                        border: selectedTime === slot ? '2px solid #f2c991' : '1.5px solid #3A3A3C',
+                        border: selectedTime === slot ? '2px solid var(--ink)' : '1.5px solid #3A3A3C',
                         background: selectedTime === slot ? 'rgba(232,112,58,0.15)' : 'var(--muted)',
-                        color: selectedTime === slot ? '#f2c991' : 'var(--foreground)',
+                        color: selectedTime === slot ? 'var(--ink)' : 'var(--foreground)',
                         fontSize: 14,
                         fontWeight: selectedTime === slot ? 700 : 500,
                         fontFamily: 'var(--font-sans)',
@@ -257,9 +257,9 @@ export default function CreatePartyPage() {
               <div style={{ display: step === 4 ? 'block' : 'none' }}>
                 <h2 style={{ margin: '0 0 16px', fontSize: 18, fontWeight: 600, color: 'var(--foreground)', textAlign: 'center' }}>Quel niveau ?</h2>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 8px', marginBottom: 16 }}>
-                  <span style={{ fontSize: 22, fontWeight: 700, color: '#f2c991' }}>{levelRange[0].toFixed(1)}</span>
+                  <span style={{ fontSize: 22, fontWeight: 700, color: 'var(--ink)' }}>{levelRange[0].toFixed(1)}</span>
                   <span style={{ fontSize: 14, color: 'var(--muted-foreground)' }}>à</span>
-                  <span style={{ fontSize: 22, fontWeight: 700, color: '#f2c991' }}>{levelRange[1].toFixed(1)}</span>
+                  <span style={{ fontSize: 22, fontWeight: 700, color: 'var(--ink)' }}>{levelRange[1].toFixed(1)}</span>
                 </div>
                 <Slider value={levelRange} min={1} max={8} step={0.5} onValueChange={(v) => setLevelRange(v as number[])} className="py-4" />
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: 'var(--muted-foreground)', marginTop: 8 }}>
@@ -288,9 +288,9 @@ export default function CreatePartyPage() {
                 </Link>
               )}
               {step < TOTAL_STEPS ? (
-                <button type="button" onClick={nextStep} style={{ height: 48, padding: '0 32px', borderRadius: 100, border: '1px solid #cf9619', background: '#f2c991', color: 'var(--foreground)', fontSize: 14, fontWeight: 600, fontFamily: 'var(--font-sans)', cursor: 'pointer' }}>Continuer</button>
+                <button type="button" onClick={nextStep} style={{ height: 48, padding: '0 32px', borderRadius: 100, border: '1px solid var(--ink)', background: 'var(--ink)', color: '#fff', fontSize: 14, fontWeight: 600, fontFamily: 'var(--font-sans)', cursor: 'pointer' }}>Continuer</button>
               ) : (
-                <button type="button" onClick={submitForm} disabled={isLoading} style={{ height: 48, padding: '0 28px', borderRadius: 100, border: '1px solid #cf9619', background: '#f2c991', color: 'var(--foreground)', fontSize: 14, fontWeight: 600, fontFamily: 'var(--font-sans)', cursor: 'pointer', opacity: isLoading ? 0.6 : 1 }}>
+                <button type="button" onClick={submitForm} disabled={isLoading} style={{ height: 48, padding: '0 28px', borderRadius: 100, border: '1px solid var(--ink)', background: 'var(--ink)', color: '#fff', fontSize: 14, fontWeight: 600, fontFamily: 'var(--font-sans)', cursor: 'pointer', opacity: isLoading ? 0.6 : 1 }}>
                   {isLoading ? 'Publication...' : 'Valider ✨'}
                 </button>
               )}

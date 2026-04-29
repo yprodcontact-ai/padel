@@ -36,7 +36,7 @@ export function Sidebar() {
             width: 32,
             height: 32,
             borderRadius: '50%',
-            background: '#f2c991',
+            background: 'var(--ink)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -70,7 +70,7 @@ export function Sidebar() {
                 color: isActive ? '#fff' : '#71717A',
               }}
             >
-              <item.icon style={{ width: 20, height: 20, color: isActive ? '#f2c991' : undefined }} />
+              <item.icon style={{ width: 20, height: 20, color: isActive ? 'var(--ink)' : undefined }} />
               {item.name}
             </Link>
           );

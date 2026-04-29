@@ -15,7 +15,7 @@ export default function RegisterPage({
       <div style={{ width: '100%', maxWidth: 400 }}>
         {/* Header */}
         <div style={{ textAlign: 'center', marginBottom: 32 }}>
-          <div style={{ width: 56, height: 56, borderRadius: '50%', background: '#f2c991', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' }}>
+          <div style={{ width: 56, height: 56, borderRadius: '50%', background: 'var(--ink)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' }}>
             <span style={{ fontSize: 24, fontWeight: 900, color: 'var(--background)' }}>P</span>
           </div>
           <h1 style={{ margin: 0, fontSize: 28, fontWeight: 700, color: 'var(--foreground)' }}>Inscription</h1>
@@ -117,8 +117,8 @@ export default function RegisterPage({
                 width: '100%',
                 height: 50,
                 borderRadius: 100,
-                border: '1px solid #cf9619', background: '#f2c991',
-                color: 'var(--foreground)',
+                border: '1px solid var(--ink)', background: 'var(--ink)',
+                color: '#fff',
                 fontSize: 15,
                 fontWeight: 600,
                 fontFamily: 'var(--font-sans)',
@@ -134,7 +134,7 @@ export default function RegisterPage({
         {/* Bottom link */}
         <p style={{ textAlign: 'center', fontSize: 14, color: 'var(--muted-foreground)', marginTop: 24 }}>
           Vous avez déjà un compte ?{' '}
-          <Link href="/login" style={{ color: '#f2c991', fontWeight: 500, textDecoration: 'none' }}>
+          <Link href="/login" style={{ color: 'var(--ink)', fontWeight: 500, textDecoration: 'none' }}>
             Se connecter
           </Link>
         </p>

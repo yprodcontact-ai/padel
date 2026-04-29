@@ -38,7 +38,7 @@ export function RouteTransition({ children }: { children: React.ReactNode }) {
         <div
           style={{
             height: '100%',
-            background: 'linear-gradient(90deg, #f2c991, #f59e0b, #f2c991)',
+            background: 'linear-gradient(90deg, var(--ink), #f59e0b, var(--ink))',
             borderRadius: '0 2px 2px 0',
             animation: isTransitioning ? 'progressBar 0.4s ease-out forwards' : 'none',
           }}
@@ -56,8 +56,12 @@ export function RouteTransition({ children }: { children: React.ReactNode }) {
         style={{
           animation: 'pageEnter 0.6s cubic-bezier(0.1, 1, 0, 1) forwards',
           willChange: 'opacity, transform',
-          height: '100%',
+          flex: 1,
+          display: 'flex',
+          flexDirection: 'column',
+          boxSizing: 'border-box',
           paddingTop: pathname !== '/' ? 15 : 0,
+          minHeight: 0,
         }}
       >
         {children}

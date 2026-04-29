@@ -10,8 +10,8 @@ const LOCALE = 'fr-FR'
 /** "lun. 28 avr." */
 export function formatDate(iso: string): string {
   const d = new Date(iso)
-  const nowParis = new Date(new Date().toLocaleString(LOCALE, { timeZone: TZ }))
-  const dParis = new Date(d.toLocaleString(LOCALE, { timeZone: TZ }))
+  const nowParis = new Date(new Date().toLocaleString('en-US', { timeZone: TZ }))
+  const dParis = new Date(d.toLocaleString('en-US', { timeZone: TZ }))
 
   const today = new Date(nowParis)
   today.setHours(0, 0, 0, 0)

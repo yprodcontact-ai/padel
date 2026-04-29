@@ -21,13 +21,13 @@ export default function InstallPage() {
           <section>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
               <div style={{ background: 'rgba(242,201,145,0.1)', padding: 8, borderRadius: 12, display: 'flex' }}>
-                <svg width={24} height={24} viewBox="0 0 24 24" fill="none" stroke="#f2c991" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M12 20.94c1.5 0 2.75 1.06 4 1.06 3 0 6-8 6-12.22A4.91 4.91 0 0 0 17 5c-2.22 0-4 1.44-5 1.44S9.22 5 7 5a4.9 4.9 0 0 0-5 4.78C2 14 5 22 8 22c1.25 0 2.5-1.06 4-1.06Z" /><path d="M10 2c1 .5 2 2 2 5" /></svg>
+                <svg width={24} height={24} viewBox="0 0 24 24" fill="none" stroke="var(--ink)" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M12 20.94c1.5 0 2.75 1.06 4 1.06 3 0 6-8 6-12.22A4.91 4.91 0 0 0 17 5c-2.22 0-4 1.44-5 1.44S9.22 5 7 5a4.9 4.9 0 0 0-5 4.78C2 14 5 22 8 22c1.25 0 2.5-1.06 4-1.06Z" /><path d="M10 2c1 .5 2 2 2 5" /></svg>
               </div>
               <h2 style={{ margin: 0, fontSize: 20, fontWeight: 700, color: 'var(--foreground)' }}>Sur iPhone</h2>
             </div>
 
             <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 20, padding: 20 }}>
-              <h3 style={{ margin: '0 0 12px', fontSize: 14, fontWeight: 600, color: '#f2c991', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Safari - Nouvelles versions (iOS 15+)</h3>
+              <h3 style={{ margin: '0 0 12px', fontSize: 14, fontWeight: 600, color: 'var(--ink)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Safari - Nouvelles versions (iOS 15+)</h3>
               <ol style={{ margin: 0, paddingLeft: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 12 }}>
                 <li style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
                   <div style={{ width: 24, height: 24, borderRadius: '50%', background: 'var(--muted)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 700, color: 'var(--foreground)', flexShrink: 0 }}>1</div>
@@ -45,7 +45,7 @@ export default function InstallPage() {
 
               <div style={{ height: 1, background: 'var(--border)', margin: '20px 0' }} />
 
-              <h3 style={{ margin: '0 0 12px', fontSize: 14, fontWeight: 600, color: '#f2c991', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Safari - Anciennes versions</h3>
+              <h3 style={{ margin: '0 0 12px', fontSize: 14, fontWeight: 600, color: 'var(--ink)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Safari - Anciennes versions</h3>
               <ol style={{ margin: 0, paddingLeft: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 12 }}>
                 <li style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
                   <div style={{ width: 24, height: 24, borderRadius: '50%', background: 'var(--muted)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 700, color: 'var(--foreground)', flexShrink: 0 }}>1</div>
@@ -63,7 +63,7 @@ export default function InstallPage() {
           <section>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
               <div style={{ background: 'rgba(242,201,145,0.1)', padding: 8, borderRadius: 12, display: 'flex' }}>
-                <svg width={24} height={24} viewBox="0 0 24 24" fill="none" stroke="#f2c991" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M12 20V4M8 20V4M16 20V4M4 8h16M4 16h16" /></svg>
+                <svg width={24} height={24} viewBox="0 0 24 24" fill="none" stroke="var(--ink)" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M12 20V4M8 20V4M16 20V4M4 8h16M4 16h16" /></svg>
               </div>
               <h2 style={{ margin: 0, fontSize: 20, fontWeight: 700, color: 'var(--foreground)' }}>Sur Android</h2>
             </div>

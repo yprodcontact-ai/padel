@@ -62,8 +62,8 @@ export function ChatInterface({ conversationId, initialMessages, currentUserId }
                                     padding: '10px 16px',
                                     borderRadius: isMe ? '20px 20px 4px 20px' : '20px 20px 20px 4px',
                                     fontSize: 14,
-                                    background: isMe ? '#f2c991' : 'var(--card)',
-                                    color: 'var(--foreground)',
+                                    background: isMe ? 'var(--ink)' : 'var(--card)',
+                                    color: isMe ? '#fff' : 'var(--foreground)',
                                     lineHeight: 1.4,
                                 }}>
                                     {m.contenu}
@@ -78,20 +78,20 @@ export function ChatInterface({ conversationId, initialMessages, currentUserId }
         </div>
 
         {/* INPUT */}
-        <div className="pb-safe" style={{ flexShrink: 0, backgroundColor: 'var(--card)', borderTop: '1px solid #2C2C2E', padding: '12px 16px', paddingBottom: 130 }}>
+        <div className="pb-safe" style={{ flexShrink: 0, backgroundColor: 'var(--card)', borderTop: '1px solid #2C2C2E', padding: '12px 16px', paddingBottom: 100 }}>
             <form onSubmit={handleSend} style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
                 <input
                     value={newMessage}
                     onChange={e => setNewMessage(e.target.value)}
                     placeholder="Écrivez votre message..."
-                    style={{ flex: 1, height: 44, borderRadius: 100, border: 'none', backgroundColor: 'var(--muted)', color: 'var(--foreground)', fontSize: 14, padding: '0 20px', outline: 'none', fontFamily: 'var(--font-sans)' }}
+                    style={{ flex: 1, height: 44, borderRadius: 100, border: 'none', backgroundColor: '#F4F4F5', color: 'var(--foreground)', fontSize: 14, padding: '0 20px', outline: 'none', fontFamily: 'var(--font-sans)' }}
                 />
                 <button
                     type="submit"
                     disabled={!newMessage.trim() || isSending}
-                    style={{ width: 44, height: 44, borderRadius: '50%', border: '1px solid #cf9619', background: '#f2c991', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0, opacity: (!newMessage.trim() || isSending) ? 0.4 : 1 }}
+                    style={{ width: 44, height: 44, borderRadius: '50%', border: '1px solid var(--ink)', background: 'var(--ink)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0, opacity: (!newMessage.trim() || isSending) ? 0.4 : 1 }}
                 >
-                    <svg width={18} height={18} viewBox="0 0 24 24" fill="none" stroke='var(--foreground)' strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round"><line x1="22" y1="2" x2="11" y2="13" /><polygon points="22 2 15 22 11 13 2 9 22 2" /></svg>
+                    <svg width={18} height={18} viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round"><line x1="22" y1="2" x2="11" y2="13" /><polygon points="22 2 15 22 11 13 2 9 22 2" /></svg>
                 </button>
             </form>
         </div>
