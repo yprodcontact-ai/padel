@@ -334,6 +334,11 @@ export async function updatePartyStatus(partyId: string, action: 'confirm' | 'ca
     return { error: 'Non autorisé' }
   }
 
+  // Le statut ne peut être changé que depuis 'complete' (sinon le RPC est rejeté).
+  if (party.statut !== 'complete') {
+    return { error: 'La partie doit être complète pour confirmer ou annuler la réservation.' }
+  }
+
   const newStatus = action === 'confirm' ? 'confirmee' : 'annulee'
 
   const { error: updateError } = await supabase.rpc('system_update_party_status', {
@@ -342,7 +347,8 @@ export async function updatePartyStatus(partyId: string, action: 'confirm' | 'ca
   })
 
   if (updateError) {
-    return { error: 'Erreur lors de la mise à jour du statut' }
+    console.error('Error executing system_update_party_status RPC:', updateError)
+    return { error: `Erreur lors de la mise à jour du statut : ${updateError.message}` }
   }
 
   // Notifications
@@ -384,5 +390,7 @@ export async function updatePartyStatus(partyId: string, action: 'confirm' | 'ca
   }
 
   revalidatePath(`/parties/${partyId}`)
+  revalidatePath('/parties')
+  revalidatePath('/')
   return { success: true }
 }

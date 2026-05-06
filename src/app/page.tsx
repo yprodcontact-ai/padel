@@ -123,10 +123,11 @@ export default async function Home() {
     return { id: p.id, club_id: p.club_id || '', club_nom: p.clubs?.nom || 'Club inconnu', club_ville: p.clubs?.ville || '', date_heure: p.date_heure, niveau_min: p.niveau_min, niveau_max: p.niveau_max, type: p.type, players, player_count: players.length, has_joined: hasJoined, distance_km, statut: p.statut || 'publiee' }
   })
 
-  const myNextParty = allMapped.find(p => p.has_joined) || null
+  const myNextParties = allMapped.filter(p => p.has_joined)
+  const joinedIds = new Set(myNextParties.map(p => p.id))
   const userNiveau = typeof userProfile?.niveau === 'number' ? userProfile.niveau : null
   const userClubId = userProfile?.club_id
-  const notJoined = allMapped.filter(p => p.id !== myNextParty?.id && p.player_count < 4)
+  const notJoined = allMapped.filter(p => !joinedIds.has(p.id) && p.player_count < 4)
   const availableParties = notJoined.filter(p => {
     if (userNiveau === null || !userClubId) return false
     return p.niveau_min <= userNiveau && p.niveau_max >= userNiveau && p.club_id === userClubId
@@ -167,19 +168,23 @@ export default async function Home() {
       {/* ═══ HERO TITLE ═══ */}
       <div style={{ padding: '0 22px', marginBottom: 28 }}>
         <h1 style={{ margin: 0, fontSize: 36, lineHeight: 1.05, letterSpacing: '-1.4px', fontWeight: 600, color: 'var(--ink)' }}>
-          Votre prochaine<br />
-          <span style={{ color: 'var(--muted)', fontWeight: 400 }}>partie de padel</span>
+          {myNextParties.length > 1 ? 'Vos prochaines' : 'Votre prochaine'}<br />
+          <span style={{ color: 'var(--muted)', fontWeight: 400 }}>{myNextParties.length > 1 ? 'parties de padel' : 'partie de padel'}</span>
         </h1>
       </div>
 
-      {/* ═══ PROCHAINE PARTIE ═══ */}
+      {/* ═══ PROCHAINES PARTIES ═══ */}
       <div style={{ padding: '0 16px', marginBottom: 36 }}>
-        {myNextParty ? (
-          <Link href={`/parties/${myNextParty.id}`} style={{ display: 'block', textDecoration: 'none' }}>
-            <div className="animate-in-stagger" style={{ animationDelay: '0.05s' }}>
-              <PartyCard party={myNextParty} variant="hero" />
-            </div>
-          </Link>
+        {myNextParties.length > 0 ? (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+            {myNextParties.map((p, idx) => (
+              <Link key={p.id} href={`/parties/${p.id}`} style={{ display: 'block', textDecoration: 'none' }}>
+                <div className="animate-in-stagger" style={{ animationDelay: `${0.05 + idx * 0.04}s` }}>
+                  <PartyCard party={p} variant="hero" />
+                </div>
+              </Link>
+            ))}
+          </div>
         ) : (
           <div style={{ backgroundColor: 'var(--card)', borderRadius: 'var(--radius-card)', padding: '28px 22px', textAlign: 'center', border: '1px solid var(--card-border)' }}>
             <p style={{ margin: 0, fontSize: 15, color: 'var(--muted)' }}>Aucune partie rejointe pour le moment.</p>

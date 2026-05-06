@@ -19,6 +19,10 @@ export function RouteTransition({ children }: { children: React.ReactNode }) {
     return () => clearTimeout(t)
   }, [pathname])
 
+  // Pas de paddingTop sur la home et sur la page d'une conversation (le header gère son propre safe-area).
+  const isChatDetail = pathname.startsWith('/messages/') && pathname !== '/messages'
+  const skipPadding = pathname === '/' || isChatDetail
+
   return (
     <>
       {/* Top progress bar */}
@@ -45,9 +49,9 @@ export function RouteTransition({ children }: { children: React.ReactNode }) {
         />
       </div>
 
-      {/* 
+      {/*
         Page content with fade animation.
-        Using key={pathname} forces React to mount a fresh DOM node on navigation, 
+        Using key={pathname} forces React to mount a fresh DOM node on navigation,
         which instantly triggers the native CSS animation without JS latency.
         This removes the "ignoble" flash on mobile.
       */}
@@ -60,7 +64,7 @@ export function RouteTransition({ children }: { children: React.ReactNode }) {
           display: 'flex',
           flexDirection: 'column',
           boxSizing: 'border-box',
-          paddingTop: pathname !== '/' ? 15 : 0,
+          paddingTop: skipPadding ? 0 : 15,
           minHeight: 0,
         }}
       >

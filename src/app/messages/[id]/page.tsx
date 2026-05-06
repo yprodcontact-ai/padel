@@ -18,7 +18,7 @@ export default async function MessagePage({ params }: { params: { id: string } }
   const { data: initialMessages } = await supabase.from('messages').select(`id, contenu, created_at, sender_id, users ( prenom, photo_url )`).eq('conversation_id', params.id).order('created_at', { ascending: true })
 
   const { data: convInfo } = await supabase.from('conversations').select('party_id').eq('id', params.id).single()
-  let chatTitle = 'Discussion de Groupe'
+  let chatTitle = 'Discussion'
   if (convInfo?.party_id) {
     const { data: partyData } = await supabase.from('parties').select('date_heure').eq('id', convInfo.party_id).single()
     if (partyData?.date_heure) {
@@ -26,6 +26,17 @@ export default async function MessagePage({ params }: { params: { id: string } }
       const timeStr = formatTime(partyData.date_heure)
       chatTitle = `Match : ${dateStr} - ${timeStr}`
     }
+  } else {
+    const { data: otherRow } = await supabase
+      .from('conversation_participants')
+      .select('users ( prenom, nom )')
+      .eq('conversation_id', params.id)
+      .neq('user_id', user.id)
+      .limit(1)
+      .single()
+    const other = (otherRow as unknown as { users: { prenom: string | null, nom: string | null } | null } | null)?.users
+    const fullName = [other?.prenom, other?.nom].filter(Boolean).join(' ')
+    if (fullName) chatTitle = fullName
   }
 
   const formattedMessages = (initialMessages || []).map((m: Record<string, unknown>) => ({

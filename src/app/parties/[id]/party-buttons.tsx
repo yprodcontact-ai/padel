@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useTransition } from 'react'
+import { useRouter } from 'next/navigation'
 import { joinParty, leaveParty, updatePartyStatus } from './actions'
 
 /**
@@ -25,6 +26,7 @@ interface PartyButtonsProps {
 }
 
 export function PartyActionButtons({ partyId, isCreator, isParticipant, isPending, isBelowLevel, status, playerCount }: PartyButtonsProps) {
+  const router = useRouter()
   const [isPendingTransition, startTransition] = useTransition()
   const [errorText, setErrorText] = useState<string | null>(null)
   const [requestSent, setRequestSent] = useState(false)
@@ -35,6 +37,7 @@ export function PartyActionButtons({ partyId, isCreator, isParticipant, isPendin
       const res = await joinParty(partyId)
       if (res?.error) setErrorText(res.error)
       if (res?.status === 'en_attente') setRequestSent(true)
+      else router.refresh()
     })
   }
   const handleLeave = () => {
@@ -42,6 +45,7 @@ export function PartyActionButtons({ partyId, isCreator, isParticipant, isPendin
     startTransition(async () => {
       const res = await leaveParty(partyId)
       if (res?.error) setErrorText(res.error)
+      else router.refresh()
     })
   }
   const handleStatus = (action: 'confirm' | 'cancel') => {
@@ -49,6 +53,7 @@ export function PartyActionButtons({ partyId, isCreator, isParticipant, isPendin
     startTransition(async () => {
       const res = await updatePartyStatus(partyId, action)
       if (res?.error) setErrorText(res.error)
+      else router.refresh()
     })
   }
 
@@ -79,14 +84,14 @@ export function PartyActionButtons({ partyId, isCreator, isParticipant, isPendin
         </button>
       )}
 
-      {/* ── Actions créateur : confirmer terrain / annuler ── */}
+      {/* ── Confirmation/annulation du terrain : tous les inscrits y ont accès ── */}
       {isParticipant && status === 'complete' && (
         <>
           <button onClick={() => handleStatus('confirm')} disabled={isPendingTransition} style={{ ...btnBase, backgroundColor: 'var(--accent)', color: '#fff', opacity: isPendingTransition ? 0.6 : 1 }}>
             <svg width={16} height={16} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
             Confirmer le terrain
           </button>
-          <button onClick={() => handleStatus('cancel')} disabled={isPendingTransition} style={{ ...btnBase, backgroundColor: 'transparent', border: '1px solid var(--card-border)', color: 'var(--muted)', opacity: isPendingTransition ? 0.6 : 1 }}>
+          <button onClick={() => handleStatus('cancel')} disabled={isPendingTransition} style={{ ...btnBase, backgroundColor: '#FFE8CC', border: '1px solid #FFD0A1', color: '#B45309', opacity: isPendingTransition ? 0.6 : 1 }}>
             Créneau non disponible
           </button>
         </>
@@ -107,8 +112,8 @@ export function PartyActionButtons({ partyId, isCreator, isParticipant, isPendin
         </button>
       )}
 
-      {/* ── Participant non-créateur → Quitter (état open, style "full" = fond blanc bordé) ── */}
-      {isParticipant && !isCreator && status === 'publiee' && (
+      {/* ── Participant non-créateur → Quitter (publiée OU complète : libère une place et rouvre la partie) ── */}
+      {isParticipant && !isCreator && (status === 'publiee' || status === 'complete') && (
         <button onClick={handleLeave} disabled={isPendingTransition} style={{ ...btnBase, backgroundColor: 'var(--card)', border: '1px solid var(--card-border)', color: 'var(--ink)', opacity: isPendingTransition ? 0.6 : 1 }}>
           Quitter la partie
         </button>

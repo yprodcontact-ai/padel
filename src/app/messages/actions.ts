@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { sendPushNotification } from '@/lib/push'
+import { revalidatePath } from 'next/cache'
 
 export async function sendMessage(conversationId: string, content: string) {
   const supabase = createClient()
@@ -57,6 +58,23 @@ export async function sendMessage(conversationId: string, content: string) {
     }
   }
 
+  return { success: true }
+}
+
+export async function setArchivedConversation(conversationId: string, archived: boolean) {
+  const supabase = createClient()
+  const { data: authData } = await supabase.auth.getUser()
+  if (!authData.user) return { error: 'Non authentifié' }
+
+  const { error } = await supabase
+    .from('conversation_participants')
+    .update({ archived })
+    .eq('conversation_id', conversationId)
+    .eq('user_id', authData.user.id)
+
+  if (error) return { error: error.message }
+
+  revalidatePath('/messages')
   return { success: true }
 }
 
