@@ -16,7 +16,7 @@ export default function Loading() {
           <Skeleton className="h-8 w-8 rounded-full flex-shrink-0" />
           <Skeleton className="h-16 w-64 rounded-2xl rounded-bl-sm" />
         </div>
-        
+
         {/* My message */}
         <div style={{ display: 'flex', gap: 8, alignItems: 'flex-end', alignSelf: 'flex-end', maxWidth: '85%' }}>
           <Skeleton className="h-12 w-48 rounded-2xl rounded-br-sm" />
