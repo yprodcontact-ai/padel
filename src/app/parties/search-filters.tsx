@@ -143,7 +143,7 @@ export function SearchFilters({ initialClub, initialType, initialNiveau, initial
             <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--muted-foreground)', marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.04em' }}>Mon Niveau</label>
             <select value={niveau} onChange={(e) => setNiveau(e.target.value)} style={selectStyle}>
               <option value="tous">Peu importe</option>
-              {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(n => (
+              {[1, 2, 3, 4, 5, 6, 7, 8].map(n => (
                 <option key={n} value={n.toString()}>Niveau {n}</option>
               ))}
             </select>

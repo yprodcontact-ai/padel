@@ -261,7 +261,7 @@ export default function CreatePartyPage() {
                   <span style={{ fontSize: 14, color: 'var(--muted-foreground)' }}>à</span>
                   <span style={{ fontSize: 22, fontWeight: 700, color: 'var(--ink)' }}>{levelRange[1].toFixed(1)}</span>
                 </div>
-                <Slider value={levelRange} min={1} max={8} step={0.5} onValueChange={(v) => setLevelRange(v as number[])} className="py-4" />
+                <Slider value={levelRange} min={1} max={8} step={0.5} minGap={1} onValueChange={(v) => setLevelRange(v as number[])} className="py-4" />
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: 'var(--muted-foreground)', marginTop: 8 }}>
                   <span>Débutant (1)</span><span>Moyen (4)</span><span>Pro (8)</span>
                 </div>

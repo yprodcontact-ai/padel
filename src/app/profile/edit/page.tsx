@@ -115,7 +115,7 @@ export default async function ProfileEditPage() {
         </div>
 
         {/* Spacer explicite pour éviter le bug Safari du padding-bottom ignoré */}
-        <div style={{ height: 120, flexShrink: 0 }} />
+        <div style={{ height: 160, flexShrink: 0 }} />
       </div>
     </div>
   )

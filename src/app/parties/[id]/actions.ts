@@ -131,6 +131,8 @@ export async function joinParty(partyId: string) {
   }
 
   revalidatePath(`/parties/${partyId}`)
+  revalidatePath('/parties')
+  revalidatePath('/')
   return { success: true, status: 'inscrit' }
 }
 
@@ -255,6 +257,8 @@ export async function handleJoinRequest(partyId: string, requesterId: string, ac
   }
 
   revalidatePath(`/parties/${partyId}`)
+  revalidatePath('/parties')
+  revalidatePath('/')
   return { success: true }
 }
 
@@ -311,6 +315,8 @@ export async function leaveParty(partyId: string) {
   }
 
   revalidatePath(`/parties/${partyId}`)
+  revalidatePath('/parties')
+  revalidatePath('/')
   return { success: true }
 }
 

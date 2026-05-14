@@ -6,6 +6,7 @@ import { TopHeader } from "@/components/layout/TopHeader";
 import { PushManager } from "@/components/notifications/PushManager";
 import { RouteTransition } from "@/components/route-transition";
 import { SplashScreen } from "@/components/layout/SplashScreen";
+import { PullToRefresh } from "@/components/pull-to-refresh";
 import { createClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = {
@@ -53,13 +54,27 @@ export default async function RootLayout({
           <div className="flex-1 flex flex-col overflow-hidden">
              <TopHeader />
              <main className="flex-1 flex flex-col overflow-y-auto overflow-x-hidden">
-               <RouteTransition>{children}</RouteTransition>
+               <PullToRefresh>
+                 <RouteTransition>{children}</RouteTransition>
+               </PullToRefresh>
              </main>
           </div>
           <BottomNav userId={user?.id} />
         </div>
         <SplashScreen />
         <PushManager />
+        <div id="portrait-lock" style={{ display: 'none' }}>
+           <div style={{ padding: 32, textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 20 }}>
+             <svg width={56} height={56} viewBox="0 0 24 24" fill="none" stroke="var(--ink)" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" style={{ transform: 'rotate(90deg)' }}>
+               <rect x="5" y="2" width="14" height="20" rx="2" ry="2" />
+               <line x1="12" y1="18" x2="12.01" y2="18" />
+             </svg>
+             <div>
+               <h2 style={{ margin: '0 0 8px', fontSize: 22, fontWeight: 700, color: 'var(--ink)' }}>Mode Portrait Requis</h2>
+               <p style={{ margin: 0, fontSize: 16, color: 'var(--muted-foreground)', lineHeight: 1.4 }}>Veuillez pivoter votre téléphone pour utiliser l&apos;application.</p>
+             </div>
+           </div>
+        </div>
       </body>
     </html>
   );

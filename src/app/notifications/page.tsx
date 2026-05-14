@@ -147,6 +147,9 @@ export default async function NotificationsPage() {
           ))}
         </div>
       )}
+
+      {/* Spacer pour éviter que la navbar masque le contenu */}
+      <div style={{ height: 160, flexShrink: 0 }} />
     </div>
   )
 }

@@ -7,11 +7,12 @@ interface SliderProps {
   min?: number
   max?: number
   step?: number
+  minGap?: number
   onValueChange: (value: number[]) => void
   className?: string
 }
 
-function Slider({ value, min = 0, max = 100, step = 1, onValueChange, className }: SliderProps) {
+function Slider({ value, min = 0, max = 100, step = 1, minGap = 0, onValueChange, className }: SliderProps) {
   const trackRef = useRef<HTMLDivElement>(null)
   const [draggingIndex, setDraggingIndex] = useState<number | null>(null)
 
@@ -47,12 +48,15 @@ function Slider({ value, min = 0, max = 100, step = 1, onValueChange, className 
       const newVal = getValueFromPosition(e.clientX)
       const newRange = [...value]
       newRange[draggingIndex] = newVal
-      // Ensure min thumb doesn't exceed max thumb and vice-versa
-      if (draggingIndex === 0 && newRange[0] > newRange[1]) {
-        newRange[0] = newRange[1]
-      }
-      if (draggingIndex === 1 && newRange[1] < newRange[0]) {
-        newRange[1] = newRange[0]
+      const isSingle = value.length === 1
+      if (!isSingle) {
+        // Ensure min thumb doesn't exceed max thumb (respecting minGap) and vice-versa
+        if (draggingIndex === 0 && newRange[0] > newRange[1] - minGap) {
+          newRange[0] = newRange[1] - minGap
+        }
+        if (draggingIndex === 1 && newRange[1] < newRange[0] + minGap) {
+          newRange[1] = newRange[0] + minGap
+        }
       }
       onValueChange(newRange)
     },
@@ -68,14 +72,19 @@ function Slider({ value, min = 0, max = 100, step = 1, onValueChange, className 
     (e: React.MouseEvent) => {
       const clickVal = getValueFromPosition(e.clientX)
       const newRange = [...value]
-      // Determine which thumb is closest
-      const dist0 = Math.abs(clickVal - newRange[0])
-      const dist1 = Math.abs(clickVal - newRange[1])
-      const idx = dist0 <= dist1 ? 0 : 1
-      newRange[idx] = clickVal
-      // Clamp
-      if (idx === 0 && newRange[0] > newRange[1]) newRange[0] = newRange[1]
-      if (idx === 1 && newRange[1] < newRange[0]) newRange[1] = newRange[0]
+      const isSingle = value.length === 1
+      if (isSingle) {
+        newRange[0] = clickVal
+      } else {
+        // Determine which thumb is closest
+        const dist0 = Math.abs(clickVal - newRange[0])
+        const dist1 = Math.abs(clickVal - newRange[1])
+        const idx = dist0 <= dist1 ? 0 : 1
+        newRange[idx] = clickVal
+        // Clamp
+        if (idx === 0 && newRange[0] > newRange[1] - minGap) newRange[0] = newRange[1] - minGap
+        if (idx === 1 && newRange[1] < newRange[0] + minGap) newRange[1] = newRange[0] + minGap
+      }
       onValueChange(newRange)
     },
     [value, getValueFromPosition, onValueChange]
@@ -92,8 +101,12 @@ function Slider({ value, min = 0, max = 100, step = 1, onValueChange, className 
     return () => track.removeEventListener('touchmove', preventScroll)
   }, [draggingIndex])
 
-  const leftPercent = getPercent(value[0])
-  const rightPercent = getPercent(value[1])
+  const isSingle = value.length === 1
+  const trackStart = isSingle ? 0 : getPercent(value[0])
+  const trackEnd = isSingle ? getPercent(value[0]) : getPercent(value[1])
+  
+  const thumb0Percent = getPercent(value[0])
+  const thumb1Percent = isSingle ? 0 : getPercent(value[1])
 
   return (
     <div
@@ -121,8 +134,8 @@ function Slider({ value, min = 0, max = 100, step = 1, onValueChange, className 
             position: 'absolute',
             top: 0,
             bottom: 0,
-            left: `${leftPercent}%`,
-            width: `${rightPercent - leftPercent}%`,
+            left: `${trackStart}%`,
+            width: `${trackEnd - trackStart}%`,
             borderRadius: 100,
             background: 'var(--ink)',
           }}
@@ -135,7 +148,7 @@ function Slider({ value, min = 0, max = 100, step = 1, onValueChange, className 
         style={{
           position: 'absolute',
           top: '50%',
-          left: `${leftPercent}%`,
+          left: `${thumb0Percent}%`,
           transform: 'translate(-50%, -50%)',
           width: 24,
           height: 24,
@@ -151,27 +164,29 @@ function Slider({ value, min = 0, max = 100, step = 1, onValueChange, className 
         }}
       />
 
-      {/* Thumb 1 (max) */}
-      <div
-        onPointerDown={handlePointerDown(1)}
-        style={{
-          position: 'absolute',
-          top: '50%',
-          left: `${rightPercent}%`,
-          transform: 'translate(-50%, -50%)',
-          width: 24,
-          height: 24,
-          borderRadius: '50%',
-          backgroundColor: 'var(--foreground)',
-          boxShadow: draggingIndex === 1
-            ? '0 0 0 6px rgba(232,112,58,0.25), 0 2px 6px rgba(0,0,0,0.3)'
-            : '0 2px 6px rgba(0,0,0,0.3)',
-          cursor: 'grab',
-          zIndex: draggingIndex === 1 ? 3 : 2,
-          transition: draggingIndex === 1 ? 'none' : 'box-shadow 0.15s',
-          border: '2px solid var(--ink)',
-        }}
-      />
+      {/* Thumb 1 (max) - Only show if not single */}
+      {!isSingle && (
+        <div
+          onPointerDown={handlePointerDown(1)}
+          style={{
+            position: 'absolute',
+            top: '50%',
+            left: `${thumb1Percent}%`,
+            transform: 'translate(-50%, -50%)',
+            width: 24,
+            height: 24,
+            borderRadius: '50%',
+            backgroundColor: 'var(--foreground)',
+            boxShadow: draggingIndex === 1
+              ? '0 0 0 6px rgba(232,112,58,0.25), 0 2px 6px rgba(0,0,0,0.3)'
+              : '0 2px 6px rgba(0,0,0,0.3)',
+            cursor: 'grab',
+            zIndex: draggingIndex === 1 ? 3 : 2,
+            transition: draggingIndex === 1 ? 'none' : 'box-shadow 0.15s',
+            border: '2px solid var(--ink)',
+          }}
+        />
+      )}
 
       {/* Level markers */}
       <div style={{ position: 'absolute', top: -2, left: 0, right: 0, height: 10, pointerEvents: 'none' }}>

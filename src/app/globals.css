@@ -218,3 +218,24 @@ a:active, button:active {
   opacity: 0.8;
   transform: scale(0.97);
 }
+
+/* Portrait Lock Overlay for PWAs on mobile */
+@media screen and (orientation: landscape) and (max-height: 600px) {
+  #portrait-lock {
+    display: flex !important;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: var(--bg);
+    z-index: 999999;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  body > :not(#portrait-lock) {
+    display: none !important;
+  }
+}

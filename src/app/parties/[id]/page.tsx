@@ -107,6 +107,16 @@ export default async function PartyDetailsPage({ params }: { params: { id: strin
           </div>
         </div>
 
+        {/* ── Mot de l'organisateur ── */}
+        {party.commentaire && (
+          <div style={{ backgroundColor: 'var(--card)', borderRadius: 'var(--radius-card)', border: '1px solid var(--card-border)', padding: '18px 20px', marginBottom: 14 }}>
+            <p style={{ margin: '0 0 6px', fontSize: 13, fontWeight: 500, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.2px' }}>Mot de l&apos;organisateur</p>
+            <p style={{ margin: 0, fontSize: 15, color: 'var(--ink)', lineHeight: 1.5, whiteSpace: 'pre-wrap' }}>
+              {party.commentaire}
+            </p>
+          </div>
+        )}
+
         {/* ── Demandes en attente (créateur uniquement) ── */}
         {isCreator && pendingPlayers.length > 0 && (
           <PendingRequests partyId={party.id} pendingPlayers={pendingPlayers.map((p: Player) => ({ user_id: p.user_id, prenom: p.users?.prenom || '', nom: p.users?.nom || '', photo_url: p.users?.photo_url || null, niveau: p.users?.niveau || null }))} />
@@ -187,7 +197,7 @@ export default async function PartyDetailsPage({ params }: { params: { id: strin
         )}
 
         {/* Spacer explicite pour éviter le bug Safari du padding-bottom ignoré */}
-        <div style={{ height: 120, flexShrink: 0 }} />
+        <div style={{ height: 160, flexShrink: 0 }} />
 
       </div>
     </div>
