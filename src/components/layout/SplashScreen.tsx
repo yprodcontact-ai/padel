@@ -41,7 +41,7 @@ export function SplashScreen() {
         position: 'fixed',
         inset: 0,
         zIndex: 99999,
-        backgroundColor: '#f59e0b', // La couleur orange
+        backgroundColor: '#ffffff',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',

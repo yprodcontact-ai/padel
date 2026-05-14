@@ -3,7 +3,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 export default function Loading() {
   return (
     <div style={{ backgroundColor: 'var(--background)', minHeight: '100vh', paddingBottom: 130, fontFamily: 'var(--font-sans)' }}>
-      <div style={{ maxWidth: 480, margin: '0 auto', padding: '16px 16px 0' }}>
+      <div style={{ maxWidth: 480, margin: '0 auto', padding: '64px 16px 0' }}>
         
         {/* Back link */}
         <div style={{ marginBottom: 20 }}>

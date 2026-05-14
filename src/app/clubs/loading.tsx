@@ -3,7 +3,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 export default function Loading() {
   return (
     <div style={{ backgroundColor: 'var(--background)', minHeight: '100vh', paddingBottom: 130, fontFamily: 'var(--font-sans)' }}>
-      <div style={{ position: 'sticky', top: 0, zIndex: 20, backgroundColor: 'var(--background)', borderBottom: '1px solid var(--border)', padding: '16px 20px', display: 'flex', alignItems: 'center', gap: 12 }}>
+      <div style={{ position: 'sticky', top: 0, zIndex: 20, backgroundColor: 'var(--background)', borderBottom: '1px solid var(--border)', padding: '64px 20px 16px', display: 'flex', alignItems: 'center', gap: 12 }}>
         <Skeleton className="h-[44px] w-[44px] rounded-xl" />
         <Skeleton className="h-6 w-40" />
       </div>

@@ -4,7 +4,7 @@ export default function Loading() {
   return (
     <div style={{ backgroundColor: 'var(--background)', minHeight: '100vh', paddingBottom: 130 }}>
       {/* ═══ HERO HEADER ═══ */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '79px 20px 24px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '84px 20px 24px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
           <Skeleton className="h-14 w-14 rounded-full" />
           <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>

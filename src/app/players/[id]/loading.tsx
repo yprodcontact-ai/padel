@@ -2,7 +2,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 
 export default function Loading() {
   return (
-    <div style={{ backgroundColor: 'var(--background)', minHeight: '100vh', padding: '16px 16px 130px', fontFamily: 'var(--font-sans)' }}>
+    <div style={{ backgroundColor: 'var(--background)', minHeight: '100vh', padding: '64px 16px 130px', fontFamily: 'var(--font-sans)' }}>
       <div style={{ paddingTop: 8 }}>
         <Skeleton className="h-10 w-10 rounded-full mb-6" />
       </div>

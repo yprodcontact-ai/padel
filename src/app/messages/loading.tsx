@@ -2,7 +2,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 
 export default function Loading() {
   return (
-    <div style={{ backgroundColor: 'var(--background)', minHeight: '100vh', padding: '16px 16px 130px', fontFamily: 'var(--font-sans)' }}>
+    <div style={{ backgroundColor: 'var(--background)', minHeight: '100vh', padding: '64px 16px 130px', fontFamily: 'var(--font-sans)' }}>
       <h1 style={{ margin: '16px 0 24px', fontSize: 30, fontWeight: 800, color: 'var(--foreground)' }}>Messages</h1>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
