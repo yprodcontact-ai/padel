@@ -284,7 +284,14 @@ export async function leaveParty(partyId: string) {
   // Check if it was complete and revert to publiee
   const { data: party } = await supabase.from('parties').select('statut, date_heure').eq('id', partyId).single()
   if (party && party.statut === 'complete') {
-      await supabase.from('parties').update({ statut: 'publiee' }).eq('id', partyId)
+      // Use the SECURITY DEFINER RPC to bypass RLS
+      const { error: rpcError } = await supabase.rpc('system_update_party_status', {
+        p_party_id: partyId,
+        p_status: 'publiee'
+      })
+      if (rpcError) {
+        console.error('Error reverting party status to publiee:', rpcError)
+      }
 
       // Notify the remaining players
       const { data: remainingPlayers } = await supabase.from('party_players').select('user_id, users(notify_party_updates)').eq('party_id', partyId).eq('statut', 'inscrit')
