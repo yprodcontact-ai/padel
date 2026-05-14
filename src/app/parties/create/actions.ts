@@ -3,7 +3,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
-import { formatDateShort, formatTime } from '@/lib/date-utils'
+import { formatDateShort, formatTime, parisLocalToISO } from '@/lib/date-utils'
 
 export async function getUserClubId(): Promise<string | null> {
   const supabase = createClient()
@@ -47,7 +47,10 @@ export async function createParty(formData: FormData) {
 
 
   const club_id = formData.get('club_id') as string // required
-  const date_heure = formData.get('date_heure') as string // required
+  const date_heure_raw = formData.get('date_heure') as string // e.g. "2026-05-14T12:00"
+  // Convert Paris local time to proper UTC ISO string
+  const [datePart, timePart] = date_heure_raw.split('T')
+  const date_heure = parisLocalToISO(datePart, timePart)
   const niveau_min = parseFloat(formData.get('niveau_min') as string)
   const niveau_max = parseFloat(formData.get('niveau_max') as string)
   const type = formData.get('type') as 'loisir' | 'match' | 'entrainement'

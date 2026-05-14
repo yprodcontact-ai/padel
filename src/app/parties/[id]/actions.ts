@@ -270,6 +270,23 @@ export async function leaveParty(partyId: string) {
 
   const userId = authData.user.id
 
+  // Check if it was complete BEFORE deleting the player
+  // (the RPC requires the caller to still be in party_players for authorization)
+  const { data: party } = await supabase.from('parties').select('statut, date_heure').eq('id', partyId).single()
+  const wasComplete = party && party.statut === 'complete'
+
+  if (wasComplete) {
+      // Use the SECURITY DEFINER RPC to bypass RLS — must be called while user is still a player
+      const { error: rpcError } = await supabase.rpc('system_update_party_status', {
+        p_party_id: partyId,
+        p_status: 'publiee'
+      })
+      if (rpcError) {
+        console.error('Error reverting party status to publiee:', rpcError)
+      }
+  }
+
+  // Now delete the player
   const { error: deleteError } = await supabase
     .from('party_players')
     .delete()
@@ -281,19 +298,8 @@ export async function leaveParty(partyId: string) {
     return { error: 'Erreur lors du désistement' }
   }
 
-  // Check if it was complete and revert to publiee
-  const { data: party } = await supabase.from('parties').select('statut, date_heure').eq('id', partyId).single()
-  if (party && party.statut === 'complete') {
-      // Use the SECURITY DEFINER RPC to bypass RLS
-      const { error: rpcError } = await supabase.rpc('system_update_party_status', {
-        p_party_id: partyId,
-        p_status: 'publiee'
-      })
-      if (rpcError) {
-        console.error('Error reverting party status to publiee:', rpcError)
-      }
-
-      // Notify the remaining players
+  // Notify the remaining players if the party was complete
+  if (wasComplete) {
       const { data: remainingPlayers } = await supabase.from('party_players').select('user_id, users(notify_party_updates)').eq('party_id', partyId).eq('statut', 'inscrit')
       if (remainingPlayers && remainingPlayers.length > 0) {
           const { sendPushNotification } = await import('@/lib/push')
