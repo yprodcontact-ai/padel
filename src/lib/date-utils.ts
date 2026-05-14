@@ -74,12 +74,13 @@ export function todayParis(): string {
  * Ex: "2025-06-01" + "14:30" → "2025-06-01T12:30:00.000Z" (CEST UTC+2)
  */
 export function parisLocalToISO(date: string, time: string): string {
-  // Construit une chaîne interprétable par Temporal-like trick via Intl
-  // On utilise la méthode fiable : créer une date UTC puis décaler l'offset Paris
   const naive = `${date}T${time}:00`
-  // Récupère l'offset Paris pour ce moment-là (prend en compte l'heure d'été)
-  const utcDate = new Date(naive + 'Z') // interprété UTC d'abord
-  const parisStr = utcDate.toLocaleString('sv-SE', { timeZone: TZ }) // "YYYY-MM-DD HH:MM:SS"
-  const diff = (new Date(naive).getTime() - new Date(parisStr.replace(' ', 'T')).getTime())
-  return new Date(new Date(naive).getTime() - diff).toISOString()
+  // 1. Treat the naive datetime as UTC to probe what Paris shows at that moment
+  const probeUTC = new Date(naive + 'Z')
+  // 2. Get the Paris representation at that UTC instant (e.g. "2026-05-14 14:00:00" for CEST)
+  const parisStr = probeUTC.toLocaleString('sv-SE', { timeZone: TZ })
+  // 3. Compute the Paris offset: parisTime - UTCTime (e.g. +2h for CEST, +1h for CET)
+  const offsetMs = new Date(parisStr.replace(' ', 'T') + 'Z').getTime() - probeUTC.getTime()
+  // 4. The user meant "naive" as Paris local time, so UTC = naive - offset
+  return new Date(probeUTC.getTime() - offsetMs).toISOString()
 }
