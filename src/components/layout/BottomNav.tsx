@@ -63,23 +63,15 @@ export function BottomNav({ userId }: { userId?: string }) {
       .on(
         "postgres_changes",
         { event: "INSERT", schema: "public", table: "messages" },
-        (payload) => {
-          if (payload.new.sender_id !== userId) {
-            setUnreadMessages((prev) => prev + 1);
-          }
+        () => {
+          fetchUnread();
         }
       )
       .on(
         "postgres_changes",
         { event: "UPDATE", schema: "public", table: "messages" },
-        (payload) => {
-          if (
-            payload.new.lu &&
-            !payload.old.lu &&
-            payload.new.sender_id !== userId
-          ) {
-            setUnreadMessages((prev) => Math.max(0, prev - 1));
-          }
+        () => {
+          fetchUnread();
         }
       )
       .subscribe();
@@ -91,30 +83,42 @@ export function BottomNav({ userId }: { userId?: string }) {
 
   /* ── Reset badge quand on est sur /messages ── */
   useEffect(() => {
+    if (!userId) return;
+
+    const fetchUnread = async () => {
+      const { data: participations } = await supabase
+        .from("conversation_participants")
+        .select("conversation_id")
+        .eq("user_id", userId);
+
+      if (!participations || participations.length === 0) {
+        setUnreadMessages(0);
+        return;
+      }
+
+      const convIds = participations.map((p) => p.conversation_id);
+      const { count } = await supabase
+        .from("messages")
+        .select("*", { count: "exact", head: true })
+        .in("conversation_id", convIds)
+        .neq("sender_id", userId)
+        .eq("lu", false);
+
+      setUnreadMessages(count || 0);
+    };
+
     if (pathname === "/messages" || pathname.startsWith("/messages/")) {
-      const timeout = setTimeout(async () => {
-        if (!userId) return;
-        const { data: participations } = await supabase
-          .from("conversation_participants")
-          .select("conversation_id")
-          .eq("user_id", userId);
+      // Re-fetch instantly first
+      fetchUnread();
 
-        if (!participations || participations.length === 0) {
-          setUnreadMessages(0);
-          return;
-        }
+      // Quick delayed re-fetches to capture asynchronous DB updates (marked as read)
+      const t1 = setTimeout(fetchUnread, 150);
+      const t2 = setTimeout(fetchUnread, 450);
 
-        const convIds = participations.map((p) => p.conversation_id);
-        const { count } = await supabase
-          .from("messages")
-          .select("*", { count: "exact", head: true })
-          .in("conversation_id", convIds)
-          .neq("sender_id", userId)
-          .eq("lu", false);
-
-        setUnreadMessages(count || 0);
-      }, 1000);
-      return () => clearTimeout(timeout);
+      return () => {
+        clearTimeout(t1);
+        clearTimeout(t2);
+      };
     }
   }, [pathname, userId, supabase]);
 

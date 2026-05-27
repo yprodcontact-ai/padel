@@ -24,6 +24,8 @@ export default function CreatePartyPage() {
   const [selectedDate, setSelectedDate] = useState('')
   const [selectedTime, setSelectedTime] = useState('')
 
+  const [errorMsg, setErrorMsg] = useState('')
+
   // Player invite state
   const [playerQuery, setPlayerQuery] = useState('')
   const [searchResults, setSearchResults] = useState<SearchPlayer[]>([])
@@ -52,6 +54,7 @@ export default function CreatePartyPage() {
     if (formRef.current && formRef.current.reportValidity()) {
       if (!selectedDate || !selectedTime) return
       setIsLoading(true)
+      setErrorMsg('')
       const fd = new FormData(formRef.current)
       fd.set('date_heure', `${selectedDate}T${selectedTime}`)
       fd.append('niveau_min', levelRange[0].toString())
@@ -59,8 +62,11 @@ export default function CreatePartyPage() {
       if (invitedPlayers.length > 0) {
         fd.append('invited_players', JSON.stringify(invitedPlayers.map(p => p.id)))
       }
-      await createParty(fd)
+      const res = await createParty(fd)
       setIsLoading(false)
+      if (res && 'error' in res && res.error) {
+        setErrorMsg(res.error)
+      }
     }
   }
 
@@ -113,6 +119,22 @@ export default function CreatePartyPage() {
         </div>
         <div style={{ backgroundColor: 'var(--card)', borderRadius: 28, padding: '28px 24px' }}>
           <form ref={formRef} style={{ display: 'flex', flexDirection: 'column', minHeight: 280 }}>
+            {errorMsg && (
+              <div style={{
+                backgroundColor: 'rgba(255, 59, 48, 0.1)',
+                border: '1px solid rgba(255, 59, 48, 0.2)',
+                borderRadius: 14,
+                padding: '12px 14px',
+                marginBottom: 20,
+                color: '#FF3B30',
+                fontSize: 14,
+                fontWeight: 500,
+                lineHeight: 1.4,
+                textAlign: 'center'
+              }}>
+                {errorMsg}
+              </div>
+            )}
             <div style={{ flex: 1 }}>
               {/* Step 1: Club */}
               <div style={{ display: step === 1 ? 'block' : 'none' }}>

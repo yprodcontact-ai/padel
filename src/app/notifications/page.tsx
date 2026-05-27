@@ -15,6 +15,13 @@ type AppNotification = {
 }
 
 function notifIcon(type: string) {
+  if (type === 'player_excluded') {
+    return (
+      <div style={{ width: 44, height: 44, borderRadius: '50%', background: '#FF3B30', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <svg width={18} height={18} viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg>
+      </div>
+    )
+  }
   if (type === 'party_cancelled') {
     return (
       <div style={{ width: 44, height: 44, borderRadius: '50%', border: '1px solid var(--card-border)', background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -22,7 +29,7 @@ function notifIcon(type: string) {
       </div>
     )
   }
-  if (type === 'join_request' || type === 'party_complete') {
+  if (type === 'join_request' || type === 'party_complete' || type === 'added_to_party') {
     return (
       <div style={{ width: 44, height: 44, borderRadius: '50%', background: '#000', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <svg width={18} height={18} viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round"><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2H4.5L6 16z" /><path d="M10 20a2 2 0 0 0 4 0" /></svg>
@@ -45,6 +52,8 @@ function notifTitle(type: string) {
     join_request:     'Demande de participation',
     join_accepted:    'Demande acceptée 🎉',
     join_rejected:    'Demande refusée',
+    player_excluded:  'Exclusion de la partie ⚠️',
+    added_to_party:   'Ajouté à une partie 🎉',
   }
   return map[type] ?? 'Nouvelle notification'
 }

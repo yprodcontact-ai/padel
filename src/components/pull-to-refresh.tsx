@@ -1,7 +1,7 @@
 'use client'
 
 import { useRef, useState, useCallback, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, usePathname } from 'next/navigation'
 
 const THRESHOLD = 80 // px to pull before triggering refresh
 const MAX_PULL = 120 // max visual pull distance
@@ -13,12 +13,16 @@ export function PullToRefresh({ children }: { children: React.ReactNode }) {
   const touchStartY = useRef(0)
   const isPulling = useRef(false)
   const router = useRouter()
+  const pathname = usePathname()
+
+  const isDisabled = pathname?.includes('/messages/')
 
   const getScrollParent = useCallback((): HTMLElement | null => {
     return containerRef.current?.closest('main') as HTMLElement | null
   }, [])
 
   const handleTouchStart = useCallback((e: TouchEvent) => {
+    if (isDisabled) return
     const scrollParent = getScrollParent()
     if (!scrollParent || isRefreshing) return
 
@@ -27,10 +31,10 @@ export function PullToRefresh({ children }: { children: React.ReactNode }) {
       touchStartY.current = e.touches[0].clientY
       isPulling.current = true
     }
-  }, [isRefreshing, getScrollParent])
+  }, [isRefreshing, getScrollParent, isDisabled])
 
   const handleTouchMove = useCallback((e: TouchEvent) => {
-    if (!isPulling.current || isRefreshing) return
+    if (isDisabled || !isPulling.current || isRefreshing) return
 
     const scrollParent = getScrollParent()
     if (!scrollParent || scrollParent.scrollTop > 0) {
@@ -51,10 +55,10 @@ export function PullToRefresh({ children }: { children: React.ReactNode }) {
       isPulling.current = false
       setPullDistance(0)
     }
-  }, [isRefreshing, getScrollParent])
+  }, [isRefreshing, getScrollParent, isDisabled])
 
   const handleTouchEnd = useCallback(() => {
-    if (!isPulling.current) return
+    if (isDisabled || !isPulling.current) return
     isPulling.current = false
 
     if (pullDistance >= THRESHOLD && !isRefreshing) {
@@ -72,9 +76,16 @@ export function PullToRefresh({ children }: { children: React.ReactNode }) {
     } else {
       setPullDistance(0)
     }
-  }, [pullDistance, isRefreshing, router])
+  }, [pullDistance, isRefreshing, router, isDisabled])
 
   useEffect(() => {
+    if (isDisabled) {
+      setPullDistance(0)
+      setIsRefreshing(false)
+      isPulling.current = false
+      return
+    }
+
     const container = containerRef.current
     const scrollParent = container?.closest('main')
     if (!scrollParent) return
@@ -88,7 +99,7 @@ export function PullToRefresh({ children }: { children: React.ReactNode }) {
       scrollParent.removeEventListener('touchmove', handleTouchMove)
       scrollParent.removeEventListener('touchend', handleTouchEnd)
     }
-  }, [handleTouchStart, handleTouchMove, handleTouchEnd])
+  }, [handleTouchStart, handleTouchMove, handleTouchEnd, isDisabled])
 
   const progress = Math.min(1, pullDistance / THRESHOLD)
 

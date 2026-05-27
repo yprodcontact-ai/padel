@@ -84,12 +84,14 @@ export async function createParty(formData: FormData) {
 
   // Add invited players (max 2)
   const invitedPlayersRaw = formData.get('invited_players') as string
+  const invitedIdsList: string[] = []
   if (invitedPlayersRaw) {
     try {
       const invitedIds: string[] = JSON.parse(invitedPlayersRaw)
       for (const id of invitedIds.slice(0, 2)) {
         if (id !== authData.user.id) {
           playersToInsert.push({ party_id: data.id, user_id: id, statut: 'inscrit' })
+          invitedIdsList.push(id)
         }
       }
     } catch { /* ignore parse errors */ }
@@ -99,6 +101,42 @@ export async function createParty(formData: FormData) {
 
   if (playerError) {
     console.error('Error adding players to party_players', playerError)
+  }
+
+  // Notify invited players
+  if (invitedIdsList.length > 0) {
+    try {
+      const { data: creatorProfile } = await supabase
+        .from('users')
+        .select('prenom, nom')
+        .eq('id', authData.user.id)
+        .single()
+      const creatorName = creatorProfile ? `${creatorProfile.prenom} ${creatorProfile.nom}` : 'L\'organisateur'
+
+      const invitedNotifications = invitedIdsList.map(id => ({
+        user_id: id,
+        type: 'added_to_party',
+        payload: {
+          message: `${creatorName} t'a ajouté à une partie.`,
+          party_id: data.id
+        }
+      }))
+      await supabase.from('notifications').insert(invitedNotifications)
+
+      const { sendPushNotification } = await import('@/lib/push')
+      for (const id of invitedIdsList) {
+        const { data: invitedUser } = await supabase.from('users').select('notify_party_updates').eq('id', id).single()
+        if (invitedUser?.notify_party_updates !== false) {
+          await sendPushNotification(id, {
+            title: 'Ajouté à une partie ! 🎾',
+            message: `${creatorName} t'a ajouté à une partie.`,
+            url: `/parties/${data.id}`
+          }).catch(() => {})
+        }
+      }
+    } catch (err) {
+      console.error('Failed to send notifications to invited players:', err)
+    }
   }
 
   // Trigger Match Parfait notifications

@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { getDistanceFromLatLonInKm } from '@/lib/utils'
 import { RefreshOnMount, RefreshButton } from '@/components/RefreshOnMount'
 import { formatDate, formatTime } from '@/lib/date-utils'
+import { NotificationBell } from '@/components/notifications/NotificationBell'
 
 export const dynamic = 'force-dynamic'
 
@@ -159,9 +160,7 @@ export default async function Home() {
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <Link href="/messages" style={{ display: 'flex', alignItems: 'center', height: 40, padding: '0 18px', borderRadius: 999, backgroundColor: 'var(--card)', border: '1px solid var(--card-border)', fontSize: 15, fontWeight: 500, color: 'var(--ink)', textDecoration: 'none' }}>Chat</Link>
-          <Link href="/notifications" style={{ width: 40, height: 40, borderRadius: '50%', backgroundColor: 'var(--card)', border: '1px solid var(--card-border)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--ink)', textDecoration: 'none' }}>
-            <svg width={18} height={18} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round"><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2H4.5L6 16z" /><path d="M10 20a2 2 0 0 0 4 0" /></svg>
-          </Link>
+          <NotificationBell userId={userId} />
         </div>
       </div>
 

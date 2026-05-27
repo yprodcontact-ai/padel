@@ -413,3 +413,133 @@ export async function updatePartyStatus(partyId: string, action: 'confirm' | 'ca
   revalidatePath('/')
   return { success: true }
 }
+
+export async function excludePlayer(partyId: string, userIdToExclude: string, message?: string) {
+  const supabase = createClient()
+  const { data: authData } = await supabase.auth.getUser()
+
+  if (!authData.user) return { error: 'Non authentifié' }
+
+  const currentUserId = authData.user.id
+
+  // 1. Verify the current user is the party creator
+  const { data: party, error: partyError } = await supabase
+    .from('parties')
+    .select('createur_id, statut, date_heure')
+    .eq('id', partyId)
+    .single()
+
+  if (partyError || !party) {
+    return { error: 'Partie introuvable' }
+  }
+
+  if (party.createur_id !== currentUserId) {
+    return { error: 'Non autorisé : vous devez être l\'organisateur de la partie' }
+  }
+
+  if (userIdToExclude === currentUserId) {
+    return { error: 'Vous ne pouvez pas vous exclure vous-même' }
+  }
+
+  // 2. Check if the party was complete BEFORE deleting the player
+  const wasComplete = party.statut === 'complete'
+
+  if (wasComplete) {
+    // Revert the party status to 'publiee'
+    const { error: rpcError } = await supabase.rpc('system_update_party_status', {
+      p_party_id: partyId,
+      p_status: 'publiee'
+    })
+    if (rpcError) {
+      console.error('Error reverting party status to publiee upon player exclusion:', rpcError)
+    }
+  }
+
+  // 3. Delete the player
+  const { error: deleteError } = await supabase
+    .from('party_players')
+    .delete()
+    .eq('party_id', partyId)
+    .eq('user_id', userIdToExclude)
+
+  if (deleteError) {
+    console.error('Error excluding player:', deleteError)
+    return { error: 'Erreur lors de la suppression du joueur' }
+  }
+
+  // 4. Send notification to the excluded player
+  const notificationMessage = message 
+    ? `Vous avez été retiré de la partie. Message de l'organisateur : "${message}"` 
+    : `Vous avez été retiré de la partie par l'organisateur.`
+
+  await supabase.from('notifications').insert([{
+    user_id: userIdToExclude,
+    type: 'player_excluded',
+    payload: {
+      message: notificationMessage,
+      party_id: partyId,
+      organizer_message: message || null
+    }
+  }])
+
+  // 5. Send push notification to the excluded player
+  const { data: excludedUser } = await supabase
+    .from('users')
+    .select('notify_party_updates')
+    .eq('id', userIdToExclude)
+    .single()
+
+  if (excludedUser?.notify_party_updates !== false) {
+    const { sendPushNotification } = await import('@/lib/push')
+    let dateStr = ''
+    if (party.date_heure) {
+      dateStr = formatDateShort(party.date_heure)
+    }
+    await sendPushNotification(userIdToExclude, {
+      title: 'Retiré d\'une partie ⚠️',
+      message: message 
+        ? `Exclu de la partie du ${dateStr}. Organisateur : "${message}"` 
+        : `Vous avez été retiré de la partie du ${dateStr} par l'organisateur.`,
+      url: `/notifications`
+    }).catch(() => {})
+  }
+
+  // 6. Notify other remaining players if the party was complete (like in leaveParty)
+  if (wasComplete) {
+    const { data: remainingPlayers } = await supabase
+      .from('party_players')
+      .select('user_id, users(notify_party_updates)')
+      .eq('party_id', partyId)
+      .eq('statut', 'inscrit')
+
+    if (remainingPlayers && remainingPlayers.length > 0) {
+      const { sendPushNotification } = await import('@/lib/push')
+      let dateStr = ''
+      if (party.date_heure) {
+        dateStr = formatDateShort(party.date_heure)
+      }
+
+      const notifications = remainingPlayers.map(p => ({
+        user_id: p.user_id,
+        type: 'party_reopened',
+        payload: { message: `Un joueur a été retiré de la partie du ${dateStr}. Une place est de nouveau libre !`, party_id: partyId }
+      }))
+      await supabase.from('notifications').insert(notifications)
+
+      for (const pl of remainingPlayers) {
+        if ((pl.users as unknown as Record<string, unknown>)?.notify_party_updates !== false) {
+          await sendPushNotification(pl.user_id, {
+            title: 'Partie rouverte 🔓',
+            message: `Un joueur s'est fait exclure de la partie du ${dateStr}. La partie cherche de nouveau un joueur.`,
+            url: `/parties/${partyId}`
+          }).catch(() => {})
+        }
+      }
+    }
+  }
+
+  revalidatePath(`/parties/${partyId}`)
+  revalidatePath('/parties')
+  revalidatePath('/')
+  return { success: true }
+}

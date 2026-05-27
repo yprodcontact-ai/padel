@@ -7,6 +7,7 @@ import { SharePartyButton } from './share-button'
 import { PendingRequests } from './pending-requests'
 import { formatDatetime, formatTime, formatDate } from '@/lib/date-utils'
 import { LevelStrip } from '@/components/ui/level-strip'
+import { PlayerList } from './player-list'
 
 type Player = { user_id: string; statut: string; users: { prenom: string; nom: string; photo_url: string; niveau: number | string } | null }
 
@@ -123,52 +124,12 @@ export default async function PartyDetailsPage({ params }: { params: { id: strin
         )}
 
         {/* ── Section joueurs ── */}
-        <div style={{ backgroundColor: 'var(--card)', borderRadius: 'var(--radius-card)', border: '1px solid var(--card-border)', marginBottom: 14, overflow: 'hidden' }}>
-          <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--divider)' }}>
-            <h2 style={{ margin: 0, fontSize: 15, fontWeight: 600, color: 'var(--ink)' }}>Joueurs {playerCount}/4</h2>
-          </div>
-
-          {confirmedPlayers.map((player: Player, idx: number) => (
-            <Link key={player.user_id} href={`/players/${player.user_id}`} style={{ display: 'block', textDecoration: 'none' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 20px', borderTop: idx === 0 ? 'none' : '1px solid var(--divider)' }}>
-                {/* Avatar */}
-                <div style={{ position: 'relative', width: 40, height: 40, flexShrink: 0, borderRadius: '50%', boxShadow: '0 0 0 2px #fff' }}>
-                  {player.users?.photo_url ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={player.users.photo_url} alt={player.users?.prenom || ''} style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
-                  ) : (
-                    <div style={{ width: '100%', height: '100%', borderRadius: '50%', background: 'linear-gradient(135deg, oklch(0.62 0.14 220), oklch(0.42 0.13 250))', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 600, fontSize: 15 }}>
-                      {player.users?.prenom?.charAt(0) || 'P'}
-                    </div>
-                  )}
-                  <span style={{ position: 'absolute', bottom: -2, left: '50%', transform: 'translateX(-50%)', background: '#000', color: '#fff', borderRadius: 999, fontSize: 9, fontWeight: 600, padding: '1px 5px', border: '1.5px solid #fff', whiteSpace: 'nowrap', lineHeight: 1.4 }}>
-                    {player.users?.niveau || '?'}
-                  </span>
-                </div>
-                {/* Nom */}
-                <div style={{ flex: 1 }}>
-                  <p style={{ margin: 0, fontSize: 15, fontWeight: 500, color: 'var(--ink)' }}>
-                    {player.users?.prenom} {player.users?.nom?.charAt(0)}.
-                  </p>
-                  {player.user_id === party.createur_id && (
-                    <p style={{ margin: '2px 0 0', fontSize: 12, color: 'var(--accent)', fontWeight: 500 }}>Organisateur</p>
-                  )}
-                </div>
-                <svg width={14} height={14} viewBox="0 0 24 24" fill="none" stroke="var(--muted)" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M9 6l6 6-6 6" /></svg>
-              </div>
-            </Link>
-          ))}
-
-          {/* Slots vides */}
-          {Array.from({ length: Math.max(0, 4 - playerCount) }).map((_, i) => (
-            <div key={`empty-${i}`} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 20px', borderTop: '1px solid var(--divider)' }}>
-              <div style={{ width: 40, height: 40, borderRadius: '50%', border: '1.5px dashed #B5B5BA', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                <span style={{ fontSize: 20, color: '#B5B5BA', fontWeight: 300 }}>+</span>
-              </div>
-              <span style={{ fontSize: 14, color: 'var(--muted)', fontStyle: 'italic' }}>Place libre</span>
-            </div>
-          ))}
-        </div>
+        <PlayerList
+          confirmedPlayers={confirmedPlayers}
+          partyId={party.id}
+          creatorId={party.createur_id}
+          isCreator={isCreator}
+        />
 
         {/* ── Chat de la partie ── */}
         {isParticipant && conversation && (
