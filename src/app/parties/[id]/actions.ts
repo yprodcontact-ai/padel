@@ -543,3 +543,283 @@ export async function excludePlayer(partyId: string, userIdToExclude: string, me
   revalidatePath('/')
   return { success: true }
 }
+
+export async function deleteParty(partyId: string, message?: string) {
+  const supabase = createClient()
+  const { data: authData } = await supabase.auth.getUser()
+
+  if (!authData.user) return { error: 'Non authentifié' }
+
+  const userId = authData.user.id
+
+  // 1. Récupérer la partie pour vérifier la propriété et obtenir les détails
+  const { data: party, error: partyError } = await supabase
+    .from('parties')
+    .select('createur_id, date_heure')
+    .eq('id', partyId)
+    .single()
+
+  if (partyError || !party) {
+    return { error: 'Partie introuvable' }
+  }
+
+  if (party.createur_id !== userId) {
+    return { error: 'Non autorisé : vous devez être l\'organisateur de la partie' }
+  }
+
+  // 2. Récupérer les autres joueurs inscrits pour les notifier
+  const { data: players } = await supabase
+    .from('party_players')
+    .select('user_id, users(notify_party_updates, prenom, nom)')
+    .eq('party_id', partyId)
+    .eq('statut', 'inscrit')
+
+  const otherPlayers = players ? players.filter(p => p.user_id !== userId) : []
+
+  // 3. Supprimer de party_players en premier pour éviter les erreurs de contrainte
+  await supabase.from('party_players').delete().eq('party_id', partyId)
+
+  // 4. Supprimer la partie
+  const { error: deleteError } = await supabase
+    .from('parties')
+    .delete()
+    .eq('id', partyId)
+
+  if (deleteError) {
+    console.error('Error deleting party:', deleteError)
+    return { error: 'Erreur lors de la suppression de la partie' }
+  }
+
+  // 5. Envoyer les notifications aux autres joueurs
+  if (otherPlayers.length > 0) {
+    try {
+      const { data: creatorProfile } = await supabase
+        .from('users')
+        .select('prenom, nom')
+        .eq('id', userId)
+        .single()
+      const creatorName = creatorProfile ? `${creatorProfile.prenom} ${creatorProfile.nom}` : 'L\'organisateur'
+
+      const dateStr = party.date_heure ? formatDateShort(party.date_heure) : ''
+      const timeStr = party.date_heure ? formatTime(party.date_heure) : ''
+
+      const baseNotificationMessage = `La partie du ${dateStr} à ${timeStr} a été annulée par ${creatorName}.`
+      const fullNotificationMessage = message 
+        ? `${baseNotificationMessage} Message : "${message}"`
+        : baseNotificationMessage
+
+      const notifications = otherPlayers.map(p => ({
+        user_id: p.user_id,
+        type: 'party_deleted',
+        payload: {
+          message: fullNotificationMessage,
+          party_id: partyId,
+          organizer_message: message || null
+        }
+      }))
+      
+      await supabase.from('notifications').insert(notifications)
+
+      const { sendPushNotification } = await import('@/lib/push')
+      for (const pl of otherPlayers) {
+        if ((pl.users as unknown as Record<string, unknown>)?.notify_party_updates !== false) {
+          await sendPushNotification(pl.user_id, {
+            title: 'Partie annulée ❌',
+            message: message 
+              ? `Match du ${dateStr} annulé : "${message}"` 
+              : `La partie du ${dateStr} a été annulée par l'organisateur.`,
+            url: `/notifications`
+          }).catch(() => {})
+        }
+      }
+    } catch (err) {
+      console.error('Error sending delete notifications:', err)
+    }
+  }
+
+  revalidatePath('/parties')
+  revalidatePath('/')
+  return { success: true }
+}
+
+export async function leavePartyAndTransfer(partyId: string, newOrganizerId: string) {
+  const supabase = createClient()
+  const { data: authData } = await supabase.auth.getUser()
+
+  if (!authData.user) return { error: 'Non authentifié' }
+
+  const userId = authData.user.id
+
+  // 1. Récupérer la partie pour vérifier la propriété et obtenir les détails
+  const { data: party, error: partyError } = await supabase
+    .from('parties')
+    .select('createur_id, date_heure, statut')
+    .eq('id', partyId)
+    .single()
+
+  if (partyError || !party) {
+    return { error: 'Partie introuvable' }
+  }
+
+  if (party.createur_id !== userId) {
+    return { error: 'Non autorisé : vous devez être l\'organisateur de la partie' }
+  }
+
+  // 2. Vérifier que le nouveau créateur est bien un joueur inscrit
+  const { data: newOrgPlayer, error: nopError } = await supabase
+    .from('party_players')
+    .select('user_id, users(prenom, nom)')
+    .eq('party_id', partyId)
+    .eq('user_id', newOrganizerId)
+    .eq('statut', 'inscrit')
+    .single()
+
+  if (nopError || !newOrgPlayer) {
+    return { error: 'Le nouveau créateur choisi n\'est pas un joueur inscrit dans cette partie' }
+  }
+
+  const wasComplete = party.statut === 'complete'
+
+  if (wasComplete) {
+    // Repasse le statut en 'publiee' car le départ de l'organisateur laisse 3 joueurs
+    const { error: rpcError } = await supabase.rpc('system_update_party_status', {
+      p_party_id: partyId,
+      p_status: 'publiee'
+    })
+    if (rpcError) {
+      console.error('Error reverting party status to publiee upon organizer transfer:', rpcError)
+    }
+  }
+
+  // 3. Mettre à jour le créateur de la partie
+  const { error: updateCreatorError } = await supabase
+    .from('parties')
+    .update({ createur_id: newOrganizerId })
+    .eq('id', partyId)
+
+  if (updateCreatorError) {
+    console.error('Error transferring party ownership:', updateCreatorError)
+    return { error: 'Erreur lors du transfert de la partie' }
+  }
+
+  // 4. Supprimer l'ancien organisateur de la table party_players
+  const { error: deleteError } = await supabase
+    .from('party_players')
+    .delete()
+    .eq('party_id', partyId)
+    .eq('user_id', userId)
+
+  if (deleteError) {
+    console.error('Error deleting old organizer player:', deleteError)
+    // Tentative de rollback au cas où
+    await supabase.from('parties').update({ createur_id: userId }).eq('id', partyId)
+    return { error: 'Erreur lors du désistement de l\'organisateur' }
+  }
+
+  // 5. Envoyer les notifications
+  try {
+    const { data: oldCreatorProfile } = await supabase
+      .from('users')
+      .select('prenom, nom')
+      .eq('id', userId)
+      .single()
+    const oldCreatorName = oldCreatorProfile ? `${oldCreatorProfile.prenom} ${oldCreatorProfile.nom}` : 'L\'organisateur précédent'
+    
+    const userObj = newOrgPlayer.users?.[0]
+    const newCreatorName = `${userObj?.prenom || ''} ${userObj?.nom || ''}`.trim() || 'Le nouvel organisateur'
+
+    const dateStr = party.date_heure ? formatDateShort(party.date_heure) : ''
+
+    // A. Notifier le nouvel organisateur
+    await supabase.from('notifications').insert([{
+      user_id: newOrganizerId,
+      type: 'organizer_transferred',
+      payload: {
+        message: `${oldCreatorName} a quitté la partie du ${dateStr} et vous a désigné comme nouvel organisateur ! 👑`,
+        party_id: partyId
+      }
+    }])
+
+    const { data: newOrgUser } = await supabase
+      .from('users')
+      .select('notify_party_updates')
+      .eq('id', newOrganizerId)
+      .single()
+
+    const { sendPushNotification } = await import('@/lib/push')
+    if (newOrgUser?.notify_party_updates !== false) {
+      await sendPushNotification(newOrganizerId, {
+        title: 'Vous êtes l\'organisateur ! 👑',
+        message: `${oldCreatorName} vous a désigné comme organisateur de la partie du ${dateStr}.`,
+        url: `/parties/${partyId}`
+      }).catch(() => {})
+    }
+
+    // B. Notifier les autres joueurs inscrits
+    const { data: remainingPlayers } = await supabase
+      .from('party_players')
+      .select('user_id, users(notify_party_updates)')
+      .eq('party_id', partyId)
+      .eq('statut', 'inscrit')
+      .neq('user_id', newOrganizerId) // Exclure le nouvel organisateur déjà notifié
+
+    if (remainingPlayers && remainingPlayers.length > 0) {
+      const remainingNotifications = remainingPlayers.map(p => ({
+        user_id: p.user_id,
+        type: 'party_organizer_changed',
+        payload: {
+          message: `L'organisateur de la partie du ${dateStr} a changé. ${newCreatorName} est le nouvel organisateur.`,
+          party_id: partyId
+        }
+      }))
+      
+      await supabase.from('notifications').insert(remainingNotifications)
+
+      for (const pl of remainingPlayers) {
+        if ((pl.users as unknown as Record<string, unknown>)?.notify_party_updates !== false) {
+          await sendPushNotification(pl.user_id, {
+            title: 'Nouvel organisateur 👑',
+            message: `${newCreatorName} est le nouvel organisateur de la partie du ${dateStr}.`,
+            url: `/parties/${partyId}`
+          }).catch(() => {})
+        }
+      }
+    }
+
+    // C. Notifier de la réouverture si la partie était complète
+    if (wasComplete) {
+      const { data: allRemainingPlayers } = await supabase
+        .from('party_players')
+        .select('user_id, users(notify_party_updates)')
+        .eq('party_id', partyId)
+        .eq('statut', 'inscrit')
+
+      if (allRemainingPlayers && allRemainingPlayers.length > 0) {
+        const reopenNotifications = allRemainingPlayers.map(p => ({
+          user_id: p.user_id,
+          type: 'party_reopened',
+          payload: { message: `L'organisateur a quitté la partie du ${dateStr}. Une place est de nouveau libre !`, party_id: partyId }
+        }))
+        await supabase.from('notifications').insert(reopenNotifications)
+
+        for (const pl of allRemainingPlayers) {
+          if ((pl.users as unknown as Record<string, unknown>)?.notify_party_updates !== false) {
+            await sendPushNotification(pl.user_id, {
+              title: 'Partie rouverte 🔓',
+              message: `${oldCreatorName} a quitté la partie du ${dateStr}. La partie cherche de nouveau un joueur.`,
+              url: `/parties/${partyId}`
+            }).catch(() => {})
+          }
+        }
+      }
+    }
+  } catch (err) {
+    console.error('Error sending transfer notifications:', err)
+  }
+
+  revalidatePath(`/parties/${partyId}`)
+  revalidatePath('/parties')
+  revalidatePath('/')
+  return { success: true }
+}
+

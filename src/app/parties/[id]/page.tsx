@@ -154,6 +154,13 @@ export default async function PartyDetailsPage({ params }: { params: { id: strin
             isBelowLevel={isBelowLevel}
             status={party.statut}
             playerCount={playerCount}
+            creatorId={party.createur_id}
+            players={confirmedPlayers.map((p: Player) => ({
+              id: p.user_id,
+              prenom: p.users?.prenom || '',
+              nom: p.users?.nom || '',
+              photo_url: p.users?.photo_url || null
+            }))}
           />
         )}
 
