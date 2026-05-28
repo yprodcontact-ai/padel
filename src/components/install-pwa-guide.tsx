@@ -83,7 +83,7 @@ const GUIDE: Record<OsKey, OsEntry> = {
           { text: 'Ouvre le site dans Safari.' },
           {
             icon: 'share',
-            text: 'Touche le bouton Partager (le carré avec une flèche vers le haut), tout en bas au centre de l\u2019écran.',
+            text: 'Touche le bouton Partager, tout en bas au centre de l\u2019écran (ou via le bouton \u22EF, puis Partager).',
           },
           {
             icon: 'plus',
