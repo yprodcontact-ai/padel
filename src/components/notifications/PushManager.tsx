@@ -104,18 +104,52 @@ export function PushManager() {
 
   const handleRequestPush = async () => {
        const VAPID_KEY = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
-       if (!VAPID_KEY) return;
+       if (!VAPID_KEY) {
+           alert('❌ VAPID_KEY manquante dans les variables d\'environnement')
+           return;
+       }
        
        setLoading(true)
        try {
            // LA règle d'or d'Apple : Ceci doit être appelé DIRECTEMENT dans l'onClick
            const permission = await Notification.requestPermission()
-           if (permission === 'granted') {
-               await registerPushSilent(VAPID_KEY)
+           
+           if (permission !== 'granted') {
+               alert('⚠️ Permission refusée : ' + permission)
+               setShowPrompt(false)
+               return;
            }
+
+           // DEBUG: à retirer après diagnostic
+           alert('✅ Permission OK. Enregistrement en cours...')
+
+           const registration = await navigator.serviceWorker.ready
+           let subscription = await registration.pushManager.getSubscription()
+           
+           if (!subscription) {
+               subscription = await registration.pushManager.subscribe({
+                   userVisibleOnly: true,
+                   applicationServerKey: urlBase64ToUint8Array(VAPID_KEY)
+               })
+           }
+           
+           const response = await fetch('/api/push/subscribe', {
+               method: 'POST',
+               headers: { 'Content-Type': 'application/json' },
+               body: JSON.stringify({ subscription })
+           })
+           
+           const result = await response.json()
+           
+           if (response.ok) {
+               alert('✅ Notifications activées avec succès !')
+           } else {
+               alert('❌ Erreur backend : ' + response.status + ' — ' + JSON.stringify(result))
+           }
+           
            setShowPrompt(false)
        } catch (error) {
-           console.error('Erreur demande Web Push:', error)
+           alert('❌ Erreur : ' + (error instanceof Error ? error.message : String(error)))
        } finally {
            setLoading(false)
        }
