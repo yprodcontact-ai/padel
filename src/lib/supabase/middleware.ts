@@ -48,7 +48,9 @@ export async function updateSession(request: NextRequest) {
                      pathname.startsWith('/forgot-password') ||
                      pathname.startsWith('/auth/confirm');
 
-  if (!user && !isAuthPage) {
+  const isPublicPage = isAuthPage || pathname.startsWith('/install');
+
+  if (!user && !isPublicPage) {
     // Si l'utilisateur n'est pas connecté et essaie d'accéder à une route protégée
     const url = request.nextUrl.clone()
     url.pathname = '/login'
