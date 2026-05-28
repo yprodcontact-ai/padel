@@ -5,14 +5,34 @@ sw.__WB_DISABLE_DEV_LOGS = true;
 
 // Web Push Events
 sw.addEventListener('push', (event: PushEvent) => {
-  const data = JSON.parse(event.data?.text() || '{}');
+  let payload: { title?: string; message?: string; url?: string } = {};
+  
+  try {
+    if (event.data) {
+      const text = event.data.text();
+      // Tenter d'analyser comme du JSON si le format y ressemble
+      if (text.trim().startsWith('{')) {
+        payload = JSON.parse(text);
+      } else {
+        payload = { title: "Notification", message: text };
+      }
+    }
+  } catch (error) {
+    console.error("Erreur lors du traitement des données push:", error);
+    payload = { title: "Nouvelle notification", message: "Vous avez reçu une notification sur WizzPadel." };
+  }
+
+  const title = payload.title || "Nouvelle notification";
+  const body = payload.message || "";
+  const url = payload.url || "/";
   
   event.waitUntil(
-    sw.registration.showNotification(data.title || "Nouvelle notification", {
-      body: data.message || "",
+    sw.registration.showNotification(title, {
+      body: body,
       icon: '/icons/icon-192x192.png',
+      badge: '/icons/icon-96x96.png',
       data: {
-          url: data.url || '/'
+          url: url
       }
     })
   );
