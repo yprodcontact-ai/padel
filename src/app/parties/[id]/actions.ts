@@ -10,7 +10,7 @@ function getSupabaseAdmin() {
   const serviceRole = process.env.SUPABASE_SERVICE_ROLE_KEY
   
   if (!serviceRole) {
-    throw new Error("Clé SERVICE_ROLE manquante dans les variables d'environnement")
+    return null
   }
   
   return createSupabaseAdminClient(url, serviceRole, {
@@ -594,7 +594,7 @@ export async function deleteParty(partyId: string, message?: string) {
   const otherPlayers = players ? players.filter(p => p.user_id !== userId) : []
 
   // 3. Supprimer de party_players en premier pour éviter les erreurs de contrainte
-  const supabaseAdmin = getSupabaseAdmin()
+  const supabaseAdmin = getSupabaseAdmin() || supabase
   await supabaseAdmin.from('party_players').delete().eq('party_id', partyId)
 
   // 4. Supprimer la partie
@@ -710,7 +710,7 @@ export async function leavePartyAndTransfer(partyId: string, newOrganizerId: str
   }
 
   // 3. Mettre à jour le créateur de la partie
-  const supabaseAdmin = getSupabaseAdmin()
+  const supabaseAdmin = getSupabaseAdmin() || supabase
   const { error: updateCreatorError } = await supabaseAdmin
     .from('parties')
     .update({ createur_id: newOrganizerId })
