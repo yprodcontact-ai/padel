@@ -1,8 +1,25 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
+import { createClient as createSupabaseAdminClient } from '@supabase/supabase-js'
 import { revalidatePath } from 'next/cache'
 import { formatDateShort, formatTime } from '@/lib/date-utils'
+
+function getSupabaseAdmin() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL!
+  const serviceRole = process.env.SUPABASE_SERVICE_ROLE_KEY
+  
+  if (!serviceRole) {
+    throw new Error("Clé SERVICE_ROLE manquante dans les variables d'environnement")
+  }
+  
+  return createSupabaseAdminClient(url, serviceRole, {
+    auth: {
+      persistSession: false,
+      autoRefreshToken: false,
+    }
+  })
+}
 
 export async function joinParty(partyId: string) {
   const supabase = createClient()
@@ -577,10 +594,11 @@ export async function deleteParty(partyId: string, message?: string) {
   const otherPlayers = players ? players.filter(p => p.user_id !== userId) : []
 
   // 3. Supprimer de party_players en premier pour éviter les erreurs de contrainte
-  await supabase.from('party_players').delete().eq('party_id', partyId)
+  const supabaseAdmin = getSupabaseAdmin()
+  await supabaseAdmin.from('party_players').delete().eq('party_id', partyId)
 
   // 4. Supprimer la partie
-  const { error: deleteError } = await supabase
+  const { error: deleteError } = await supabaseAdmin
     .from('parties')
     .delete()
     .eq('id', partyId)
@@ -692,7 +710,8 @@ export async function leavePartyAndTransfer(partyId: string, newOrganizerId: str
   }
 
   // 3. Mettre à jour le créateur de la partie
-  const { error: updateCreatorError } = await supabase
+  const supabaseAdmin = getSupabaseAdmin()
+  const { error: updateCreatorError } = await supabaseAdmin
     .from('parties')
     .update({ createur_id: newOrganizerId })
     .eq('id', partyId)
@@ -703,7 +722,7 @@ export async function leavePartyAndTransfer(partyId: string, newOrganizerId: str
   }
 
   // 4. Supprimer l'ancien organisateur de la table party_players
-  const { error: deleteError } = await supabase
+  const { error: deleteError } = await supabaseAdmin
     .from('party_players')
     .delete()
     .eq('party_id', partyId)
@@ -712,7 +731,7 @@ export async function leavePartyAndTransfer(partyId: string, newOrganizerId: str
   if (deleteError) {
     console.error('Error deleting old organizer player:', deleteError)
     // Tentative de rollback au cas où
-    await supabase.from('parties').update({ createur_id: userId }).eq('id', partyId)
+    await supabaseAdmin.from('parties').update({ createur_id: userId }).eq('id', partyId)
     return { error: 'Erreur lors du désistement de l\'organisateur' }
   }
 
