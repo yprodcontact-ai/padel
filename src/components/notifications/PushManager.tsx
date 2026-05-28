@@ -79,9 +79,49 @@ export function PushManager() {
 
   }, [router])
 
+  const getSWRegistration = async (): Promise<ServiceWorkerRegistration> => {
+    if (!('serviceWorker' in navigator)) {
+      throw new Error("Les Service Workers ne sont pas supportés sur ce navigateur.");
+    }
+    
+    // 1. Essayer de récupérer l'enregistrement existant
+    try {
+      const reg = await navigator.serviceWorker.getRegistration();
+      if (reg) return reg;
+    } catch (e) {
+      console.warn("Erreur getRegistration:", e);
+    }
+
+    // 2. Essayer de récupérer tous les enregistrements actifs
+    try {
+      const regs = await navigator.serviceWorker.getRegistrations();
+      if (regs && regs.length > 0) {
+        return regs[0];
+      }
+    } catch (e) {
+      console.warn("Erreur getRegistrations:", e);
+    }
+
+    // 3. Tenter une inscription manuelle (cas particulier iOS ou premier lancement)
+    try {
+      const reg = await navigator.serviceWorker.register('/sw.js');
+      return reg;
+    } catch (e) {
+      console.warn("Erreur inscription manuelle /sw.js:", e);
+    }
+
+    // 4. Fallback vers .ready avec un timeout de 5 secondes pour ne pas bloquer l'interface
+    const readyPromise = navigator.serviceWorker.ready;
+    const timeoutPromise = new Promise<never>((_, reject) =>
+      setTimeout(() => reject(new Error("Délai d'attente du Service Worker dépassé. Veuillez rafraîchir l'application.")), 5000)
+    );
+
+    return Promise.race([readyPromise, timeoutPromise]);
+  }
+
   const registerPushSilent = async (vapidKey: string) => {
        try {
-           const registration = await navigator.serviceWorker.ready
+           const registration = await getSWRegistration()
            let subscription = await registration.pushManager.getSubscription()
 
            if (!subscription) {
@@ -120,10 +160,7 @@ export function PushManager() {
                return;
            }
 
-           // DEBUG: à retirer après diagnostic
-           alert('✅ Permission OK. Enregistrement en cours...')
-
-           const registration = await navigator.serviceWorker.ready
+           const registration = await getSWRegistration()
            let subscription = await registration.pushManager.getSubscription()
            
            if (!subscription) {
