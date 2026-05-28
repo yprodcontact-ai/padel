@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { BellIcon, XIcon, DownloadIcon } from 'lucide-react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { useRouter, usePathname } from 'next/navigation'
 
 const urlBase64ToUint8Array = (base64String: string) => {
   const padding = '='.repeat((4 - base64String.length % 4) % 4)
@@ -21,6 +21,10 @@ export function PushManager() {
   const [deviceInfo, setDeviceInfo] = useState({ isMobile: false, isStandalone: true })
   const [loading, setLoading] = useState(false)
   const router = useRouter()
+  const pathname = usePathname()
+
+  // Ne pas afficher la popup sur les pages publiques / non connectées
+  const isPublicRoute = /^\/(login|register|forgot-password|onboarding|install|auth)/.test(pathname)
 
   useEffect(() => {
     // Évite les erreurs SSR
@@ -36,7 +40,7 @@ export function PushManager() {
         sessionStorage.setItem('pwa_launched', '1');
         if (window.location.pathname !== '/') {
             router.replace('/');
-            return; // On arrête là pour laisser le redirect se faire
+            // Ne PAS return ici : on laisse checkState() s'exécuter
         }
     }
 
@@ -48,21 +52,24 @@ export function PushManager() {
         const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || 
             (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
         
-        // Detect Standalone
-        const isStandaloneMode = window.matchMedia('(display-mode: standalone)').matches || 
+        // Detect Standalone (PWA mode)
+        const isCurrentlyStandalone = window.matchMedia('(display-mode: standalone)').matches || 
             (window.navigator as unknown as { standalone?: boolean }).standalone === true;
 
-        setDeviceInfo({ isMobile: isMobileDevice, isStandalone: isStandaloneMode })
+        setDeviceInfo({ isMobile: isMobileDevice, isStandalone: isCurrentlyStandalone })
 
-        // Si on est sur mobile et pas standalone, on veut FORCER la popup d'install
-        if (isMobileDevice && !isStandaloneMode) {
+        // Si on est sur mobile et pas standalone → popup d'installation de l'app
+        if (isMobileDevice && !isCurrentlyStandalone) {
             setTimeout(() => setShowPrompt(true), 2500)
+            return;
         }
 
+        // En mode PWA (standalone) → toujours proposer les notifications si pas encore activées
         if ('Notification' in window && 'serviceWorker' in navigator && 'PushManager' in window) {
             if (Notification.permission === 'granted') {
                 registerPushSilent(VAPID_KEY)
-            } else if (Notification.permission === 'default' && (!isMobileDevice || isStandaloneMode)) {
+            } else if (Notification.permission === 'default') {
+                // En PWA ou sur desktop : proposer l'activation des notifications
                 setTimeout(() => setShowPrompt(true), 1500)
             }
         }
@@ -116,8 +123,15 @@ export function PushManager() {
 
   if (!showPrompt) return null;
 
+  // Popup install (mobile, pas standalone) : partout sauf sur /install
+  const isInstallPrompt = deviceInfo.isMobile && !deviceInfo.isStandalone;
+  if (isInstallPrompt && pathname.startsWith('/install')) return null;
+
+  // Popup notifications (standalone/desktop) : uniquement sur pages authentifiées
+  if (!isInstallPrompt && isPublicRoute) return null;
+
   // Cas spécial : Mobile mais pas installé sur l'écran d'accueil
-  if (deviceInfo.isMobile && !deviceInfo.isStandalone) {
+  if (isInstallPrompt) {
       return (
           <div style={{ position: 'fixed', bottom: 100, left: 16, right: 16, backgroundColor: 'var(--card)', border: '1px solid var(--border)', padding: 16, borderRadius: 20, boxShadow: '0 8px 32px rgba(0,0,0,0.12)', display: 'flex', flexDirection: 'column', gap: 12, zIndex: 50 }}>
              <button onClick={() => setShowPrompt(false)} style={{ position: 'absolute', top: 8, right: 8, padding: 8, borderRadius: '50%', border: 'none', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
