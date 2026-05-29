@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { Search, MessageCircle, User } from "lucide-react";
 import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { haptic } from "@/lib/haptic";
 
 /* ─────────────────────────────────────────
    Design handoff v2 — TabBar
@@ -164,6 +165,7 @@ export function BottomNav({ userId }: { userId?: string }) {
         {/* Bouton + central creux */}
         <Link
           href="/parties/create"
+          onClick={() => haptic.light()}
           aria-label="Créer une partie"
           style={{
             flex: 1,
@@ -231,7 +233,7 @@ function NavTab({
 }) {
   const Icon = item.icon;
   return (
-    <Link href={item.href} style={{ textDecoration: "none", flex: 1, display: "flex", justifyContent: "center" }}>
+    <Link href={item.href} onClick={() => haptic.light()} style={{ textDecoration: "none", flex: 1, display: "flex", justifyContent: "center" }}>
       <div
         style={{
           width: 60,

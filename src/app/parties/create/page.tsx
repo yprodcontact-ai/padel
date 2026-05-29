@@ -6,6 +6,7 @@ import { createParty, searchClubPlayers, getUserClubId } from './actions'
 import { getClubs } from '@/app/onboarding/actions'
 import Link from 'next/link'
 import { todayParis } from '@/lib/date-utils'
+import { haptic } from '@/lib/haptic'
 
 const inputStyle: React.CSSProperties = { width: '100%', height: 50, borderRadius: 14, border: '1px solid var(--border)', backgroundColor: 'var(--bg)', color: 'var(--foreground)', fontSize: 15, padding: '0 16px', outline: 'none', fontFamily: 'var(--font-sans)', boxSizing: 'border-box' as const, WebkitAppearance: 'none' }
 const labelStyle: React.CSSProperties = { display: 'block', fontSize: 13, fontWeight: 500, color: 'var(--muted-foreground)', marginBottom: 8 }
@@ -46,9 +47,17 @@ export default function CreatePartyPage() {
       const select = formRef.current?.querySelector('select[name="club_id"]') as HTMLSelectElement | null
       if (select) setSelectedClubId(select.value)
     }
-    if (formRef.current && formRef.current.reportValidity()) setStep((s) => Math.min(s + 1, TOTAL_STEPS))
+    if (formRef.current && formRef.current.reportValidity()) {
+      haptic.light()
+      setStep((s) => Math.min(s + 1, TOTAL_STEPS))
+    } else {
+      haptic.error()
+    }
   }
-  const prevStep = () => setStep((s) => Math.max(s - 1, 1))
+  const prevStep = () => {
+    haptic.light()
+    setStep((s) => Math.max(s - 1, 1))
+  }
 
   const submitForm = async () => {
     if (formRef.current && formRef.current.reportValidity()) {
@@ -66,6 +75,9 @@ export default function CreatePartyPage() {
       setIsLoading(false)
       if (res && 'error' in res && res.error) {
         setErrorMsg(res.error)
+        haptic.error()
+      } else {
+        haptic.success()
       }
     }
   }
@@ -97,13 +109,18 @@ export default function CreatePartyPage() {
   }, [selectedClubId, invitedPlayers])
 
   const addPlayer = (player: SearchPlayer) => {
-    if (invitedPlayers.length >= 2) return
+    if (invitedPlayers.length >= 2) {
+      haptic.warning()
+      return
+    }
+    haptic.medium()
     setInvitedPlayers(prev => [...prev, player])
     setSearchResults(prev => prev.filter(p => p.id !== player.id))
     setPlayerQuery('')
   }
 
   const removePlayer = (playerId: string) => {
+    haptic.light()
     setInvitedPlayers(prev => prev.filter(p => p.id !== playerId))
   }
 
@@ -255,7 +272,10 @@ export default function CreatePartyPage() {
                     <button
                       key={slot}
                       type="button"
-                      onClick={() => setSelectedTime(slot)}
+                      onClick={() => {
+                        haptic.light()
+                        setSelectedTime(slot)
+                      }}
                       style={{
                         height: 42,
                         borderRadius: 12,
@@ -283,7 +303,20 @@ export default function CreatePartyPage() {
                   <span style={{ fontSize: 14, color: 'var(--muted-foreground)' }}>à</span>
                   <span style={{ fontSize: 22, fontWeight: 700, color: 'var(--ink)' }}>{levelRange[1].toFixed(1)}</span>
                 </div>
-                <Slider value={levelRange} min={1} max={8} step={0.5} minGap={1} onValueChange={(v) => setLevelRange(v as number[])} className="py-4" />
+                <Slider
+                  value={levelRange}
+                  min={1}
+                  max={8}
+                  step={0.5}
+                  minGap={1}
+                  onValueChange={(v) => {
+                    if (v[0] !== levelRange[0] || v[1] !== levelRange[1]) {
+                      haptic.light()
+                    }
+                    setLevelRange(v as number[])
+                  }}
+                  className="py-4"
+                />
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: 'var(--muted-foreground)', marginTop: 8 }}>
                   <span>Débutant (1)</span><span>Moyen (4)</span><span>Pro (8)</span>
                 </div>

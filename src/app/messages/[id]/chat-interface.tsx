@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { sendMessage, markConversationAsRead } from '../actions'
 import { formatTime } from '@/lib/date-utils'
+import { haptic } from '@/lib/haptic'
 
 export type Message = { id: string; contenu: string; created_at: string; sender_id: string; senderData?: { prenom: string, photo_url: string } | null }
 
@@ -31,6 +32,7 @@ export function ChatInterface({ conversationId, initialMessages, currentUserId }
 
     const handleSend = async (e: React.FormEvent) => {
         e.preventDefault(); if (!newMessage.trim() || isSending) return
+        haptic.light()
         setIsSending(true); const msg = newMessage; setNewMessage('')
         await sendMessage(conversationId, msg); setIsSending(false)
     }
