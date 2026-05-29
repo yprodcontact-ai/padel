@@ -198,7 +198,6 @@ export default async function Home() {
       <div>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 22px', marginBottom: 14 }}>
           <h2 style={{ margin: 0, fontSize: 18, fontWeight: 500, color: 'var(--ink)', letterSpacing: '-0.4px' }}>Parties disponibles</h2>
-          <RefreshButton />
         </div>
         {availableParties.length > 0 ? (
           <div className="[scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden" style={{ display: 'flex', gap: 14, overflowX: 'auto', paddingLeft: 16, paddingRight: 32, paddingBottom: 28 }}>

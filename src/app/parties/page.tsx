@@ -142,10 +142,6 @@ export default async function PartiesSearchPage({
           Trouver<br />
           <span style={{ color: 'var(--muted)', fontWeight: 400 }}>une partie</span>
         </h1>
-        {/* Bouton search rond */}
-        <div style={{ width: 44, height: 44, borderRadius: '50%', backgroundColor: 'var(--card)', border: '1px solid var(--card-border)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-          <svg width={18} height={18} viewBox="0 0 24 24" fill="none" stroke="var(--ink)" strokeWidth={1.8}><circle cx="11" cy="11" r="7" /><path d="M16.5 16.5L21 21" strokeLinecap="round" /></svg>
-        </div>
       </div>
 
       <div style={{ padding: '0 16px' }}>
