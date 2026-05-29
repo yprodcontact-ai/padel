@@ -15,9 +15,11 @@ export default function ForgotPasswordPage({
       <div style={{ width: '100%', maxWidth: 400 }}>
         {/* Header */}
         <div style={{ textAlign: 'center', marginBottom: 32 }}>
-          <div style={{ width: 56, height: 56, borderRadius: '50%', background: 'var(--ink)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' }}>
-            <span style={{ fontSize: 24, fontWeight: 900, color: 'var(--background)' }}>P</span>
-          </div>
+          <img
+            src="/icons/icon-192x192.png"
+            alt="WizzPadel"
+            style={{ width: 56, height: 56, borderRadius: 12, margin: '0 auto 20px', display: 'block' }}
+          />
           <h1 style={{ margin: 0, fontSize: 28, fontWeight: 700, color: 'var(--foreground)' }}>Réinitialisation</h1>
           <p style={{ margin: '8px 0 0', fontSize: 14, color: 'var(--muted-foreground)', fontWeight: 400 }}>
             Entrez votre email pour recevoir un lien de réinitialisation
@@ -41,8 +43,8 @@ export default function ForgotPasswordPage({
                   width: '100%',
                   height: 50,
                   borderRadius: 14,
-                  border: 'none',
-                  backgroundColor: 'var(--muted)',
+                  border: '1px solid var(--border)',
+                  backgroundColor: 'var(--bg)',
                   color: 'var(--foreground)',
                   fontSize: 15,
                   padding: '0 16px',

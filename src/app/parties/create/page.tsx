@@ -7,7 +7,7 @@ import { getClubs } from '@/app/onboarding/actions'
 import Link from 'next/link'
 import { todayParis } from '@/lib/date-utils'
 
-const inputStyle: React.CSSProperties = { width: '100%', height: 50, borderRadius: 14, border: 'none', backgroundColor: '#F4F4F5', color: 'var(--foreground)', fontSize: 15, padding: '0 16px', outline: 'none', fontFamily: 'var(--font-sans)', boxSizing: 'border-box' as const, WebkitAppearance: 'none' }
+const inputStyle: React.CSSProperties = { width: '100%', height: 50, borderRadius: 14, border: '1px solid var(--border)', backgroundColor: 'var(--bg)', color: 'var(--foreground)', fontSize: 15, padding: '0 16px', outline: 'none', fontFamily: 'var(--font-sans)', boxSizing: 'border-box' as const, WebkitAppearance: 'none' }
 const labelStyle: React.CSSProperties = { display: 'block', fontSize: 13, fontWeight: 500, color: 'var(--muted-foreground)', marginBottom: 8 }
 
 type SearchPlayer = { id: string; prenom: string; nom: string; photo_url: string | null; niveau: number | null }
@@ -155,7 +155,7 @@ export default function CreatePartyPage() {
                 {invitedPlayers.length > 0 && (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 16 }}>
                     {invitedPlayers.map(p => (
-                      <div key={p.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', borderRadius: 14, backgroundColor: 'var(--muted)', border: '1.5px solid rgba(232,112,58,0.4)' }}>
+                      <div key={p.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', borderRadius: 14, backgroundColor: 'var(--bg)', border: '1.5px solid rgba(232,112,58,0.4)' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                           {p.photo_url ? (
                             // eslint-disable-next-line @next/next/no-img-element
@@ -205,7 +205,7 @@ export default function CreatePartyPage() {
                             key={player.id}
                             type="button"
                             onClick={() => addPlayer(player)}
-                            style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', borderRadius: 14, backgroundColor: 'var(--muted)', border: 'none', cursor: 'pointer', width: '100%', textAlign: 'left' }}
+                            style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', borderRadius: 14, backgroundColor: 'var(--bg)', border: '1px solid var(--border)', cursor: 'pointer', width: '100%', textAlign: 'left' }}
                           >
                             {player.photo_url ? (
                               // eslint-disable-next-line @next/next/no-img-element
@@ -259,8 +259,8 @@ export default function CreatePartyPage() {
                       style={{
                         height: 42,
                         borderRadius: 12,
-                        border: selectedTime === slot ? '2px solid var(--ink)' : '1.5px solid #3A3A3C',
-                        background: selectedTime === slot ? 'rgba(232,112,58,0.15)' : 'var(--muted)',
+                        border: selectedTime === slot ? '2px solid var(--ink)' : '1px solid var(--border)',
+                        background: selectedTime === slot ? 'rgba(232,112,58,0.15)' : 'var(--bg)',
                         color: selectedTime === slot ? 'var(--ink)' : 'var(--foreground)',
                         fontSize: 14,
                         fontWeight: selectedTime === slot ? 700 : 500,
