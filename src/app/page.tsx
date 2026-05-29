@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
 import { getDistanceFromLatLonInKm } from '@/lib/utils'
-import { RefreshOnMount, RefreshButton } from '@/components/RefreshOnMount'
+import { RefreshOnMount } from '@/components/RefreshOnMount'
 import { formatDate, formatTime } from '@/lib/date-utils'
 import { NotificationBell } from '@/components/notifications/NotificationBell'
 
