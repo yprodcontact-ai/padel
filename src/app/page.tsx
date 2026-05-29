@@ -117,14 +117,14 @@ export default async function Home() {
   const allMapped: HomePartyInfo[] = (parties as unknown as FetchedParty[] || [])
     .filter((p) => p.statut !== 'annulee')
     .map((p) => {
-    const hasJoined = p.party_players?.some((player) => player.user_id === userId) || false
-    const players = (p.party_players || []).map(mapPlayer)
-    let distance_km: number | undefined = undefined
-    if (userProfile?.lat && userProfile?.lng && p.clubs?.lat && p.clubs?.lng) {
-      distance_km = getDistanceFromLatLonInKm(userProfile.lat as number, userProfile.lng as number, p.clubs.lat, p.clubs.lng)
-    }
-    return { id: p.id, club_id: p.club_id || '', club_nom: p.clubs?.nom || 'Club inconnu', club_ville: p.clubs?.ville || '', date_heure: p.date_heure, niveau_min: p.niveau_min, niveau_max: p.niveau_max, type: p.type, players, player_count: players.length, has_joined: hasJoined, distance_km, statut: p.statut || 'publiee' }
-  })
+      const hasJoined = p.party_players?.some((player) => player.user_id === userId) || false
+      const players = (p.party_players || []).map(mapPlayer)
+      let distance_km: number | undefined = undefined
+      if (userProfile?.lat && userProfile?.lng && p.clubs?.lat && p.clubs?.lng) {
+        distance_km = getDistanceFromLatLonInKm(userProfile.lat as number, userProfile.lng as number, p.clubs.lat, p.clubs.lng)
+      }
+      return { id: p.id, club_id: p.club_id || '', club_nom: p.clubs?.nom || 'Club inconnu', club_ville: p.clubs?.ville || '', date_heure: p.date_heure, niveau_min: p.niveau_min, niveau_max: p.niveau_max, type: p.type, players, player_count: players.length, has_joined: hasJoined, distance_km, statut: p.statut || 'publiee' }
+    })
 
   const myNextParties = allMapped.filter(p => p.has_joined)
   const joinedIds = new Set(myNextParties.map(p => p.id))
