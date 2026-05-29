@@ -70,7 +70,12 @@ export function PartyActionButtons({ partyId, isCreator, isParticipant, isPendin
     startTransition(async () => {
       const res = await updatePartyStatus(partyId, action)
       if (res?.error) setErrorText(res.error)
-      else router.refresh()
+      else {
+        if (action === 'cancel') {
+          router.push('/parties')
+        }
+        router.refresh()
+      }
     })
   }
 

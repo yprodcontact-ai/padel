@@ -114,7 +114,9 @@ export default async function Home() {
   const { data: parties } = await (supabase.from('parties').select(`id, date_heure, niveau_min, niveau_max, type, club_id, statut, clubs (nom, ville, lat, lng), party_players ( user_id, users (prenom, nom, niveau, photo_url) )`).gte('date_heure', now).order('date_heure', { ascending: true }).limit(50))
 
   const userId = authData.user?.id
-  const allMapped: HomePartyInfo[] = (parties as unknown as FetchedParty[] || []).map((p) => {
+  const allMapped: HomePartyInfo[] = (parties as unknown as FetchedParty[] || [])
+    .filter((p) => p.statut !== 'annulee')
+    .map((p) => {
     const hasJoined = p.party_players?.some((player) => player.user_id === userId) || false
     const players = (p.party_players || []).map(mapPlayer)
     let distance_km: number | undefined = undefined
