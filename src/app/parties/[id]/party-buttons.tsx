@@ -171,15 +171,15 @@ export function PartyActionButtons({ partyId, isCreator, isParticipant, isPendin
         </button>
       )}
 
-      {/* ── Participant non-créateur → Quitter (publiée OU complète : libère une place et rouvre la partie) ── */}
-      {isParticipant && !isCreator && (status === 'publiee' || status === 'complete') && (
+      {/* ── Participant non-créateur → Quitter (publiée, complète OU confirmée : libère une place et rouvre la partie) ── */}
+      {isParticipant && !isCreator && (status === 'publiee' || status === 'complete' || status === 'confirmee') && (
         <button onClick={handleLeave} disabled={isPendingTransition} style={{ ...btnBase, backgroundColor: 'var(--card)', border: '1px solid var(--card-border)', color: 'var(--ink)', opacity: isPendingTransition ? 0.6 : 1 }}>
           Quitter la partie
         </button>
       )}
 
       {/* ── Créateur / Administrateur → Actions secondaires (Quitter / Supprimer) ── */}
-      {isCreator && (status === 'publiee' || status === 'complete') && (
+      {isCreator && (status === 'publiee' || status === 'complete' || status === 'confirmee') && (
         <div style={{ display: 'flex', gap: 10, marginTop: 4 }}>
           {playerCount > 1 && (
             <button 

@@ -287,12 +287,12 @@ export async function leaveParty(partyId: string) {
 
   const userId = authData.user.id
 
-  // Check if it was complete BEFORE deleting the player
+  // Check if it was complete or confirmed BEFORE deleting the player
   // (the RPC requires the caller to still be in party_players for authorization)
   const { data: party } = await supabase.from('parties').select('statut, date_heure').eq('id', partyId).single()
-  const wasComplete = party && party.statut === 'complete'
+  const wasCompleteOrConfirmed = party && (party.statut === 'complete' || party.statut === 'confirmee')
 
-  if (wasComplete) {
+  if (wasCompleteOrConfirmed) {
       // Use the SECURITY DEFINER RPC to bypass RLS — must be called while user is still a player
       const { error: rpcError } = await supabase.rpc('system_update_party_status', {
         p_party_id: partyId,
@@ -315,8 +315,8 @@ export async function leaveParty(partyId: string) {
     return { error: 'Erreur lors du désistement' }
   }
 
-  // Notify the remaining players if the party was complete
-  if (wasComplete) {
+  // Notify the remaining players if the party was complete or confirmed
+  if (wasCompleteOrConfirmed) {
       const { data: remainingPlayers } = await supabase.from('party_players').select('user_id, users(notify_party_updates)').eq('party_id', partyId).eq('statut', 'inscrit')
       if (remainingPlayers && remainingPlayers.length > 0) {
           const { sendPushNotification } = await import('@/lib/push')
@@ -458,10 +458,10 @@ export async function excludePlayer(partyId: string, userIdToExclude: string, me
     return { error: 'Vous ne pouvez pas vous exclure vous-même' }
   }
 
-  // 2. Check if the party was complete BEFORE deleting the player
-  const wasComplete = party.statut === 'complete'
+  // 2. Check if the party was complete or confirmed BEFORE deleting the player
+  const wasCompleteOrConfirmed = party.statut === 'complete' || party.statut === 'confirmee'
 
-  if (wasComplete) {
+  if (wasCompleteOrConfirmed) {
     // Revert the party status to 'publiee'
     const { error: rpcError } = await supabase.rpc('system_update_party_status', {
       p_party_id: partyId,
@@ -521,8 +521,8 @@ export async function excludePlayer(partyId: string, userIdToExclude: string, me
     }).catch(() => {})
   }
 
-  // 6. Notify other remaining players if the party was complete (like in leaveParty)
-  if (wasComplete) {
+  // 6. Notify other remaining players if the party was complete or confirmed (like in leaveParty)
+  if (wasCompleteOrConfirmed) {
     const { data: remainingPlayers } = await supabase
       .from('party_players')
       .select('user_id, users(notify_party_updates)')
@@ -696,9 +696,9 @@ export async function leavePartyAndTransfer(partyId: string, newOrganizerId: str
     return { error: 'Le nouveau créateur choisi n\'est pas un joueur inscrit dans cette partie' }
   }
 
-  const wasComplete = party.statut === 'complete'
+  const wasCompleteOrConfirmed = party.statut === 'complete' || party.statut === 'confirmee'
 
-  if (wasComplete) {
+  if (wasCompleteOrConfirmed) {
     // Repasse le statut en 'publiee' car le départ de l'organisateur laisse 3 joueurs
     const { error: rpcError } = await supabase.rpc('system_update_party_status', {
       p_party_id: partyId,
@@ -805,8 +805,8 @@ export async function leavePartyAndTransfer(partyId: string, newOrganizerId: str
       }
     }
 
-    // C. Notifier de la réouverture si la partie était complète
-    if (wasComplete) {
+    // C. Notifier de la réouverture si la partie était complète ou confirmée
+    if (wasCompleteOrConfirmed) {
       const { data: allRemainingPlayers } = await supabase
         .from('party_players')
         .select('user_id, users(notify_party_updates)')
