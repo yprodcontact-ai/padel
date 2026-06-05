@@ -34,7 +34,7 @@ export async function joinParty(partyId: string) {
   const { checkUserActiveParty } = await import('@/lib/party-utils')
   const isActive = await checkUserActiveParty(userId)
   if (isActive) {
-    return { error: "Vous êtes déjà inscrit à 2 parties à venir. Vous pourrez en rejoindre une autre 5 minutes après le début de l'une d'elles." }
+    return { error: "Vous êtes déjà inscrit à 3 parties à venir. Vous pourrez en rejoindre une autre 5 minutes après le début de l'une d'elles." }
   }
 
   // Fetch party level requirements
@@ -174,7 +174,7 @@ export async function handleJoinRequest(partyId: string, requesterId: string, ac
     const { checkUserActiveParty } = await import('@/lib/party-utils')
     const isActive = await checkUserActiveParty(requesterId)
     if (isActive) {
-      return { error: "Ce joueur est déjà inscrit à 2 parties à venir." }
+      return { error: "Ce joueur est déjà inscrit à 3 parties à venir." }
     }
 
     // Update player status to 'inscrit'
@@ -834,6 +834,94 @@ export async function leavePartyAndTransfer(partyId: string, newOrganizerId: str
     }
   } catch (err) {
     console.error('Error sending transfer notifications:', err)
+  }
+
+  revalidatePath(`/parties/${partyId}`)
+  revalidatePath('/parties')
+  revalidatePath('/')
+  return { success: true }
+}
+
+export async function updatePartyDateTime(partyId: string, newDateTime: string) {
+  const supabase = createClient()
+  const { data: authData } = await supabase.auth.getUser()
+
+  if (!authData.user) return { error: 'Non authentifié' }
+
+  const userId = authData.user.id
+
+  // 1. Fetch the party to check ownership and get old details
+  const { data: party, error: partyError } = await supabase
+    .from('parties')
+    .select('createur_id, date_heure, statut')
+    .eq('id', partyId)
+    .single()
+
+  if (partyError || !party) {
+    return { error: 'Partie introuvable' }
+  }
+
+  if (party.createur_id !== userId) {
+    return { error: 'Non autorisé : vous devez être l\'organisateur de la partie' }
+  }
+
+  const oldDateTime = party.date_heure
+
+  // 2. Update the party's date/time
+  const { error: updateError } = await supabase
+    .from('parties')
+    .update({ date_heure: newDateTime })
+    .eq('id', partyId)
+
+  if (updateError) {
+    console.error('Error updating party date/time:', updateError)
+    return { error: 'Erreur lors de la mise à jour de la date/heure' }
+  }
+
+  // 3. Get all other registered players (excluding creator) to notify
+  const { data: players } = await supabase
+    .from('party_players')
+    .select('user_id, users(notify_party_updates)')
+    .eq('party_id', partyId)
+    .eq('statut', 'inscrit')
+
+  const otherPlayers = players ? players.filter(p => p.user_id !== userId) : []
+
+  if (otherPlayers.length > 0) {
+    try {
+      const oldDateStr = formatDateShort(oldDateTime)
+      const oldTimeStr = formatTime(oldDateTime)
+      const newDateStr = formatDateShort(newDateTime)
+      const newTimeStr = formatTime(newDateTime)
+
+      const baseNotificationMessage = `La partie initialement prévue le ${oldDateStr} à ${oldTimeStr} a été déplacée au ${newDateStr} à ${newTimeStr} par l'organisateur.`
+
+      const notifications = otherPlayers.map(p => ({
+        user_id: p.user_id,
+        type: 'party_datetime_changed',
+        payload: {
+          message: baseNotificationMessage,
+          party_id: partyId,
+          old_datetime: oldDateTime,
+          new_datetime: newDateTime
+        }
+      }))
+
+      await supabase.from('notifications').insert(notifications)
+
+      const { sendPushNotification } = await import('@/lib/push')
+      for (const pl of otherPlayers) {
+        if ((pl.users as unknown as Record<string, unknown>)?.notify_party_updates !== false) {
+          await sendPushNotification(pl.user_id, {
+            title: 'Horaire modifié 📅',
+            message: `La partie a été déplacée au ${newDateStr} à ${newTimeStr} par l'organisateur.`,
+            url: `/parties/${partyId}`
+          }).catch(() => {})
+        }
+      }
+    } catch (err) {
+      console.error('Error sending date/time update notifications:', err)
+    }
   }
 
   revalidatePath(`/parties/${partyId}`)

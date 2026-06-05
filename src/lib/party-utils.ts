@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 
 /**
- * Checks if a user has reached the maximum number of active parties (2).
+ * Checks if a user has reached the maximum number of active parties (3).
  * A party is considered "active" if the user is 'inscrit' and its start time
  * is strictly greater than 5 minutes ago.
  */
@@ -25,5 +25,5 @@ export async function checkUserActiveParty(userId: string): Promise<boolean> {
     return false
   }
 
-  return count !== null && count >= 2
+  return count !== null && count >= 3
 }

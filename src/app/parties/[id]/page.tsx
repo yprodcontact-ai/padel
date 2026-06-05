@@ -5,9 +5,10 @@ import { PartyActionButtons } from './party-buttons'
 import { BackButton } from '@/components/back-button'
 import { SharePartyButton } from './share-button'
 import { PendingRequests } from './pending-requests'
-import { formatDatetime, formatTime, formatDate } from '@/lib/date-utils'
+import { formatTime, formatDate } from '@/lib/date-utils'
 import { LevelStrip } from '@/components/ui/level-strip'
 import { PlayerList } from './player-list'
+import { EditPartyDateTime } from './edit-datetime'
 
 type Player = { user_id: string; statut: string; users: { prenom: string; nom: string; photo_url: string; niveau: number | string } | null }
 
@@ -43,7 +44,6 @@ export default async function PartyDetailsPage({ params }: { params: { id: strin
 
   const dateStr = formatDate(party.date_heure)
   const timeStr = formatTime(party.date_heure)
-  const dateFullStr = formatDatetime(party.date_heure)
 
   return (
     <div style={{ backgroundColor: 'var(--bg)', minHeight: '100vh', paddingBottom: 20 }}>
@@ -63,17 +63,7 @@ export default async function PartyDetailsPage({ params }: { params: { id: strin
         </div>
 
         {/* ── Hero : date + heure + sous-titre ── */}
-        <div style={{ marginBottom: 16 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 4 }}>
-            <h1 style={{ margin: 0, fontSize: 40, fontWeight: 600, color: 'var(--ink)', letterSpacing: '-1.6px', lineHeight: 1 }}>
-              {dateStr}
-            </h1>
-            <div style={{ height: 38, padding: '0 16px', borderRadius: 999, border: '1px solid var(--card-border)', background: 'var(--card)', display: 'flex', alignItems: 'center', fontSize: 16, fontWeight: 500, color: 'var(--ink)', flexShrink: 0 }}>
-              {timeStr}
-            </div>
-          </div>
-          <p style={{ margin: 0, fontSize: 15, fontStyle: 'italic', color: 'var(--muted)' }}>{dateFullStr}</p>
-        </div>
+        <EditPartyDateTime partyId={party.id} currentDateTime={party.date_heure} isCreator={isCreator} />
 
         {/* ── Card club ── */}
         <div style={{ backgroundColor: 'var(--card)', borderRadius: 'var(--radius-card)', border: '1px solid var(--card-border)', padding: '18px 20px', marginBottom: 14, display: 'flex', alignItems: 'center', gap: 14 }}>

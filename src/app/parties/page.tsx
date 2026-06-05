@@ -60,11 +60,9 @@ export default async function PartiesSearchPage({
   const isDefaultMode = Object.keys(searchParams).length === 0;
 
   // Extraction of filters from URL
-  const searchClub = isDefaultMode ? userClubId : (typeof searchParams.club === 'string' ? searchParams.club : '')
-  const searchType = typeof searchParams.type === 'string' ? searchParams.type : ''
-  const searchNiveauStr = typeof searchParams.niveau === 'string' ? searchParams.niveau : (isDefaultMode && userLevel ? userLevel.toString() : 'tous')
-  const searchNiveau = searchNiveauStr !== 'tous' && searchNiveauStr !== '' ? parseFloat(searchNiveauStr) : null
-  const searchDispo = searchParams.dispo === 'true'
+  const searchClub = isDefaultMode ? (userClubId || 'tous') : (typeof searchParams.club === 'string' ? searchParams.club : 'tous')
+  const searchHideComplete = searchParams.hideComplete === 'true'
+  const searchOnlyMyLevel = searchParams.onlyMyLevel === 'true'
   
   const now = new Date().toISOString()
 
@@ -78,6 +76,7 @@ export default async function PartiesSearchPage({
       niveau_max,
       type,
       club_id,
+      statut,
       clubs!inner (nom, ville, lat, lng),
       party_players (
         user_id,
@@ -85,19 +84,13 @@ export default async function PartiesSearchPage({
         users (prenom, nom, niveau, photo_url)
       )
     `)
-    .eq('statut', 'publiee')
+    .in('statut', ['publiee', 'complete', 'confirmee'])
     .gte('date_heure', now)
     .order('date_heure', { ascending: true })
 
   // Apply filters natively
   if (searchClub && searchClub !== 'tous') {
       query = query.eq('club_id', searchClub)
-  }
-  if (searchType && searchType !== 'tous') {
-      query = query.eq('type', searchType)
-  }
-  if (searchNiveau !== null) {
-      query = query.lte('niveau_min', searchNiveau).gte('niveau_max', searchNiveau)
   }
 
   const { data: parties, error } = await query
@@ -130,7 +123,17 @@ export default async function PartiesSearchPage({
         } as PartyInfo
      })
 
-     formattedParties = formattedParties.filter(p => p.player_count < 4)
+     // Filter out complete matches if hideComplete is active
+     if (searchHideComplete) {
+       formattedParties = formattedParties.filter(p => p.player_count < 4)
+     }
+
+     // Filter by player level if onlyMyLevel is active
+     if (searchOnlyMyLevel && userLevel !== null) {
+       formattedParties = formattedParties.filter(
+         p => userLevel >= p.niveau_min && userLevel <= p.niveau_max
+       )
+     }
   }
 
   return (
@@ -148,10 +151,9 @@ export default async function PartiesSearchPage({
 
         {/* ── Filtres ── */}
         <SearchFilters
-          initialClub={searchClub || ''}
-          initialType={searchType}
-          initialNiveau={searchNiveauStr || 'tous'}
-          initialDispo={searchDispo}
+          initialClub={searchClub}
+          initialHideComplete={searchHideComplete}
+          initialOnlyMyLevel={searchOnlyMyLevel}
         />
 
         {/* ── Résultats ── */}

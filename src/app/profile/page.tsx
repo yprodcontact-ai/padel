@@ -101,6 +101,16 @@ export default async function ProfilePage() {
           ))}
         </div>
 
+        {/* ── Admin Dashboard CTA (if admin) ── */}
+        {userProfile.is_admin && (
+          <Link href="/admin" style={{ display: 'block', textDecoration: 'none', marginBottom: 14 }}>
+            <div style={{ width: '100%', height: 52, borderRadius: 'var(--radius-card)', backgroundColor: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, fontWeight: 600, color: '#fff', letterSpacing: '-0.3px', gap: 8 }}>
+              <svg width={18} height={18} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="9" y1="9" x2="21" y2="9"/><line x1="9" y1="15" x2="21" y2="15"/></svg>
+              Tableau de bord Admin
+            </div>
+          </Link>
+        )}
+
         {/* ── CTA Modifier profil ── */}
         <Link href="/profile/edit" style={{ display: 'block', textDecoration: 'none', marginBottom: 14 }}>
           <div style={{ width: '100%', height: 52, borderRadius: 'var(--radius-card)', backgroundColor: 'var(--ink)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, fontWeight: 600, color: '#fff', letterSpacing: '-0.3px' }}>

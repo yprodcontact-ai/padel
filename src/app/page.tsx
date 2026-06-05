@@ -136,6 +136,23 @@ export default async function Home() {
     return p.niveau_min <= userNiveau && p.niveau_max >= userNiveau && p.club_id === userClubId
   }).slice(0, 6)
 
+  // Fetch club-specific banner
+  let bannerImage = '/images/padel_ad_banner.png'
+  let bannerLink = '#'
+
+  if (userProfile?.club_id) {
+    const { data: club, error: clubError } = await supabase
+      .from('clubs')
+      .select('banner_image_url, banner_destination_url')
+      .eq('id', userProfile.club_id)
+      .single()
+
+    if (!clubError && club && club.banner_image_url) {
+      bannerImage = club.banner_image_url
+      bannerLink = club.banner_destination_url || '#'
+    }
+  }
+
   const photoUrl = userProfile?.photo_url as string | null
 
   return (
@@ -196,13 +213,23 @@ export default async function Home() {
 
       {/* ═══ PARTIES DISPONIBLES ═══ */}
       <div>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 22px', marginBottom: 14 }}>
-          <h2 style={{ margin: 0, fontSize: 18, fontWeight: 500, color: 'var(--ink)', letterSpacing: '-0.4px' }}>Parties disponibles</h2>
+        <div style={{ display: 'flex', flexDirection: 'column', padding: '0 22px', marginBottom: 14, gap: 2 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <h2 style={{ margin: 0, fontSize: 18, fontWeight: 500, color: 'var(--ink)', letterSpacing: '-0.4px' }}>
+              Parties disponibles
+            </h2>
+            <span style={{ fontSize: 13, backgroundColor: 'var(--card-border)', color: 'var(--muted)', padding: '2px 8px', borderRadius: 999, fontWeight: 600 }}>
+              {availableParties.length}
+            </span>
+          </div>
+          <span style={{ fontSize: 13, color: 'var(--muted)', fontStyle: 'italic' }}>
+            Ici, seules les parties de votre niveau sont affichées
+          </span>
         </div>
         {availableParties.length > 0 ? (
-          <div className="[scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden" style={{ display: 'flex', gap: 14, overflowX: 'auto', paddingLeft: 16, paddingRight: 32, paddingBottom: 28 }}>
+          <div className="[scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden" style={{ display: 'flex', gap: 14, overflowX: 'auto', paddingLeft: 22, paddingRight: 32, paddingBottom: 28, WebkitOverflowScrolling: 'touch', overscrollBehaviorX: 'contain', scrollSnapType: 'x proximity', scrollPaddingLeft: 22 }}>
             {availableParties.map((p, idx) => (
-              <Link key={p.id} href={`/parties/${p.id}`} style={{ textDecoration: 'none', flexShrink: 0 }}>
+              <Link key={p.id} href={`/parties/${p.id}`} style={{ textDecoration: 'none', flexShrink: 0, scrollSnapAlign: 'start' }}>
                 <div className="animate-in-stagger-horizontal" style={{ animationDelay: `${0.05 + idx * 0.04}s` }}>
                   <PartyCard party={p} variant="carousel" />
                 </div>
@@ -215,6 +242,55 @@ export default async function Home() {
           </div>
         )}
       </div>
+
+      {/* ═══ BANNIÈRE PUBLICITAIRE ═══ */}
+      <div style={{ margin: '14px 16px 36px 16px' }}>
+        <a 
+          href={bannerLink}
+          target={bannerLink.startsWith('http') ? '_blank' : undefined}
+          rel={bannerLink.startsWith('http') ? 'noopener noreferrer' : undefined}
+          style={{ 
+            display: 'block',
+            position: 'relative', 
+            width: '100%', 
+            aspectRatio: '2 / 1', 
+            borderRadius: 'var(--radius-card)', 
+            overflow: 'hidden',
+            border: '1px solid var(--card-border)',
+            cursor: bannerLink !== '#' ? 'pointer' : 'default',
+          }}
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img 
+            src={bannerImage} 
+            alt="Publicité Club" 
+            style={{ 
+              width: '100%', 
+              height: '100%', 
+              objectFit: 'cover',
+            }} 
+          />
+          <span style={{ 
+            position: 'absolute', 
+            top: 12, 
+            right: 12, 
+            backgroundColor: '#ffffff', 
+            color: '#000000', 
+            fontSize: '10px', 
+            fontWeight: 600, 
+            padding: '3px 8px', 
+            borderRadius: '4px',
+            boxShadow: '0 1px 3px rgba(0, 0, 0, 0.2)',
+            textTransform: 'uppercase',
+            letterSpacing: '0.5px',
+            pointerEvents: 'none',
+            lineHeight: '1.2',
+          }}>
+            publicité
+          </span>
+        </a>
+      </div>
+
       {/* Spacer pour contourner le bug Safari du padding-bottom */}
       <div style={{ height: 160, flexShrink: 0 }} />
     </div>

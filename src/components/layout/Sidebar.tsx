@@ -1,8 +1,10 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Trophy, PlusCircle, MessageCircle, User } from "lucide-react";
+import { Home, Trophy, PlusCircle, MessageCircle, User, LayoutDashboard } from "lucide-react";
+import { createClient } from "@/lib/supabase/client";
 
 const NAV_ITEMS = [
   { name: "Accueil", href: "/", icon: Home },
@@ -14,6 +16,24 @@ const NAV_ITEMS = [
 
 export function Sidebar() {
   const pathname = usePathname();
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    const checkAdmin = async () => {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data } = await supabase.from('users').select('is_admin').eq('id', user.id).single();
+        if (data?.is_admin) setIsAdmin(true);
+      }
+    };
+    checkAdmin();
+  }, []);
+
+  const navItems = [
+    ...NAV_ITEMS,
+    ...(isAdmin ? [{ name: "Admin", href: "/admin", icon: LayoutDashboard }] : [])
+  ];
 
   return (
     <aside
@@ -50,7 +70,7 @@ export function Sidebar() {
       </div>
 
       <nav style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 4 }}>
-        {NAV_ITEMS.map((item) => {
+        {navItems.map((item) => {
           const isActive = pathname === item.href;
           return (
             <Link

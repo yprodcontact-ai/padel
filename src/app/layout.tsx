@@ -8,6 +8,7 @@ import { RouteTransition } from "@/components/route-transition";
 import { SplashScreen } from "@/components/layout/SplashScreen";
 import { PullToRefresh } from "@/components/pull-to-refresh";
 import { createClient } from "@/lib/supabase/server";
+import { AnalyticsTracker } from "@/components/layout/AnalyticsTracker";
 
 export const metadata: Metadata = {
   title: "WizzPadel",
@@ -63,6 +64,7 @@ export default async function RootLayout({
         </div>
         <SplashScreen />
         <PushManager />
+        <AnalyticsTracker />
         <div id="portrait-lock" style={{ display: 'none' }}>
            <div style={{ padding: 32, textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 20 }}>
              <svg width={56} height={56} viewBox="0 0 24 24" fill="none" stroke="var(--ink)" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" style={{ transform: 'rotate(90deg)' }}>

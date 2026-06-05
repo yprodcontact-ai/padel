@@ -67,7 +67,7 @@ export function CardJoinButton({ partyId, hasJoined, isPending: isPendingProp, i
   if (isFull) {
     return (
       <button type="button" disabled style={{ ...base, backgroundColor: 'var(--divider)', color: 'var(--muted)', cursor: 'not-allowed' }}>
-        Complet
+        complète
       </button>
     )
   }
