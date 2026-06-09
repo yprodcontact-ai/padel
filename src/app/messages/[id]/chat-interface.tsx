@@ -6,9 +6,9 @@ import { sendMessage, markConversationAsRead } from '../actions'
 import { formatTime } from '@/lib/date-utils'
 import { haptic } from '@/lib/haptic'
 
-export type Message = { id: string; contenu: string; created_at: string; sender_id: string; senderData?: { prenom: string, photo_url: string } | null }
+export type Message = { id: string; contenu: string; is_html?: boolean; created_at: string; sender_id: string; senderData?: { prenom: string, photo_url: string } | null }
 
-export function ChatInterface({ conversationId, initialMessages, currentUserId }: { conversationId: string, initialMessages: Message[], currentUserId: string }) {
+export function ChatInterface({ conversationId, initialMessages, currentUserId, isReadOnly = false }: { conversationId: string, initialMessages: Message[], currentUserId: string, isReadOnly?: boolean }) {
     const [messages, setMessages] = useState<Message[]>(initialMessages)
     const [newMessage, setNewMessage] = useState('')
     const [isSending, setIsSending] = useState(false)
@@ -68,7 +68,11 @@ export function ChatInterface({ conversationId, initialMessages, currentUserId }
                                     color: isMe ? '#fff' : 'var(--foreground)',
                                     lineHeight: 1.4,
                                 }}>
-                                    {m.contenu}
+                                    {m.is_html ? (
+                                        <div dangerouslySetInnerHTML={{ __html: m.contenu }} className="broadcast-content" style={{ wordBreak: 'break-word' }} />
+                                    ) : (
+                                        m.contenu
+                                    )}
                                 </div>
                                 <span style={{ fontSize: 10, color: 'var(--muted-foreground)', marginTop: 4, padding: '0 4px', opacity: 0.7 }}>{time}</span>
                             </div>
@@ -80,23 +84,29 @@ export function ChatInterface({ conversationId, initialMessages, currentUserId }
         </div>
 
         {/* INPUT */}
-        <div className="pb-safe" style={{ flexShrink: 0, backgroundColor: 'var(--card)', borderTop: '1px solid #2C2C2E', padding: '12px 16px', paddingBottom: 120 }}>
-            <form onSubmit={handleSend} style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
-                <input
-                    value={newMessage}
-                    onChange={e => setNewMessage(e.target.value)}
-                    placeholder="Écrivez votre message..."
-                    style={{ flex: 1, height: 44, borderRadius: 100, border: 'none', backgroundColor: '#F4F4F5', color: 'var(--foreground)', fontSize: 14, padding: '0 20px', outline: 'none', fontFamily: 'var(--font-sans)' }}
-                />
-                <button
-                    type="submit"
-                    disabled={!newMessage.trim() || isSending}
-                    style={{ width: 44, height: 44, borderRadius: '50%', border: '1px solid var(--ink)', background: 'var(--ink)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0, opacity: (!newMessage.trim() || isSending) ? 0.4 : 1 }}
-                >
-                    <svg width={18} height={18} viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round"><line x1="22" y1="2" x2="11" y2="13" /><polygon points="22 2 15 22 11 13 2 9 22 2" /></svg>
-                </button>
-            </form>
-        </div>
+        {isReadOnly ? (
+            <div className="pb-safe" style={{ flexShrink: 0, backgroundColor: 'var(--card)', borderTop: '1px solid #2C2C2E', padding: '16px 20px', paddingBottom: 120, textAlign: 'center', color: 'var(--muted-foreground)', fontSize: 13, fontStyle: 'italic' }}>
+                Vous ne pouvez pas répondre à cette conversation.
+            </div>
+        ) : (
+            <div className="pb-safe" style={{ flexShrink: 0, backgroundColor: 'var(--card)', borderTop: '1px solid #2C2C2E', padding: '12px 16px', paddingBottom: 120 }}>
+                <form onSubmit={handleSend} style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+                    <input
+                        value={newMessage}
+                        onChange={e => setNewMessage(e.target.value)}
+                        placeholder="Écrivez votre message..."
+                        style={{ flex: 1, height: 44, borderRadius: 100, border: 'none', backgroundColor: '#F4F4F5', color: 'var(--foreground)', fontSize: 14, padding: '0 20px', outline: 'none', fontFamily: 'var(--font-sans)' }}
+                    />
+                    <button
+                        type="submit"
+                        disabled={!newMessage.trim() || isSending}
+                        style={{ width: 44, height: 44, borderRadius: '50%', border: '1px solid var(--ink)', background: 'var(--ink)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0, opacity: (!newMessage.trim() || isSending) ? 0.4 : 1 }}
+                    >
+                        <svg width={18} height={18} viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round"><line x1="22" y1="2" x2="11" y2="13" /><polygon points="22 2 15 22 11 13 2 9 22 2" /></svg>
+                    </button>
+                </form>
+            </div>
+        )}
         </>
     )
 }

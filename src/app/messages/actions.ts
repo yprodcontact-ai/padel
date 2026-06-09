@@ -10,6 +10,26 @@ export async function sendMessage(conversationId: string, content: string) {
 
   if (!authData.user) return { error: 'Non authentifié' }
 
+  // Vérifier si la conversation est en lecture seule
+  const { data: conv } = await supabase
+    .from('conversations')
+    .select('is_read_only')
+    .eq('id', conversationId)
+    .single()
+
+  if (conv?.is_read_only) {
+    // Vérifier si l'utilisateur est admin
+    const { data: profile } = await supabase
+      .from('users')
+      .select('is_admin')
+      .eq('id', authData.user.id)
+      .single()
+
+    if (!profile?.is_admin) {
+      return { error: 'Cette conversation est en lecture seule.' }
+    }
+  }
+
   // Vérifier la participation
   const { data: participant } = await supabase
     .from('conversation_participants')

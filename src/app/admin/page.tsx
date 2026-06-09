@@ -55,6 +55,8 @@ export default async function AdminPage() {
     ville: string;
     banner_image_url: string | null;
     banner_destination_url: string | null;
+    search_banner_image_url: string | null;
+    search_banner_destination_url: string | null;
   };
 
   // Fetch all clubs for banner management (with migration protection)
@@ -63,27 +65,44 @@ export default async function AdminPage() {
 
   const { data: clubsData, error: clubsError } = await supabase
     .from("clubs")
-    .select("id, nom, ville, banner_image_url, banner_destination_url")
+    .select("id, nom, ville, banner_image_url, banner_destination_url, search_banner_image_url, search_banner_destination_url")
     .order("nom");
 
   if (clubsError) {
-    console.error("Error fetching clubs with banner fields:", clubsError);
-    // Try to fetch without banner fields to confirm migration is the issue
-    const { data: fallbackClubs, error: fallbackError } = await supabase
+    console.error("Error fetching clubs with search banner fields:", clubsError);
+    // Try to fetch with only original banner fields
+    const { data: midClubs, error: midError } = await supabase
       .from("clubs")
-      .select("id, nom, ville")
+      .select("id, nom, ville, banner_image_url, banner_destination_url")
       .order("nom");
 
-    if (!fallbackError && fallbackClubs) {
-      clubs = fallbackClubs.map((c) => ({
+    if (!midError && midClubs) {
+      clubs = midClubs.map((c) => ({
         ...c,
-        banner_image_url: null,
-        banner_destination_url: null,
+        search_banner_image_url: null,
+        search_banner_destination_url: null,
       }));
       migrationRequired = true;
+    } else {
+      // Try to fetch without any banner fields
+      const { data: fallbackClubs, error: fallbackError } = await supabase
+        .from("clubs")
+        .select("id, nom, ville")
+        .order("nom");
+
+      if (!fallbackError && fallbackClubs) {
+        clubs = fallbackClubs.map((c) => ({
+          ...c,
+          banner_image_url: null,
+          banner_destination_url: null,
+          search_banner_image_url: null,
+          search_banner_destination_url: null,
+        }));
+        migrationRequired = true;
+      }
     }
   } else if (clubsData) {
-    clubs = clubsData;
+    clubs = clubsData as AdminClub[];
   }
 
   return <DashboardClient initialStats={stats} clubs={clubs} migrationRequired={migrationRequired} />;

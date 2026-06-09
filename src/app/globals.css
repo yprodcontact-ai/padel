@@ -239,3 +239,24 @@ a:active, button:active {
     display: none !important;
   }
 }
+
+/* Broadcast HTML rendering links styling */
+.broadcast-content a {
+  color: #007AFF;
+  text-decoration: underline;
+}
+.broadcast-content a:hover {
+  opacity: 0.8;
+}
+.broadcast-content p {
+  margin: 0 0 8px 0;
+}
+.broadcast-content p:last-child {
+  margin-bottom: 0;
+}
+.broadcast-content strong {
+  font-weight: 700;
+}
+.broadcast-content em {
+  font-style: italic;
+}

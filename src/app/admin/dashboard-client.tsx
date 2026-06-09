@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useTransition } from 'react'
+import { useState, useTransition, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { BackButton } from '@/components/back-button'
 import { 
@@ -13,9 +13,15 @@ import {
   BarChart3, 
   MapPin, 
   Award,
-  CircleDot
+  CircleDot,
+  Send,
+  Megaphone,
+  Bold,
+  Italic,
+  Link2,
+  Trash2
 } from 'lucide-react'
-import { updateClubBanner } from './actions'
+import { updateClubBanner, sendBroadcastMessage } from './actions'
 
 // Types for stats structure
 interface DashboardStats {
@@ -49,6 +55,8 @@ interface Club {
   ville: string;
   banner_image_url: string | null;
   banner_destination_url: string | null;
+  search_banner_image_url: string | null;
+  search_banner_destination_url: string | null;
 }
 
 interface DashboardClientProps {
@@ -60,7 +68,7 @@ interface DashboardClientProps {
 export function DashboardClient({ initialStats, clubs: initialClubs, migrationRequired }: DashboardClientProps) {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
-  const [activeTab, setActiveTab] = useState<'overview' | 'trends' | 'leaderboards' | 'banners'>('overview')
+  const [activeTab, setActiveTab] = useState<'overview' | 'trends' | 'leaderboards' | 'banners' | 'broadcast'>('overview')
   
   // Banners tab states
   const [clubs, setClubs] = useState<Club[]>(initialClubs)
@@ -77,7 +85,11 @@ export function DashboardClient({ initialStats, clubs: initialClubs, migrationRe
     })
   }
 
-  const handleInputChange = (clubId: string, field: 'banner_image_url' | 'banner_destination_url', value: string) => {
+  const handleInputChange = (
+    clubId: string, 
+    field: 'banner_image_url' | 'banner_destination_url' | 'search_banner_image_url' | 'search_banner_destination_url', 
+    value: string
+  ) => {
     setClubs(prev => prev.map(c => c.id === clubId ? { ...c, [field]: value || null } : c))
     if (saveStatus[clubId] && saveStatus[clubId] !== 'idle') {
       setSaveStatus(prev => ({ ...prev, [clubId]: 'idle' }))
@@ -92,7 +104,13 @@ export function DashboardClient({ initialStats, clubs: initialClubs, migrationRe
     setSaveStatus(prev => ({ ...prev, [clubId]: 'saving' }))
 
     try {
-      const res = await updateClubBanner(clubId, club.banner_image_url, club.banner_destination_url)
+      const res = await updateClubBanner(
+        clubId, 
+        club.banner_image_url, 
+        club.banner_destination_url,
+        club.search_banner_image_url,
+        club.search_banner_destination_url
+      )
       if (res.success) {
         setSaveStatus(prev => ({ ...prev, [clubId]: 'success' }))
         setTimeout(() => {
@@ -284,29 +302,31 @@ export function DashboardClient({ initialStats, clubs: initialClubs, migrationRe
         </div>
 
         {/* ── TABS NAVIGATION ── */}
-        <div style={{ display: 'flex', backgroundColor: '#E4E4E7', padding: 4, borderRadius: 14, marginBottom: 20 }}>
-          {(['overview', 'trends', 'leaderboards', 'banners'] as const).map((tab) => (
+        <div style={{ display: 'flex', backgroundColor: '#E4E4E7', padding: 4, borderRadius: 14, marginBottom: 20, overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
+          {(['overview', 'trends', 'leaderboards', 'banners', 'broadcast'] as const).map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
               style={{
                 flex: 1,
-                padding: '10px 0',
+                padding: '10px 14px',
                 border: 'none',
                 borderRadius: 11,
                 fontWeight: 600,
-                fontSize: 14,
+                fontSize: 13,
                 cursor: 'pointer',
                 backgroundColor: activeTab === tab ? '#FFF' : 'transparent',
                 color: activeTab === tab ? 'var(--ink)' : '#71717A',
                 boxShadow: activeTab === tab ? '0 2px 8px rgba(0,0,0,0.06)' : 'none',
                 transition: 'all 0.2s',
+                whiteSpace: 'nowrap',
               }}
             >
-              {tab === 'overview' && 'Vue d\'ensemble'}
+              {tab === 'overview' && "Vue d'ensemble"}
               {tab === 'trends' && 'Évolution & Sessions'}
               {tab === 'leaderboards' && 'Classements'}
               {tab === 'banners' && 'Publicité'}
+              {tab === 'broadcast' && 'Diffusion'}
             </button>
           ))}
         </div>
@@ -839,6 +859,7 @@ export function DashboardClient({ initialStats, clubs: initialClubs, migrationRe
                 clubs.map((club) => {
                   const currentImg = club.banner_image_url || '/images/padel_ad_banner.png'
                   const status = saveStatus[club.id] || 'idle'
+                  const hasCustom = club.banner_image_url || club.search_banner_image_url
                   
                   return (
                     <div key={club.id} style={{ backgroundColor: 'var(--card)', borderRadius: 'var(--radius-card)', padding: 22, border: '1px solid var(--card-border)' }}>
@@ -847,146 +868,256 @@ export function DashboardClient({ initialStats, clubs: initialClubs, migrationRe
                           <h3 style={{ margin: 0, fontSize: 18, fontWeight: 600, color: 'var(--ink)', letterSpacing: '-0.4px' }}>{club.nom}</h3>
                           <p style={{ margin: '2px 0 0', fontSize: 13, color: 'var(--muted)' }}>{club.ville}</p>
                         </div>
-                        <span style={{ fontSize: 11, backgroundColor: club.banner_image_url ? 'rgba(25,166,107,0.1)' : 'rgba(142,90,247,0.1)', color: club.banner_image_url ? 'var(--accent)' : '#8E5AF7', padding: '3px 8px', borderRadius: 999, fontWeight: 600 }}>
-                          {club.banner_image_url ? 'Pub personnalisée' : 'Pub par défaut'}
+                        <span style={{ fontSize: 11, backgroundColor: hasCustom ? 'rgba(25,166,107,0.1)' : 'rgba(142,90,247,0.1)', color: hasCustom ? 'var(--accent)' : '#8E5AF7', padding: '3px 8px', borderRadius: 999, fontWeight: 600 }}>
+                          {hasCustom ? 'Pubs personnalisées' : 'Pubs par défaut'}
                         </span>
                       </div>
 
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 20 }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
                         
-                        {/* Live 2:1 Preview */}
-                        <div>
-                          <span style={{ display: 'block', fontSize: 12, fontWeight: 500, color: 'var(--muted)', marginBottom: 8 }}>Aperçu de la bannière (Ratio 2:1)</span>
-                          <div style={{ 
-                            position: 'relative', 
-                            width: '100%', 
-                            maxWidth: 400,
-                            aspectRatio: '2 / 1', 
-                            borderRadius: 'var(--radius-card)', 
-                            overflow: 'hidden',
-                            border: '1px solid var(--card-border)',
-                            backgroundColor: '#f4f4f5',
-                          }}>
-                            {/* eslint-disable-next-line @next/next/no-img-element */}
-                            <img 
-                              src={currentImg} 
-                              alt="Aperçu pub club" 
-                              onError={(e) => {
-                                e.currentTarget.src = '/images/padel_ad_banner.png'
-                              }}
-                              style={{ 
+                        {/* SECTION BANNIÈRE ACCUEIL */}
+                        <div style={{ borderBottom: '1px solid var(--card-border)', paddingBottom: 20 }}>
+                          <h4 style={{ margin: '0 0 12px 0', fontSize: 14, fontWeight: 600, color: 'var(--ink)' }}>Bannière Accueil (Ratio 2:1)</h4>
+                          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 20 }}>
+                            {/* Preview */}
+                            <div>
+                              <span style={{ display: 'block', fontSize: 12, fontWeight: 500, color: 'var(--muted)', marginBottom: 8 }}>Aperçu (2:1)</span>
+                              <div style={{ 
+                                position: 'relative', 
                                 width: '100%', 
-                                height: '100%', 
-                                objectFit: 'cover',
-                              }} 
-                            />
-                            <span style={{ 
-                              position: 'absolute', 
-                              top: 8, 
-                              right: 8, 
-                              backgroundColor: '#ffffff', 
-                              color: '#000000', 
-                              fontSize: '9px', 
-                              fontWeight: 600, 
-                              padding: '2px 6px', 
-                              borderRadius: '3px',
-                              boxShadow: '0 1px 3px rgba(0,0,0,0.2)',
-                              textTransform: 'uppercase',
-                              letterSpacing: '0.5px',
-                              pointerEvents: 'none',
-                            }}>
-                              publicité
-                            </span>
+                                maxWidth: 400,
+                                aspectRatio: '2 / 1', 
+                                borderRadius: 'var(--radius-card)', 
+                                overflow: 'hidden',
+                                border: '1px solid var(--card-border)',
+                                backgroundColor: '#f4f4f5',
+                              }}>
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                <img 
+                                  src={currentImg} 
+                                  alt="Aperçu pub club" 
+                                  onError={(e) => {
+                                    e.currentTarget.src = '/images/padel_ad_banner.png'
+                                  }}
+                                  style={{ 
+                                    width: '100%', 
+                                    height: '100%', 
+                                    objectFit: 'cover',
+                                  }} 
+                                />
+                                <span style={{ 
+                                  position: 'absolute', 
+                                  top: 8, 
+                                  right: 8, 
+                                  backgroundColor: '#ffffff', 
+                                  color: '#000000', 
+                                  fontSize: '9px', 
+                                  fontWeight: 600, 
+                                  padding: '2px 6px', 
+                                  borderRadius: '3px',
+                                  boxShadow: '0 1px 3px rgba(0,0,0,0.2)',
+                                  textTransform: 'uppercase',
+                                  letterSpacing: '0.5px',
+                                  pointerEvents: 'none',
+                                }}>
+                                  publicité
+                                </span>
+                              </div>
+                            </div>
+
+                            {/* Inputs */}
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                              <div>
+                                <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--ink-2)', marginBottom: 6 }}>
+                                  Chemin ou URL de l&apos;image (Accueil)
+                                </label>
+                                <input 
+                                  type="text"
+                                  value={club.banner_image_url || ''}
+                                  onChange={(e) => handleInputChange(club.id, 'banner_image_url', e.target.value)}
+                                  placeholder="Ex: /images/padel_ad_banner.png ou https://..."
+                                  disabled={migrationRequired}
+                                  style={{
+                                    width: '100%',
+                                    padding: '10px 14px',
+                                    borderRadius: 'var(--radius-tile)',
+                                    border: '1px solid var(--card-border)',
+                                    backgroundColor: 'var(--bg)',
+                                    color: 'var(--ink)',
+                                    fontSize: 14,
+                                    outline: 'none',
+                                    boxSizing: 'border-box',
+                                  }}
+                                />
+                              </div>
+
+                              <div>
+                                <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--ink-2)', marginBottom: 6 }}>
+                                  URL de redirection (Accueil)
+                                </label>
+                                <input 
+                                  type="text"
+                                  value={club.banner_destination_url || ''}
+                                  onChange={(e) => handleInputChange(club.id, 'banner_destination_url', e.target.value)}
+                                  placeholder="Ex: /parties ou https://..."
+                                  disabled={migrationRequired}
+                                  style={{
+                                    width: '100%',
+                                    padding: '10px 14px',
+                                    borderRadius: 'var(--radius-tile)',
+                                    border: '1px solid var(--card-border)',
+                                    backgroundColor: 'var(--bg)',
+                                    color: 'var(--ink)',
+                                    fontSize: 14,
+                                    outline: 'none',
+                                    boxSizing: 'border-box',
+                                  }}
+                                />
+                              </div>
+                            </div>
                           </div>
                         </div>
 
-                        {/* Input fields */}
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                          <div>
-                            <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--ink-2)', marginBottom: 6 }}>
-                              Chemin ou URL de l&apos;image
-                            </label>
-                            <input 
-                              type="text"
-                              value={club.banner_image_url || ''}
-                              onChange={(e) => handleInputChange(club.id, 'banner_image_url', e.target.value)}
-                              placeholder="Ex: /images/padel_ad_banner.png ou https://..."
-                              disabled={migrationRequired}
-                              style={{
-                                width: '100%',
-                                padding: '10px 14px',
-                                borderRadius: 'var(--radius-tile)',
+                        {/* SECTION BANNIÈRE RECHERCHE */}
+                        <div style={{ paddingBottom: 10 }}>
+                          <h4 style={{ margin: '0 0 12px 0', fontSize: 14, fontWeight: 600, color: 'var(--ink)' }}>Bannière Recherche (Ratio 4:1)</h4>
+                          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 20 }}>
+                            {/* Preview */}
+                            <div>
+                              <span style={{ display: 'block', fontSize: 12, fontWeight: 500, color: 'var(--muted)', marginBottom: 8 }}>Aperçu (4:1)</span>
+                              <div style={{ 
+                                position: 'relative', 
+                                width: '100%', 
+                                maxWidth: 400,
+                                aspectRatio: '4 / 1', 
+                                borderRadius: 'var(--radius-card)', 
+                                overflow: 'hidden',
                                 border: '1px solid var(--card-border)',
-                                backgroundColor: 'var(--bg)',
-                                color: 'var(--ink)',
-                                fontSize: 14,
-                                outline: 'none',
-                                boxSizing: 'border-box',
-                              }}
-                            />
-                          </div>
+                                backgroundColor: '#f4f4f5',
+                              }}>
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                <img 
+                                  src={club.search_banner_image_url || '/images/padel_search_ad_banner.png'} 
+                                  alt="Aperçu pub recherche" 
+                                  onError={(e) => {
+                                    e.currentTarget.src = '/images/padel_search_ad_banner.png'
+                                  }}
+                                  style={{ 
+                                    width: '100%', 
+                                    height: '100%', 
+                                    objectFit: 'cover',
+                                  }} 
+                                />
+                                <span style={{ 
+                                  position: 'absolute', 
+                                  top: 6, 
+                                  right: 6, 
+                                  backgroundColor: '#ffffff', 
+                                  color: '#000000', 
+                                  fontSize: '8px', 
+                                  fontWeight: 600, 
+                                  padding: '1px 5px', 
+                                  borderRadius: '3px',
+                                  boxShadow: '0 1px 3px rgba(0,0,0,0.2)',
+                                  textTransform: 'uppercase',
+                                  letterSpacing: '0.5px',
+                                  pointerEvents: 'none',
+                                }}>
+                                  publicité
+                                </span>
+                              </div>
+                            </div>
 
-                          <div>
-                            <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--ink-2)', marginBottom: 6 }}>
-                              URL de redirection au clic
-                            </label>
-                            <input 
-                              type="text"
-                              value={club.banner_destination_url || ''}
-                              onChange={(e) => handleInputChange(club.id, 'banner_destination_url', e.target.value)}
-                              placeholder="Ex: /parties ou https://..."
-                              disabled={migrationRequired}
-                              style={{
-                                width: '100%',
-                                padding: '10px 14px',
-                                borderRadius: 'var(--radius-tile)',
-                                border: '1px solid var(--card-border)',
-                                backgroundColor: 'var(--bg)',
-                                color: 'var(--ink)',
-                                fontSize: 14,
-                                outline: 'none',
-                                boxSizing: 'border-box',
-                              }}
-                            />
-                          </div>
+                            {/* Inputs */}
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                              <div>
+                                <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--ink-2)', marginBottom: 6 }}>
+                                  Chemin ou URL de l&apos;image (Recherche)
+                                </label>
+                                <input 
+                                  type="text"
+                                  value={club.search_banner_image_url || ''}
+                                  onChange={(e) => handleInputChange(club.id, 'search_banner_image_url', e.target.value)}
+                                  placeholder="Ex: /images/padel_search_ad_banner.png ou https://..."
+                                  disabled={migrationRequired}
+                                  style={{
+                                    width: '100%',
+                                    padding: '10px 14px',
+                                    borderRadius: 'var(--radius-tile)',
+                                    border: '1px solid var(--card-border)',
+                                    backgroundColor: 'var(--bg)',
+                                    color: 'var(--ink)',
+                                    fontSize: 14,
+                                    outline: 'none',
+                                    boxSizing: 'border-box',
+                                  }}
+                                />
+                              </div>
 
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 8 }}>
-                            <button
-                              onClick={() => handleSaveBanner(club.id)}
-                              disabled={migrationRequired || savingClubId === club.id}
-                              style={{
-                                padding: '10px 20px',
-                                borderRadius: 'var(--radius-pill)',
-                                backgroundColor: status === 'success' ? 'var(--accent)' : 'var(--ink)',
-                                color: '#fff',
-                                fontSize: 13,
-                                fontWeight: 600,
-                                border: 'none',
-                                cursor: (migrationRequired || savingClubId === club.id) ? 'not-allowed' : 'pointer',
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: 6,
-                                transition: 'all 0.2s',
-                                opacity: savingClubId === club.id ? 0.7 : 1,
-                              }}
-                            >
-                              {status === 'saving' && 'Enregistrement...'}
-                              {status === 'success' && 'Enregistré !'}
-                              {status === 'error' && 'Erreur !'}
-                              {status === 'idle' && 'Enregistrer'}
-                            </button>
-
-                            {status === 'success' && (
-                              <span style={{ fontSize: 13, color: 'var(--accent)', fontWeight: 500 }}>
-                                La bannière a été mise à jour avec succès.
-                              </span>
-                            )}
-                            {status === 'error' && (
-                              <span style={{ fontSize: 13, color: '#FF3B30', fontWeight: 500 }}>
-                                Erreur : veuillez vérifier la base de données.
-                              </span>
-                            )}
+                              <div>
+                                <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--ink-2)', marginBottom: 6 }}>
+                                  URL de redirection (Recherche)
+                                </label>
+                                <input 
+                                  type="text"
+                                  value={club.search_banner_destination_url || ''}
+                                  onChange={(e) => handleInputChange(club.id, 'search_banner_destination_url', e.target.value)}
+                                  placeholder="Ex: /parties ou https://..."
+                                  disabled={migrationRequired}
+                                  style={{
+                                    width: '100%',
+                                    padding: '10px 14px',
+                                    borderRadius: 'var(--radius-tile)',
+                                    border: '1px solid var(--card-border)',
+                                    backgroundColor: 'var(--bg)',
+                                    color: 'var(--ink)',
+                                    fontSize: 14,
+                                    outline: 'none',
+                                    boxSizing: 'border-box',
+                                  }}
+                                />
+                              </div>
+                            </div>
                           </div>
+                        </div>
+
+                        {/* Save Button */}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 8, borderTop: '1px solid var(--card-border)', paddingTop: 16 }}>
+                          <button
+                            onClick={() => handleSaveBanner(club.id)}
+                            disabled={migrationRequired || savingClubId === club.id}
+                            style={{
+                              padding: '10px 20px',
+                              borderRadius: 'var(--radius-pill)',
+                              backgroundColor: status === 'success' ? 'var(--accent)' : 'var(--ink)',
+                              color: '#fff',
+                              fontSize: 13,
+                              fontWeight: 600,
+                              border: 'none',
+                              cursor: (migrationRequired || savingClubId === club.id) ? 'not-allowed' : 'pointer',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: 6,
+                              transition: 'all 0.2s',
+                              opacity: savingClubId === club.id ? 0.7 : 1,
+                            }}
+                          >
+                            {status === 'saving' && 'Enregistrement...'}
+                            {status === 'success' && 'Enregistré !'}
+                            {status === 'error' && 'Erreur !'}
+                            {status === 'idle' && 'Enregistrer les modifications'}
+                          </button>
+
+                          {status === 'success' && (
+                            <span style={{ fontSize: 13, color: 'var(--accent)', fontWeight: 500 }}>
+                              Les bannières ont été mises à jour avec succès.
+                            </span>
+                          )}
+                          {status === 'error' && (
+                            <span style={{ fontSize: 13, color: '#FF3B30', fontWeight: 500 }}>
+                              Erreur : veuillez vérifier la base de données.
+                            </span>
+                          )}
                         </div>
 
                       </div>
@@ -998,6 +1129,10 @@ export function DashboardClient({ initialStats, clubs: initialClubs, migrationRe
           </div>
         )}
 
+        {activeTab === 'broadcast' && (
+          <BroadcastTab clubs={clubs} />
+        )}
+
       </div>
 
       {/* Embedded Animations for loading & custom CSS */}
@@ -1006,6 +1141,455 @@ export function DashboardClient({ initialStats, clubs: initialClubs, migrationRe
           to { transform: rotate(360deg); }
         }
       `}</style>
+    </div>
+  )
+}
+
+function BroadcastTab({ clubs }: { clubs: Club[] }) {
+  const [targetType, setTargetType] = useState<'all' | 'club'>('all')
+  const [selectedClubId, setSelectedClubId] = useState<string>('')
+  const [senderName, setSenderName] = useState('WizzPadel Team')
+  const [messageContent, setMessageContent] = useState('')
+  const [isSending, setIsSending] = useState(false)
+  const [status, setStatus] = useState<{ type: 'success' | 'error'; message: string } | null>(null)
+  
+  const textareaRef = useRef<HTMLTextAreaElement>(null)
+
+  const insertTag = (openTag: string, closeTag: string) => {
+    const textarea = textareaRef.current
+    if (!textarea) return
+
+    const start = textarea.selectionStart
+    const end = textarea.selectionEnd
+    const text = textarea.value
+    const selected = text.substring(start, end)
+    
+    let insertion = ''
+    if (openTag.startsWith('<a')) {
+      const url = prompt('Entrez l\'URL du lien :', 'https://')
+      if (url === null) return
+      insertion = `<a href="${url}" target="_blank" rel="noopener noreferrer">${selected || 'Lien'}</a>`
+    } else {
+      insertion = `${openTag}${selected}${closeTag}`
+    }
+
+    const newText = text.substring(0, start) + insertion + text.substring(end)
+    setMessageContent(newText)
+    
+    setTimeout(() => {
+      textarea.focus()
+      textarea.setSelectionRange(start + openTag.length, start + openTag.length + selected.length)
+    }, 10)
+  }
+
+  const handleSend = async () => {
+    if (!senderName.trim()) {
+      setStatus({ type: 'error', message: "Le nom de l'expéditeur est obligatoire." })
+      return
+    }
+    if (!messageContent.trim()) {
+      setStatus({ type: 'error', message: "Le message ne peut pas être vide." })
+      return
+    }
+    if (targetType === 'club' && !selectedClubId) {
+      setStatus({ type: 'error', message: "Veuillez sélectionner un club destinataire." })
+      return
+    }
+
+    setIsSending(true)
+    setStatus(null)
+
+    try {
+      const res = await sendBroadcastMessage(
+        targetType,
+        targetType === 'club' ? selectedClubId : null,
+        senderName.trim(),
+        messageContent.trim()
+      )
+
+      if (res.success) {
+        const count = res.count ?? 0
+        setStatus({ 
+          type: 'success', 
+          message: `Message envoyé avec succès à ${count} joueur${count > 1 ? 's' : ''} !` 
+        })
+        setMessageContent('')
+      } else {
+        setStatus({ type: 'error', message: res.error || "Une erreur est survenue lors de l'envoi." })
+      }
+    } catch (err) {
+      console.error(err)
+      setStatus({ type: 'error', message: "Erreur de connexion avec le serveur." })
+    } finally {
+      setIsSending(false)
+    }
+  }
+
+  return (
+    <div style={{ backgroundColor: 'var(--card)', borderRadius: 'var(--radius-card)', padding: 22, border: '1px solid var(--card-border)', display: 'flex', flexDirection: 'column', gap: 20 }}>
+      <div>
+        <h3 style={{ margin: 0, fontSize: 18, fontWeight: 600, color: 'var(--ink)', display: 'flex', alignItems: 'center', gap: 8 }}>
+          <Megaphone style={{ width: 20, height: 20, color: '#8E5AF7' }} />
+          Diffuser un message collectif
+        </h3>
+        <p style={{ margin: '4px 0 0 0', fontSize: 13, color: 'var(--muted)' }}>
+          Envoyez un message direct et non-répondable à une large audience de joueurs dans leur messagerie WizzPadel.
+        </p>
+      </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 24 }}>
+        
+        {/* Formulaire de configuration */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          
+          {/* Destinataires */}
+          <div>
+            <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--ink-2)', marginBottom: 6 }}>
+              Destinataires
+            </label>
+            <div style={{ display: 'flex', gap: 10, marginBottom: 8 }}>
+              <button
+                type="button"
+                onClick={() => setTargetType('all')}
+                style={{
+                  flex: 1,
+                  padding: '10px 14px',
+                  borderRadius: 'var(--radius-tile)',
+                  border: '1px solid var(--card-border)',
+                  backgroundColor: targetType === 'all' ? 'var(--ink)' : 'var(--bg)',
+                  color: targetType === 'all' ? '#fff' : 'var(--ink)',
+                  fontSize: 13,
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                }}
+              >
+                Tous les joueurs
+              </button>
+              <button
+                type="button"
+                onClick={() => setTargetType('club')}
+                style={{
+                  flex: 1,
+                  padding: '10px 14px',
+                  borderRadius: 'var(--radius-tile)',
+                  border: '1px solid var(--card-border)',
+                  backgroundColor: targetType === 'club' ? 'var(--ink)' : 'var(--bg)',
+                  color: targetType === 'club' ? '#fff' : 'var(--ink)',
+                  fontSize: 13,
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                }}
+              >
+                Par Club
+              </button>
+            </div>
+
+            {targetType === 'club' && (
+              <select
+                value={selectedClubId}
+                onChange={(e) => setSelectedClubId(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '10px 14px',
+                  borderRadius: 'var(--radius-tile)',
+                  border: '1px solid var(--card-border)',
+                  backgroundColor: 'var(--bg)',
+                  color: 'var(--ink)',
+                  fontSize: 14,
+                  outline: 'none',
+                  boxSizing: 'border-box',
+                }}
+              >
+                <option value="">-- Choisir un club --</option>
+                {clubs.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.nom} ({c.ville})
+                  </option>
+                ))}
+              </select>
+            )}
+          </div>
+
+          {/* Nom de l'expéditeur */}
+          <div>
+            <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--ink-2)', marginBottom: 6 }}>
+              Nom de l&apos;expéditeur (affiché dans l&apos;inbox)
+            </label>
+            <input
+              type="text"
+              value={senderName}
+              onChange={(e) => setSenderName(e.target.value)}
+              placeholder="Ex: WizzPadel Team, Info Club..."
+              style={{
+                width: '100%',
+                padding: '10px 14px',
+                borderRadius: 'var(--radius-tile)',
+                border: '1px solid var(--card-border)',
+                backgroundColor: 'var(--bg)',
+                color: 'var(--ink)',
+                fontSize: 14,
+                outline: 'none',
+                boxSizing: 'border-box',
+              }}
+            />
+          </div>
+
+          {/* Éditeur WYSIWYG */}
+          <div>
+            <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--ink-2)', marginBottom: 6 }}>
+              Contenu du message
+            </label>
+            
+            <div style={{
+              display: 'flex',
+              gap: 4,
+              padding: 6,
+              backgroundColor: '#F4F4F5',
+              border: '1px solid var(--card-border)',
+              borderBottom: 'none',
+              borderRadius: '14px 14px 0 0',
+              alignItems: 'center',
+            }}>
+              <button
+                type="button"
+                onClick={() => insertTag('<strong>', '</strong>')}
+                title="Gras"
+                style={{
+                  padding: '6px 10px',
+                  borderRadius: 6,
+                  border: 'none',
+                  background: 'transparent',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 4,
+                  color: 'var(--ink)',
+                }}
+              >
+                <Bold style={{ width: 14, height: 14 }} />
+              </button>
+              <button
+                type="button"
+                onClick={() => insertTag('<em>', '</em>')}
+                title="Italique"
+                style={{
+                  padding: '6px 10px',
+                  borderRadius: 6,
+                  border: 'none',
+                  background: 'transparent',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 4,
+                  color: 'var(--ink)',
+                }}
+              >
+                <Italic style={{ width: 14, height: 14 }} />
+              </button>
+              <button
+                type="button"
+                onClick={() => insertTag('<a href="" target="_blank" rel="noopener noreferrer">', '</a>')}
+                title="Lien hypertexte"
+                style={{
+                  padding: '6px 10px',
+                  borderRadius: 6,
+                  border: 'none',
+                  background: 'transparent',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 4,
+                  color: 'var(--ink)',
+                }}
+              >
+                <Link2 style={{ width: 14, height: 14 }} />
+              </button>
+              <div style={{ width: 1, height: 18, backgroundColor: 'var(--card-border)', margin: '0 6px' }} />
+              <button
+                type="button"
+                onClick={() => setMessageContent('')}
+                title="Vider"
+                style={{
+                  padding: '6px 10px',
+                  borderRadius: 6,
+                  border: 'none',
+                  background: 'transparent',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 4,
+                  color: '#FF3B30',
+                }}
+              >
+                <Trash2 style={{ width: 14, height: 14 }} />
+              </button>
+            </div>
+
+            <textarea
+              ref={textareaRef}
+              value={messageContent}
+              onChange={(e) => setMessageContent(e.target.value)}
+              placeholder="Saisissez votre message ici (HTML supporté)..."
+              rows={8}
+              style={{
+                width: '100%',
+                padding: '12px 14px',
+                borderRadius: '0 0 var(--radius-tile) var(--radius-tile)',
+                border: '1px solid var(--card-border)',
+                backgroundColor: 'var(--bg)',
+                color: 'var(--ink)',
+                fontSize: 14,
+                fontFamily: 'inherit',
+                outline: 'none',
+                boxSizing: 'border-box',
+                resize: 'vertical',
+              }}
+            />
+          </div>
+
+          {status && (
+            <div style={{
+              padding: 12,
+              borderRadius: 'var(--radius-tile)',
+              fontSize: 13,
+              fontWeight: 500,
+              backgroundColor: status.type === 'success' ? 'rgba(25,166,107,0.1)' : 'rgba(255,59,48,0.1)',
+              color: status.type === 'success' ? 'var(--accent)' : '#FF3B30',
+              border: `1px solid ${status.type === 'success' ? 'var(--accent)' : '#FF3B30'}`,
+            }}>
+              {status.message}
+            </div>
+          )}
+
+          <button
+            type="button"
+            onClick={handleSend}
+            disabled={isSending}
+            style={{
+              padding: '12px 24px',
+              borderRadius: 'var(--radius-pill)',
+              backgroundColor: 'var(--ink)',
+              color: '#fff',
+              fontSize: 14,
+              fontWeight: 600,
+              border: 'none',
+              cursor: isSending ? 'not-allowed' : 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 8,
+              transition: 'opacity 0.2s',
+              opacity: isSending ? 0.6 : 1,
+            }}
+          >
+            <Send style={{ width: 16, height: 16 }} />
+            {isSending ? 'Diffusion en cours...' : 'Diffuser le message'}
+          </button>
+
+        </div>
+
+        {/* Aperçu en direct */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+          <span style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--ink-2)' }}>
+            Aperçu visuel (Bulle de messagerie reçue)
+          </span>
+
+          <div style={{
+            flex: 1,
+            border: '1px solid var(--card-border)',
+            borderRadius: 'var(--radius-card)',
+            backgroundColor: 'var(--bg)',
+            padding: 16,
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            minHeight: 280,
+          }}>
+            {/* Simulation de message dans l'inbox */}
+            <div style={{
+              backgroundColor: 'var(--card)',
+              borderRadius: 'var(--radius-card)',
+              border: '1px solid var(--card-border)',
+              padding: '14px 18px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 14,
+              maxWidth: 360,
+              margin: '0 auto 16px auto',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
+              width: '100%',
+              boxSizing: 'border-box',
+            }}>
+              <div style={{ width: 48, height: 48, borderRadius: '50%', background: 'rgba(142,90,247,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#8E5AF7', flexShrink: 0 }}>
+                <svg width={20} height={20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" /><path d="M13.73 21a2 2 0 0 1-3.46 0" /></svg>
+              </div>
+              <div style={{ flex: 1, overflow: 'hidden' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 2 }}>
+                  <h4 style={{ margin: 0, fontSize: 14, fontWeight: 600, color: 'var(--ink)' }}>
+                    {senderName || 'Expéditeur'}
+                  </h4>
+                  <span style={{ fontSize: 11, color: 'var(--muted)' }}>14:40</span>
+                </div>
+                <p style={{ margin: 0, fontSize: 12, color: 'var(--muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  {messageContent ? 'Nouveau message collectif...' : 'Aperçu du message...'}
+                </p>
+              </div>
+            </div>
+
+            {/* Simulation de la discussion interne */}
+            <div style={{
+              display: 'flex',
+              flexDirection: 'column',
+              width: '100%',
+              maxWidth: 360,
+              margin: '0 auto',
+              boxSizing: 'border-box',
+            }}>
+              <span style={{ fontSize: 10, color: 'var(--muted-foreground)', marginBottom: 4, marginLeft: 4, fontWeight: 600 }}>
+                {senderName || 'Expéditeur'}
+              </span>
+              <div style={{
+                padding: '10px 16px',
+                borderRadius: '20px 20px 20px 4px',
+                fontSize: 14,
+                background: 'var(--card)',
+                color: 'var(--foreground)',
+                border: '1px solid var(--card-border)',
+                lineHeight: 1.4,
+                boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
+                minHeight: 80,
+              }}>
+                {messageContent ? (
+                  <div 
+                    className="broadcast-content"
+                    dangerouslySetInnerHTML={{ __html: messageContent }} 
+                  />
+                ) : (
+                  <span style={{ color: 'var(--muted)', fontStyle: 'italic' }}>
+                    Le message formaté apparaîtra ici...
+                  </span>
+                )}
+              </div>
+              
+              <div style={{
+                marginTop: 12,
+                backgroundColor: 'rgba(0,0,0,0.02)',
+                border: '1px dashed var(--card-border)',
+                borderRadius: 14,
+                padding: '10px 12px',
+                textAlign: 'center',
+                color: 'var(--muted)',
+                fontSize: 11,
+                fontStyle: 'italic',
+              }}>
+                Vous ne pouvez pas répondre à cette conversation.
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
     </div>
   )
 }

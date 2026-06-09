@@ -15,11 +15,13 @@ export default async function MessagePage({ params }: { params: { id: string } }
   const { data: participant } = await supabase.from('conversation_participants').select('*').eq('conversation_id', params.id).eq('user_id', user.id).single()
   if (!participant) redirect('/')
 
-  const { data: initialMessages } = await supabase.from('messages').select(`id, contenu, created_at, sender_id, users ( prenom, photo_url )`).eq('conversation_id', params.id).order('created_at', { ascending: true })
+  const { data: initialMessages } = await supabase.from('messages').select(`id, contenu, is_html, created_at, sender_id, users ( prenom, photo_url )`).eq('conversation_id', params.id).order('created_at', { ascending: true })
 
-  const { data: convInfo } = await supabase.from('conversations').select('party_id').eq('id', params.id).single()
+  const { data: convInfo } = await supabase.from('conversations').select('party_id, title, is_read_only').eq('id', params.id).single()
   let chatTitle = 'Discussion'
-  if (convInfo?.party_id) {
+  if (convInfo?.title) {
+    chatTitle = convInfo.title
+  } else if (convInfo?.party_id) {
     const { data: partyData } = await supabase.from('parties').select('date_heure').eq('id', convInfo.party_id).single()
     if (partyData?.date_heure) {
       const dateStr = formatDateShort(partyData.date_heure)
@@ -40,7 +42,11 @@ export default async function MessagePage({ params }: { params: { id: string } }
   }
 
   const formattedMessages = (initialMessages || []).map((m: Record<string, unknown>) => ({
-    id: m.id as string, contenu: m.contenu as string, created_at: m.created_at as string, sender_id: m.sender_id as string,
+    id: m.id as string, 
+    contenu: m.contenu as string, 
+    is_html: !!m.is_html,
+    created_at: m.created_at as string, 
+    sender_id: m.sender_id as string,
     senderData: m.users as { prenom: string, photo_url: string } | null
   }))
 
@@ -59,7 +65,7 @@ export default async function MessagePage({ params }: { params: { id: string } }
           </p>
         </div>
       </div>
-      <ChatInterface conversationId={params.id} initialMessages={formattedMessages} currentUserId={user.id} />
+      <ChatInterface conversationId={params.id} initialMessages={formattedMessages} currentUserId={user.id} isReadOnly={!!convInfo?.is_read_only} />
     </div>
   )
 }

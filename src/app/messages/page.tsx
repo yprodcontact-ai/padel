@@ -6,7 +6,7 @@ import { ConversationList, type ChatItem } from './conversation-list'
 
 export const metadata = { title: 'Messages — WizzPadel' }
 
-type ConvParticipantRow = { conversation_id: string; archived: boolean | null; conversations: { type: string; party_id: string; parties: { date_heure: string; clubs: { nom: string } | null } | null; messages: { contenu: string; created_at: string; sender_id: string; lu: boolean }[] | null; conversation_participants: { user_id: string; users: { prenom: string, nom: string, photo_url: string } | null }[] | null } | null }
+type ConvParticipantRow = { conversation_id: string; archived: boolean | null; conversations: { type: string; party_id: string; title: string | null; is_read_only: boolean | null; parties: { date_heure: string; clubs: { nom: string } | null } | null; messages: { contenu: string; created_at: string; sender_id: string; lu: boolean }[] | null; conversation_participants: { user_id: string; users: { prenom: string, nom: string, photo_url: string } | null }[] | null } | null }
 
 export default async function InboxPage() {
   const supabase = createClient()
@@ -16,14 +16,16 @@ export default async function InboxPage() {
 
   const { data: participantsRaw, error: queryError } = await supabase
     .from('conversation_participants')
-    .select(`conversation_id, archived, conversations ( type, party_id, parties ( date_heure, clubs (nom) ), messages ( contenu, created_at, sender_id, lu ), conversation_participants ( user_id, users ( prenom, nom, photo_url ) ) )`)
+    .select(`conversation_id, archived, conversations ( type, party_id, title, is_read_only, parties ( date_heure, clubs (nom) ), messages ( contenu, created_at, sender_id, lu ), conversation_participants ( user_id, users ( prenom, nom, photo_url ) ) )`)
     .eq('user_id', user.id)
 
   const participants = participantsRaw as unknown as ConvParticipantRow[]
   const chatList = (participants || []).map(p => {
     const conv = p.conversations; if (!conv) return null
     let chatTitle = 'Chat'; let chatAvatar = null
-    if (conv.type === 'groupe') {
+    if (conv.title) {
+      chatTitle = conv.title
+    } else if (conv.type === 'groupe') {
       if (conv.parties?.date_heure) { chatTitle = `Match : ${formatDateShort(conv.parties.date_heure)} - ${formatTime(conv.parties.date_heure)}` } else { chatTitle = 'Match' }
     } else if (conv.type === 'prive') {
       const otherUser = conv.conversation_participants?.find(cp => cp.user_id !== user.id)?.users
@@ -32,7 +34,7 @@ export default async function InboxPage() {
     }
     const msgs = conv.messages || []; msgs.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()); const lastMessage = msgs[0]
     const unreadCount = msgs.filter(m => !m.lu && m.sender_id !== user.id).length
-    return { id: p.conversation_id, title: chatTitle, type: conv.type, chatAvatar, partyId: conv.party_id, lastMessageText: lastMessage?.contenu || 'Aucun message', lastMessageTime: lastMessage ? lastMessage.created_at : null, lastSenderIsMe: lastMessage?.sender_id === user.id, unreadCount, archived: !!p.archived }
+    return { id: p.conversation_id, title: chatTitle, type: conv.type, chatAvatar, partyId: conv.party_id, lastMessageText: lastMessage?.contenu || 'Aucun message', lastMessageTime: lastMessage ? lastMessage.created_at : null, lastSenderIsMe: lastMessage?.sender_id === user.id, unreadCount, archived: !!p.archived, isReadOnly: !!conv.is_read_only }
   }).filter(Boolean) as ChatItem[]
   chatList.sort((a, b) => { if (!a.lastMessageTime) return 1; if (!b.lastMessageTime) return -1; return new Date(b.lastMessageTime).getTime() - new Date(a.lastMessageTime).getTime() })
 

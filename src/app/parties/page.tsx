@@ -66,6 +66,24 @@ export default async function PartiesSearchPage({
   
   const now = new Date().toISOString()
 
+  // Fetch search banner
+  const bannerClubId = (searchClub && searchClub !== 'tous') ? searchClub : userClubId
+  let searchBannerImage = '/images/padel_search_ad_banner.png'
+  let searchBannerLink = '#'
+
+  if (bannerClubId) {
+    const { data: club } = await supabase
+      .from('clubs')
+      .select('search_banner_image_url, search_banner_destination_url')
+      .eq('id', bannerClubId)
+      .single()
+
+    if (club && club.search_banner_image_url) {
+      searchBannerImage = club.search_banner_image_url
+      searchBannerLink = club.search_banner_destination_url || '#'
+    }
+  }
+
   // Base query: Upcoming matched parties with player details
   let query = supabase
     .from('parties')
@@ -167,8 +185,59 @@ export default async function PartiesSearchPage({
           {formattedParties.length > 0 ? (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
               {formattedParties.map((party, idx) => (
-                <div key={party.id} className="animate-in-stagger" style={{ animationDelay: `${idx * 0.04}s` }}>
-                  <PartyCard party={party} />
+                <div key={party.id}>
+                  <div className="animate-in-stagger" style={{ animationDelay: `${idx * 0.04}s` }}>
+                    <PartyCard party={party} />
+                  </div>
+                  
+                  {idx === 0 && (
+                    <div style={{ margin: '14px 0 0 0', animationDelay: '0.04s' }} className="animate-in-stagger">
+                      <a 
+                        href={searchBannerLink}
+                        target={searchBannerLink.startsWith('http') ? '_blank' : undefined}
+                        rel={searchBannerLink.startsWith('http') ? 'noopener noreferrer' : undefined}
+                        style={{ 
+                          display: 'block',
+                          position: 'relative', 
+                          width: '100%', 
+                          aspectRatio: '4 / 1', 
+                          borderRadius: 'var(--radius-card)', 
+                          overflow: 'hidden',
+                          border: '1px solid var(--card-border)',
+                          cursor: searchBannerLink !== '#' ? 'pointer' : 'default',
+                        }}
+                      >
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img 
+                          src={searchBannerImage} 
+                          alt="Publicité Club" 
+                          style={{ 
+                            width: '100%', 
+                            height: '100%', 
+                            objectFit: 'cover',
+                          }} 
+                        />
+                        <span style={{ 
+                          position: 'absolute', 
+                          top: 12, 
+                          right: 12, 
+                          backgroundColor: '#ffffff', 
+                          color: '#000000', 
+                          fontSize: '10px', 
+                          fontWeight: 600, 
+                          padding: '3px 8px', 
+                          borderRadius: '4px',
+                          boxShadow: '0 1px 3px rgba(0, 0, 0, 0.2)',
+                          textTransform: 'uppercase',
+                          letterSpacing: '0.5px',
+                          pointerEvents: 'none',
+                          lineHeight: '1.2',
+                        }}>
+                          publicité
+                        </span>
+                      </a>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
