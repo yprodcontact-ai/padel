@@ -154,6 +154,7 @@ export default async function Home() {
   }
 
   const photoUrl = userProfile?.photo_url as string | null
+  const clubLink = userClubId ? `/clubs/${userClubId}` : '/clubs'
 
   return (
     <div style={{ backgroundColor: 'var(--bg)', minHeight: '100vh' }}>
@@ -178,7 +179,7 @@ export default async function Home() {
           </div>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <Link href="/messages" style={{ display: 'flex', alignItems: 'center', height: 40, padding: '0 18px', borderRadius: 999, backgroundColor: 'var(--card)', border: '1px solid var(--card-border)', fontSize: 15, fontWeight: 500, color: 'var(--ink)', textDecoration: 'none' }}>Chat</Link>
+          <Link href={clubLink} style={{ display: 'flex', alignItems: 'center', height: 40, padding: '0 18px', borderRadius: 999, backgroundColor: 'var(--card)', border: '1px solid var(--card-border)', fontSize: 15, fontWeight: 500, color: 'var(--ink)', textDecoration: 'none' }}>Mon club</Link>
           <NotificationBell userId={userId} />
         </div>
       </div>

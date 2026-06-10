@@ -6,7 +6,7 @@ import { ConversationList, type ChatItem } from './conversation-list'
 
 export const metadata = { title: 'Messages — WizzPadel' }
 
-type ConvParticipantRow = { conversation_id: string; archived: boolean | null; conversations: { type: string; party_id: string; title: string | null; is_read_only: boolean | null; parties: { date_heure: string; clubs: { nom: string } | null } | null; messages: { contenu: string; created_at: string; sender_id: string; lu: boolean }[] | null; conversation_participants: { user_id: string; users: { prenom: string, nom: string, photo_url: string } | null }[] | null } | null }
+type ConvParticipantRow = { conversation_id: string; archived: boolean | null; conversations: { type: string; party_id: string; title: string | null; is_read_only: boolean | null; logo_url: string | null; parties: { date_heure: string; clubs: { nom: string } | null } | null; messages: { contenu: string; created_at: string; sender_id: string; lu: boolean }[] | null; conversation_participants: { user_id: string; users: { prenom: string, nom: string, photo_url: string } | null }[] | null } | null }
 
 export default async function InboxPage() {
   const supabase = createClient()
@@ -16,7 +16,7 @@ export default async function InboxPage() {
 
   const { data: participantsRaw, error: queryError } = await supabase
     .from('conversation_participants')
-    .select(`conversation_id, archived, conversations ( type, party_id, title, is_read_only, parties ( date_heure, clubs (nom) ), messages ( contenu, created_at, sender_id, lu ), conversation_participants ( user_id, users ( prenom, nom, photo_url ) ) )`)
+    .select(`conversation_id, archived, conversations ( type, party_id, title, is_read_only, logo_url, parties ( date_heure, clubs (nom) ), messages ( contenu, created_at, sender_id, lu ), conversation_participants ( user_id, users ( prenom, nom, photo_url ) ) )`)
     .eq('user_id', user.id)
 
   const participants = participantsRaw as unknown as ConvParticipantRow[]
@@ -25,6 +25,7 @@ export default async function InboxPage() {
     let chatTitle = 'Chat'; let chatAvatar = null
     if (conv.title) {
       chatTitle = conv.title
+      chatAvatar = conv.logo_url || null
     } else if (conv.type === 'groupe') {
       if (conv.parties?.date_heure) { chatTitle = `Match : ${formatDateShort(conv.parties.date_heure)} - ${formatTime(conv.parties.date_heure)}` } else { chatTitle = 'Match' }
     } else if (conv.type === 'prive') {

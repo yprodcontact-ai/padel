@@ -21,7 +21,7 @@ import {
   Link2,
   Trash2
 } from 'lucide-react'
-import { updateClubBanner, sendBroadcastMessage } from './actions'
+import { updateClubBanner, sendBroadcastMessage, uploadBroadcastLogo } from './actions'
 
 // Types for stats structure
 interface DashboardStats {
@@ -1150,10 +1150,38 @@ function BroadcastTab({ clubs }: { clubs: Club[] }) {
   const [selectedClubId, setSelectedClubId] = useState<string>('')
   const [senderName, setSenderName] = useState('WizzPadel Team')
   const [messageContent, setMessageContent] = useState('')
+  const [logoUrl, setLogoUrl] = useState<string | null>(null)
+  const [isUploadingLogo, setIsUploadingLogo] = useState(false)
   const [isSending, setIsSending] = useState(false)
   const [status, setStatus] = useState<{ type: 'success' | 'error'; message: string } | null>(null)
   
   const textareaRef = useRef<HTMLTextAreaElement>(null)
+
+  const handleLogoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    setIsUploadingLogo(true)
+    setStatus(null)
+
+    const formData = new FormData()
+    formData.append('logo', file)
+
+    try {
+      const res = await uploadBroadcastLogo(formData)
+      if (res.success && res.url) {
+        setLogoUrl(res.url)
+        setStatus({ type: 'success', message: 'Logo téléchargé avec succès !' })
+      } else {
+        setStatus({ type: 'error', message: res.error || "Une erreur est survenue lors de l'upload du logo." })
+      }
+    } catch (err) {
+      console.error(err)
+      setStatus({ type: 'error', message: "Erreur de connexion lors de l'upload du logo." })
+    } finally {
+      setIsUploadingLogo(false)
+    }
+  }
 
   const insertTag = (openTag: string, closeTag: string) => {
     const textarea = textareaRef.current
@@ -1204,7 +1232,8 @@ function BroadcastTab({ clubs }: { clubs: Club[] }) {
         targetType,
         targetType === 'club' ? selectedClubId : null,
         senderName.trim(),
-        messageContent.trim()
+        messageContent.trim(),
+        logoUrl
       )
 
       if (res.success) {
@@ -1332,6 +1361,72 @@ function BroadcastTab({ clubs }: { clubs: Club[] }) {
                 boxSizing: 'border-box',
               }}
             />
+          </div>
+
+          {/* Logo de l'expéditeur */}
+          <div>
+            <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--ink-2)', marginBottom: 6 }}>
+              Logo de l&apos;expéditeur (photo de profil)
+            </label>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              {logoUrl ? (
+                <div style={{ position: 'relative', width: 48, height: 48, borderRadius: '50%', overflow: 'hidden', border: '1px solid var(--card-border)', flexShrink: 0 }}>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={logoUrl} alt="Logo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                </div>
+              ) : (
+                <div style={{ width: 48, height: 48, borderRadius: '50%', background: 'rgba(142,90,247,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#8E5AF7', flexShrink: 0 }}>
+                  <svg width={20} height={20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" /><path d="M13.73 21a2 2 0 0 1-3.46 0" /></svg>
+                </div>
+              )}
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 6 }}>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleLogoChange}
+                  disabled={isUploadingLogo}
+                  style={{ display: 'none' }}
+                  id="broadcast-logo-file"
+                />
+                <div style={{ display: 'flex', gap: 8 }}>
+                  <label
+                    htmlFor="broadcast-logo-file"
+                    style={{
+                      padding: '8px 14px',
+                      borderRadius: 'var(--radius-tile)',
+                      border: '1px solid var(--card-border)',
+                      backgroundColor: 'var(--bg)',
+                      color: 'var(--ink)',
+                      fontSize: 13,
+                      fontWeight: 600,
+                      cursor: 'pointer',
+                      display: 'inline-block',
+                      textAlign: 'center',
+                    }}
+                  >
+                    {isUploadingLogo ? 'Téléchargement...' : logoUrl ? 'Changer' : 'Choisir un fichier'}
+                  </label>
+                  {logoUrl && (
+                    <button
+                      type="button"
+                      onClick={() => setLogoUrl(null)}
+                      style={{
+                        padding: '8px 14px',
+                        borderRadius: 'var(--radius-tile)',
+                        border: '1px solid #FF3B30',
+                        backgroundColor: 'transparent',
+                        color: '#FF3B30',
+                        fontSize: 13,
+                        fontWeight: 600,
+                        cursor: 'pointer',
+                      }}
+                    >
+                      Supprimer
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
           </div>
 
           {/* Éditeur WYSIWYG */}
@@ -1520,9 +1615,16 @@ function BroadcastTab({ clubs }: { clubs: Club[] }) {
               width: '100%',
               boxSizing: 'border-box',
             }}>
-              <div style={{ width: 48, height: 48, borderRadius: '50%', background: 'rgba(142,90,247,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#8E5AF7', flexShrink: 0 }}>
-                <svg width={20} height={20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" /><path d="M13.73 21a2 2 0 0 1-3.46 0" /></svg>
-              </div>
+              {logoUrl ? (
+                <div style={{ width: 48, height: 48, borderRadius: '50%', overflow: 'hidden', flexShrink: 0, border: '1px solid var(--card-border)' }}>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={logoUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                </div>
+              ) : (
+                <div style={{ width: 48, height: 48, borderRadius: '50%', background: 'rgba(142,90,247,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#8E5AF7', flexShrink: 0 }}>
+                  <svg width={20} height={20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" /><path d="M13.73 21a2 2 0 0 1-3.46 0" /></svg>
+                </div>
+              )}
               <div style={{ flex: 1, overflow: 'hidden' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 2 }}>
                   <h4 style={{ margin: 0, fontSize: 14, fontWeight: 600, color: 'var(--ink)' }}>

@@ -80,7 +80,12 @@ export function ConversationList({ chats }: { chats: ChatItem[] }) {
             >
               {/* Avatar */}
               <div style={{ flexShrink: 0 }}>
-                {chat.isReadOnly ? (
+                {chat.isReadOnly && chat.chatAvatar ? (
+                  <div style={{ width: 48, height: 48, borderRadius: '50%', overflow: 'hidden' }}>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={chat.chatAvatar} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  </div>
+                ) : chat.isReadOnly ? (
                   <div style={{ width: 48, height: 48, borderRadius: '50%', background: 'rgba(142,90,247,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#8E5AF7' }}>
                     <svg width={20} height={20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" /><path d="M13.73 21a2 2 0 0 1-3.46 0" /></svg>
                   </div>
