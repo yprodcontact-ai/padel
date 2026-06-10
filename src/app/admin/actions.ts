@@ -1,8 +1,25 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
+import { createClient as createSupabaseAdminClient } from '@supabase/supabase-js'
 import { revalidatePath } from 'next/cache'
 import { sendPushNotification } from '@/lib/push'
+
+function getSupabaseAdmin() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL!
+  const serviceRole = process.env.SUPABASE_SERVICE_ROLE_KEY
+  
+  if (!serviceRole) {
+    return null
+  }
+  
+  return createSupabaseAdminClient(url, serviceRole, {
+    auth: {
+      persistSession: false,
+      autoRefreshToken: false,
+    }
+  })
+}
 
 export async function updateClubBanner(
   clubId: string,
@@ -114,6 +131,7 @@ export async function sendBroadcastMessage(
   logoUrl?: string | null
 ) {
   const supabase = createClient()
+  const supabaseAdmin = getSupabaseAdmin() || supabase
   
   // 1. Authenticate user
   const { data: authData, error: authErr } = await supabase.auth.getUser()
@@ -140,7 +158,7 @@ export async function sendBroadcastMessage(
   }
 
   // 3. Query target users (filter out the admin themselves so they don't broadcast to themselves)
-  let targetQuery = supabase.from('users').select('id, prenom, notify_messages').neq('id', authData.user.id)
+  let targetQuery = supabaseAdmin.from('users').select('id, prenom, notify_messages').neq('id', authData.user.id)
   if (targetType === 'club' && clubId) {
     targetQuery = targetQuery.eq('club_id', clubId)
   }
@@ -160,7 +178,7 @@ export async function sendBroadcastMessage(
     let conversationId: string | null = null
 
     // Attempt to reuse an existing broadcast conversation with the same title for this user
-    const { data: existingConvs } = await supabase
+    const { data: existingConvs } = await supabaseAdmin
       .from('conversation_participants')
       .select('conversation_id, conversations!inner (title, is_read_only, logo_url)')
       .eq('user_id', recipient.id)
@@ -178,14 +196,14 @@ export async function sendBroadcastMessage(
       const conv = match.conversations as unknown as { title: string, is_read_only: boolean, logo_url: string | null }
       // Update logo_url if it changed
       if (logoUrl !== undefined && conv.logo_url !== logoUrl) {
-        await supabase
+        await supabaseAdmin
           .from('conversations')
           .update({ logo_url: logoUrl || null })
           .eq('id', conversationId)
       }
     } else {
       // Create a new conversation
-      const { data: newConv, error: convErr } = await supabase
+      const { data: newConv, error: convErr } = await supabaseAdmin
         .from('conversations')
         .insert({
           type: 'prive',
@@ -202,11 +220,10 @@ export async function sendBroadcastMessage(
       }
       conversationId = newConv.id
 
-      // Insert participants: admin and recipient
-      const { error: partErr } = await supabase
+      // Insert participants: recipient only (do NOT insert admin)
+      const { error: partErr } = await supabaseAdmin
         .from('conversation_participants')
         .insert([
-          { conversation_id: conversationId, user_id: authData.user.id },
           { conversation_id: conversationId, user_id: recipient.id }
         ])
 
@@ -217,7 +234,7 @@ export async function sendBroadcastMessage(
     }
 
     // Insert the message as HTML
-    const { error: msgErr } = await supabase
+    const { error: msgErr } = await supabaseAdmin
       .from('messages')
       .insert({
         conversation_id: conversationId,

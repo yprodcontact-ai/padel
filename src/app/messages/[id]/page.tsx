@@ -17,7 +17,7 @@ export default async function MessagePage({ params }: { params: { id: string } }
 
   const { data: initialMessages } = await supabase.from('messages').select(`id, contenu, is_html, created_at, sender_id, users ( prenom, photo_url )`).eq('conversation_id', params.id).order('created_at', { ascending: true })
 
-  const { data: convInfo } = await supabase.from('conversations').select('party_id, title, is_read_only').eq('id', params.id).single()
+  const { data: convInfo } = await supabase.from('conversations').select('party_id, title, is_read_only, logo_url').eq('id', params.id).single()
   let chatTitle = 'Discussion'
   if (convInfo?.title) {
     chatTitle = convInfo.title
@@ -65,7 +65,13 @@ export default async function MessagePage({ params }: { params: { id: string } }
           </p>
         </div>
       </div>
-      <ChatInterface conversationId={params.id} initialMessages={formattedMessages} currentUserId={user.id} isReadOnly={!!convInfo?.is_read_only} />
+      <ChatInterface 
+        conversationId={params.id} 
+        initialMessages={formattedMessages} 
+        currentUserId={user.id} 
+        isReadOnly={!!convInfo?.is_read_only} 
+        conversationTitle={chatTitle} 
+      />
     </div>
   )
 }

@@ -8,7 +8,7 @@ import { haptic } from '@/lib/haptic'
 
 export type Message = { id: string; contenu: string; is_html?: boolean; created_at: string; sender_id: string; senderData?: { prenom: string, photo_url: string } | null }
 
-export function ChatInterface({ conversationId, initialMessages, currentUserId, isReadOnly = false }: { conversationId: string, initialMessages: Message[], currentUserId: string, isReadOnly?: boolean }) {
+export function ChatInterface({ conversationId, initialMessages, currentUserId, isReadOnly = false, conversationTitle }: { conversationId: string, initialMessages: Message[], currentUserId: string, isReadOnly?: boolean, conversationTitle?: string }) {
     const [messages, setMessages] = useState<Message[]>(initialMessages)
     const [newMessage, setNewMessage] = useState('')
     const [isSending, setIsSending] = useState(false)
@@ -59,7 +59,11 @@ export function ChatInterface({ conversationId, initialMessages, currentUserId, 
                     return (
                         <div key={m.id || i} style={{ display: 'flex', width: '100%', justifyContent: isMe ? 'flex-end' : 'flex-start' }}>
                             <div style={{ display: 'flex', flexDirection: 'column', maxWidth: '80%', alignItems: isMe ? 'flex-end' : 'flex-start' }}>
-                                {!isMe && <span style={{ fontSize: 10, color: 'var(--muted-foreground)', marginBottom: 4, marginLeft: 4, fontWeight: 600 }}>{m.senderData?.prenom || 'Joueur'}</span>}
+                                {!isMe && (
+                                    <span style={{ fontSize: 10, color: 'var(--muted-foreground)', marginBottom: 4, marginLeft: 4, fontWeight: 600 }}>
+                                        {isReadOnly ? (conversationTitle || 'WizzPadel Team') : (m.senderData?.prenom || 'Joueur')}
+                                    </span>
+                                )}
                                 <div style={{
                                     padding: '10px 16px',
                                     borderRadius: isMe ? '20px 20px 4px 20px' : '20px 20px 20px 4px',
