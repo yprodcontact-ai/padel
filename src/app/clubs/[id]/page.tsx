@@ -264,6 +264,7 @@ export default async function ClubDetailPage({ params }: { params: { id: string 
           />
         </div>
       </div>
+      <div style={{ height: 120, flexShrink: 0 }} />
     </div>
   )
 }

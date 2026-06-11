@@ -1141,6 +1141,7 @@ export function DashboardClient({ initialStats, clubs: initialClubs, migrationRe
           to { transform: rotate(360deg); }
         }
       `}</style>
+      <div style={{ height: 120, flexShrink: 0 }} />
     </div>
   )
 }
@@ -1148,7 +1149,7 @@ export function DashboardClient({ initialStats, clubs: initialClubs, migrationRe
 function BroadcastTab({ clubs }: { clubs: Club[] }) {
   const [targetType, setTargetType] = useState<'all' | 'club'>('all')
   const [selectedClubId, setSelectedClubId] = useState<string>('')
-  const [senderName, setSenderName] = useState('WizzPadel Team')
+  const [senderName, setSenderName] = useState('')
   const [messageContent, setMessageContent] = useState('')
   const [logoUrl, setLogoUrl] = useState<string | null>(null)
   const [isUploadingLogo, setIsUploadingLogo] = useState(false)
@@ -1156,6 +1157,7 @@ function BroadcastTab({ clubs }: { clubs: Club[] }) {
   const [status, setStatus] = useState<{ type: 'success' | 'error'; message: string } | null>(null)
   
   const textareaRef = useRef<HTMLTextAreaElement>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const handleLogoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -1381,16 +1383,18 @@ function BroadcastTab({ clubs }: { clubs: Club[] }) {
               )}
               <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 6 }}>
                 <input
+                  ref={fileInputRef}
                   type="file"
                   accept="image/*"
                   onChange={handleLogoChange}
                   disabled={isUploadingLogo}
                   style={{ display: 'none' }}
-                  id="broadcast-logo-file"
                 />
                 <div style={{ display: 'flex', gap: 8 }}>
-                  <label
-                    htmlFor="broadcast-logo-file"
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={isUploadingLogo}
                     style={{
                       padding: '8px 14px',
                       borderRadius: 'var(--radius-tile)',
@@ -1405,7 +1409,7 @@ function BroadcastTab({ clubs }: { clubs: Club[] }) {
                     }}
                   >
                     {isUploadingLogo ? 'Téléchargement...' : logoUrl ? 'Changer' : 'Choisir un fichier'}
-                  </label>
+                  </button>
                   {logoUrl && (
                     <button
                       type="button"

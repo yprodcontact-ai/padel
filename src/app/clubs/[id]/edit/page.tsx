@@ -160,7 +160,7 @@ export default async function ClubEditPage({ params }: { params: { id: string } 
         </div>
 
         {/* Spacer explicite pour Safari */}
-        <div style={{ height: 160, flexShrink: 0 }} />
+        <div style={{ height: 120, flexShrink: 0 }} />
       </div>
     </div>
   )
